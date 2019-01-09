@@ -1,0 +1,86 @@
+\documentclass[12pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\graphicspath{ {images/} }
+
+\usepackage[a4paper,width=150mm,top=25mm,bottom=25mm]{geometry}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhead[RO]{CH. \thechapter}
+
+\usepackage{caption}
+\usepackage{subcaption}
+
+\usepackage[backend=biber]{biblatex} 
+\addbibresource{references.bib}
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%% Begin Title Page %%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{titlepage}
+    \begin{center}
+    
+        \vspace*{2cm}
+        
+        \LARGE
+        Optimal Control: A Comparison in Performance of Reinforcement Learning versus Model Predictive Control \\
+        
+        \vspace{1cm}
+        
+        \normalsize by \\
+        
+        \vspace{1cm}
+        
+        \large Rui Nian \\
+        
+        \vspace{3.5cm}
+        
+        A thesis submitted in partial fulfillment of the requirements for the degree of \\
+        \vspace{1cm}
+        Masters of Science in Process Control \\
+        
+        \vspace{4cm}
+        
+        Department of Chemical and Materials Engineering \\
+        University of Alberta \\
+        
+        \vspace{1.5cm}
+        
+        \textcopyright \hspace{1mm} Rui Nian, 2019 \\
+        
+
+    \end{center}
+\end{titlepage}
+%%%%%%%%%%%%%%%%%%%%%%% End Title Page %%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%% Begin Main Document %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter*{Abstract}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\chapter*{Acknowledgements}
+
+\chapter*{Nomenclature}
+
+\chapter{Introduction}
+\input{chapters/Chapter1:Introduction.tex}
+
+\chapter{Markov Decision Processes}
+\input{chapters/Chapter2:MDP.tex}
+
+\chapter{Reinforcement Learning}
+\input{chapters/Chapter3:ReinforcementLearning.tex}
+
+\chapter{Model Predictive Control}
+\input{chapters/Chapter4:ModelPredictiveControl.tex}
+
+\chapter{Comparison of RL and MPC}
+\input{chapters/Chapter5:ComparisonofRLandMPC.tex}
+
+\printbibliography
+
+\end{document}

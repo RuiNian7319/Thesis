@@ -1,8 +1,28 @@
 \section{Introduction to Reinforcement Learning}
 
-There are four classes of machine learning: i) Supervised Learning, ii) Unsupervised Learning, iii) Semi-supervised learning, iv) Reinforcement learning.  Supervised learning is fitting a model to a set of labeled data provided by a subject matter expert.  Subsequently, unsupervised learning is used on unlabeled data sets.  The objective of unsupervised learning is to explore the data and identify hidden features. Semi-supervised learning combines the strengths of supervised and unsupervised learning, and is especially useful \cite{machine_learning}.  Often times, industrial data will be partially labelled due to the time and cost associated with data labelling.  For supervised and unsupervised learning, only the labeled and unlabeled data can be used, respectively.  However, all data can be used in semi-supervised learning. 
+There are four classes of machine learning: i) Supervised Learning, ii) Unsupervised Learning, iii) Semi-supervised learning, iv) Reinforcement learning.  Supervised learning is fitting a model to a set of labeled data provided by a subject matter expert.  Subsequently, unsupervised learning is used on unlabeled data sets.  The objective of unsupervised learning is to explore the data and identify hidden features. Semi-supervised learning combines the strengths of supervised and unsupervised learning, and is especially useful \cite{machine_learning}.  Often times, industrial data will be partially labelled due to the time and cost associated with data labelling.  For supervised and unsupervised learning, only the labeled and unlabeled data can be used, respectively.  However, all data can be used in semi-supervised learning. Finally, Reinforcement learning is used to find an optimal policy (i.e., optimal actions) through guidance from an internal scalar reward (feedback).  
 
-Reinforcement learning is a unique class of machine learning.  It is different from supervised learning because in the ideal case, \cite{sutton}
+\medskip
+Reinforcement learning consists of the following four elements:
+
+\begin{itemize}
+    \item Policy, $\pi$
+    \item Reward, $R$
+    \item Value Function, V(s)
+    \item Model (optional), $\dot{x} = Ax + Bu$
+\end{itemize}
+
+In rl.... explain the basics.
+
+\medskip
+Reinforcement learning is a unique class of machine learning.  An ideal supervised learning model can only be as good as the subject matter expert providing the labels to the data set, which may not be 100\%.  For example, in a complex control task, the control law is usually highly non-linear. Control experts can try to provide control strategies for such systems, but optimality may not be guaranteed for highly non-linear systems. Also, supervised learning is used to generalize responses for occurrences not present in the data \cite{sutton}.  Reinforcement learning works by directly interacting with the environment \textit{without labels}. Through adequate exploration, reinforcement learning will identify peculiar features to optimally control such problems [citation required].  Reinforcement learning is \textit{similar} to unsupervised learning in terms of identifying hidden structures within the environment.  However, reinforcement learning tries to maximize an internal scalar "reward" signal, rather than purely data mining.
+
+Evolutionary algorithms, a family of \textit{optimization} algorithms such as genetic algorithm, is most similar to reinforcement learning.  For a control problem
+
+
+Exploration vs exploit
+model based vs model free
+
 
 
 

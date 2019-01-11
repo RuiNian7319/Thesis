@@ -3,7 +3,7 @@
 
 \section{Introduction to Reinforcement Learning}
 
-In general terms, reinforcement learning is simply the learning an agent experiences through interactions with the environment.  For added intuition, Figure \ref{fig: simple_rl} shows the generic information flow of reinforcement learning.  An agent exists in an environment, and learns through interactions.  First, the agent observes some states, $x_t \in X$, from the environment (some states may be unobservable).  Given $x_t$, the agent performs some actions, $u_t \in U$ and receives a scalar reward signal, $r \in \mathbb{R}$.  Finally, the environment will transition to a new state, $x_{t+1}$, given probability $T(x_{t+1}, r | x, u)$.
+In general terms, reinforcement learning is simply the learning an agent experiences through interactions with the environment.  For added intuition, Figure \ref{fig: simple_rl} shows the generic information flow of reinforcement learning. First, the agent observes some states, $x_t \in X$, from the environment (some states may be unobservable).  Given $x_t$, the agent performs some actions, $u_t \in U$ and receives a scalar reward signal, $r \in \mathbb{R}$.  Finally, the environment will transition to a new state, $x_{t+1}$, given probability $T(x_{t+1}, r | x, u)$.
 
 \begin{figure}[h]
     \centering
@@ -22,10 +22,25 @@ Reinforcement learning consists of the following four elements:
     \item Model (optional), $\dot{x} = Ax + Bu$
 \end{itemize}
 
-The policy, $\pi$, of reinforcement learning is a direct mapping from $S \rightarrow A$.  To find the optimal policy, $\pi^*$, the agent is guided by an immediate scalar reward for each interaction (also called \textit{episode}). Policies that result in higher rewards are more likely to happen in the future, mutatis mutandis.  However, reinforcement learning is concerned with the long term success rather than immediate pleasure. Often times, long term success require short term sacrifice.  Thus, the value function, $V^{\pi}(s)$, is used to describe the long term expected reward under each policy.
+The policy, $\pi$, of reinforcement learning is a direct mapping from $S \rightarrow A$.  To find the optimal policy, $\pi^*$, the agent is guided by an immediate scalar reward for each interaction (also called \textit{episode}). Policies that result in higher rewards are more likely to happen in the future, mutatis mutandis.  However, reinforcement learning is concerned with the long term success rather than immediate pleasure. Often times, long term success require short term sacrifice.  Thus, the value function, $V^{\pi}(s)$, is used to describe the long term expected reward under each policy.  Initially, the value function for each state is initialized at zero.  After each episode, the value function will be updated to reflect the new knowledge obtained from the last episode through Equation \ref{eq: value_function}.
 
-Exploration vs exploit
-model based vs model free
+\begin{equation}
+    \centering
+    V(x_t) \leftarrow V(x_t) + \alpha [V(x_{t + 1}) - V(x_t)]
+    \label{eq: value_function}
+\end{equation}
+
+In Equation \ref{eq: value_function}, $\alpha$ represents the step-size parameter.  That is, how big each step update should be.  Once convergence is achieved for $V(x_t)$, the optimal policy can be described by Equation \ref{eq: opt_policy}.  
+
+\begin{equation}
+    \centering
+    \pi^*(s) = argmax_a q_{\pi}(s, a), \forall s 
+    \label{eq: opt_policy}
+\end{equation}
+
+Lastly, reinforcement learning \textit{can} consist of a model. Such cases are called \textit{model-based} reinforcement learning.  The model will be used for planning, and is a way for the agent to plan a control trajectory before they are experienced.  Contrarily, \textit{model-free} reinforcement learning learns \textit{explicitly} through interactions with the environment.
+
+One key topic of reinforcement learning is: \textbf{exploration} vs. \textbf{exploitation}.  At first, the agent must explore to learn the state space, $S$.  But the agent must know \textit{when} to stop exploring, and start exploiting (i.e., start taking advantage of what is known).  If the agent explores too much, lots of value is lost.  However, if the agent does not explore enough, the current policy may not be optimal and more value is lost long term.  Exploration vs. exploitation is one of the most important topics today in reinforcement learning, and the time to switch from exploration to exploitation will vary from problem to problem.
 
 \subsection{Reinforcement Learning's Uniqueness}
 Reinforcement learning is a unique class of machine learning.  An ideal supervised learning model can only be as good as the subject matter expert providing the labels to the data set, which may not be 100\%.  For example, in a complex control task, the control law is usually highly non-linear. Control experts can try to provide control strategies for such systems, but optimality may not be guaranteed for highly non-linear systems. Also, supervised learning is used to generalize responses for occurrences not present in the data \cite{sutton}.  Reinforcement learning works by directly interacting with the environment \textit{without labels}. Through adequate exploration, reinforcement learning will identify peculiar features to optimally control such problems [citation required].  Reinforcement learning is \textit{similar} to unsupervised learning in terms of identifying hidden structures within the environment.  However, reinforcement learning tries to maximize an internal scalar "reward" signal, rather than purely data mining.
@@ -33,14 +48,6 @@ Reinforcement learning is a unique class of machine learning.  An ideal supervis
 Evolutionary methods, a family of optimization algorithms such as genetic algorithm, is most similar to reinforcement learning.  For a control problem, such methods can apply multiple static policies for different operating regimes \cite{sutton}.  Policy search is conducted by first initiating $k$ random input trajectories of length $N$, generating input matrix $\mathbb{U}_{[k, N]} \in \pi$.  Subsequently, the loss, $J_U$, of each $U$ is calculated based on the objective function.  Input trajectories with the lowest loss move onto the next generation and generates new pseudo-random input trajectories.  This process is repeated until optimal policy, $\pi^*$ is found for each operating regime \cite{ga_for_control}.
 
 Evolutionary methods work well when the policy space is sufficiently small, easy to find, or a lot of time is available for optimization.  The biggest advantage of such methods compared to reinforcement learning is that the whole state does not need to be known.  However, such methods does not capture the reinforcement learning fundamentals of mapping $S \rightarrow A$.  Unlike evolutionary methods, reinforcement learning keeps memory of each indvidual interaction making it a more data efficient approach \cite{sutton}.
-
-
-Exploration vs exploit
-model based vs model free
-
-
-
-
 
 \subsection{Value-Iteration}
 \subsection{Policy-Iteration}

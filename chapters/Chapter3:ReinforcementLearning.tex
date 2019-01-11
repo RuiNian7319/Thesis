@@ -1,9 +1,11 @@
 \hspace{5mm} Machine learning consists of the following four classes: i) Supervised learning, ii) Unsupervised learning, iii) Semi-supervised learning, iv) Reinforcement learning.  Supervised learning is fitting a model to a set of labeled data provided by a subject matter expert.  Subsequently, unsupervised learning is used on unlabeled data sets.  The objective of unsupervised learning is to explore the data and identify hidden features. Semi-supervised learning combines the strengths of supervised and unsupervised learning, and is especially useful \cite{machine_learning}.  Often times, industrial data will be partially labelled due to the time and cost associated with data labelling.  For supervised and unsupervised learning, only the labeled and unlabeled data can be used, respectively.  However, all data can be used in semi-supervised learning which allows for maximized data efficiency and increased model performance. Finally, reinforcement learning is a goal-directed learning from interactions with the environment \cite{sutton}. It is used to find the optimal policy (i.e., optimal input trajectory) through guidance from an internal scalar reward (feedback).  
 
+Explain overview of what the layout of this chapter would be.
+
 
 \section{Introduction to Reinforcement Learning}
 
-In general terms, reinforcement learning is simply the learning an agent experiences through interactions with the environment.  For added intuition, Figure \ref{fig: simple_rl} shows the generic information flow of reinforcement learning. First, the agent observes some states, $x_t \in X$, from the environment (some states may be unobservable).  Given $x_t$, the agent performs some actions, $u_t \in U$ and receives a scalar reward signal, $r \in \mathbb{R}$.  Finally, the environment will transition to a new state, $x_{t+1}$, given probability $T(x_{t+1}, r | x, u)$.
+In general terms, reinforcement learning is simply the learning an agent experiences through interactions with the environment.  For added intuition, Figure \ref{fig: simple_rl} shows the generic information flow of reinforcement learning. First, the agent observes some states, $x_t \in X$, from the environment (some states may be unobservable).  Given $x_t$, the agent performs some actions, $u_t \in U$ and receives a scalar reward signal, $r_{t+1} \in \mathbb{R}$.  Finally, the environment will transition to a new state, $x_{t+1}$, given probability $P(x_{t+1}, r_{t+1} | x, u)$.
 
 \begin{figure}[h]
     \centering

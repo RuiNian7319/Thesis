@@ -3,7 +3,7 @@ Reinforcement learning is a goal-directed learning from interactions with the en
 
 \section{Introduction to Reinforcement Learning}
 
-In general terms, reinforcement learning is simply the learning an agent experiences through interactions with the environment.  For added intuition, Figure \ref{fig: simple_rl} shows the generic information flow of reinforcement learning. First, the agent observes some states, $x_t \in X$, from the environment (some states may be unobservable).  Given $x_t$, the agent performs some actions, $u_t \in U$ and receives a scalar reward signal, $r_{t+1} \in \mathbb{R}$.  Finally, the environment will transition to a new state, $x_{t+1}$, given probability $P(x_{t+1}, r_{t+1} | x, u)$.
+In general terms, reinforcement learning is simply the learning an agent experiences through interactions with the environment.  For added intuition, Figure \ref{fig: simple_rl} shows the generic information flow of reinforcement learning. First, the agent observes some states, $x_t \in \mathbb{X}$, from the environment (some states may be unobservable).  Given $x_t$, the agent performs some actions, $u_t \in \mathbb{U}$ and receives a scalar reward signal, $r_{t+1} \in \mathbb{R}$.  Finally, the environment will transition to a new state, $x_{t+1}$, given probability $P(x_{t+1}, r_{t+1} | x, u)$.
 
 \begin{figure}[h]
     \centering
@@ -40,8 +40,32 @@ In Equation \ref{eq: value_function}, $\alpha$ represents the step-size paramete
 
 Lastly, reinforcement learning \textit{can} consist of a model. Such cases are called \textit{model-based} reinforcement learning.  The model will be used for planning, and is a way for the agent to plan a control trajectory before they are experienced.  Contrarily, \textit{model-free} reinforcement learning learns \textit{explicitly} through interactions with the environment.
 
-One key topic of reinforcement learning is: \textbf{exploration} vs. \textbf{exploitation}.  At first, the agent must explore to learn the state space, $S$.  But the agent must know \textit{when} to stop exploring, and start exploiting (i.e., start taking advantage of what is known).  If the agent explores too much, lots of value is lost.  However, if the agent does not explore enough, the current policy may not be optimal and more value is lost long term.  Exploration vs. exploitation is one of the most important topics today in reinforcement learning, and the time to switch from exploration to exploitation will vary from problem to problem.
+One key topic of reinforcement learning is: \textbf{exploration} vs. \textbf{exploitation}.  At first, the agent must explore to learn the state space, $\mathbb{X}$.  But the agent must know \textit{when} to stop exploring, and start exploiting (i.e., start taking advantage of what is known).  If the agent explores too much, lots of value is lost.  However, if the agent does not explore enough, the current policy may not be optimal and more value is lost long term.  Exploration vs. exploitation is one of the most important topics today in reinforcement learning, and the time to switch from exploration to exploitation will vary between problems.  In control theory, exploration vs. exploitation is known as the conflict between identification (or estimation) and control \cite{explorevexploitcontrol}.  
 
+\subsection{Reinforcement Learning Basics}
+
+Reinforcement learning takes its roots from the \textit{k-armed bandit problem} that has been studied in engineering, psychology, and statistics.  Originally, the problem disregarded state information, and only worried about the optimal actions for solving \textit{one} specific situation \cite{thompson1, thompson2, robbins, bellman_bandit}.  As a natural extension, Barto, Sutton and Brouwer extended the idea to multi-situation systems \cite{bartosuttonbrouwer} through associative search, also known as \textit{contextual bandits}. The main objective of this algorithm was to find an optimal policy for each situation, $\pi^*(x)$.  However, it only concerns the immediate rewards and not the long term consequences.  Reinforcement learning was then developed to find the optimal policy for each situation and the onward trajectory there-forth.  
+
+\subsubsection{k-armed Bandit}
+
+The \textit{k-armed bandit} is the fundamentals to understanding modern reinforcement learning.  Here, an agent is present and must choose action $u$ from $\mathbb{U}$, where $\mathbb{U}$ has k choices.  After each action, a scalar reward from a stationary distribution will be returned to the agent as feedback.  The objective of the agent is to ultimately maximize reward over $N$ steps.  For each action, there is an expected reward called \textit{value}, given by Equation \ref{eq: value}.
+
+\begin{equation}
+    \centering
+    q_*(a) = \mathbb{E}[R_t | A_t = a]
+    \label{eq: value}
+\end{equation}
+
+The real value is unknown, however, an estimation can be computed and denoted as $Q_t(a)$.
+
+\subsubsection{Contextual Bandit}
+\subsubsection{The Reinforcement Learning Problem}
+
+\subsection{Dynamic Programming Methods}
+\subsubsection{Value-Iteration}
+\subsubsection{Policy-Iteration}
+\subsection{Monte Carlo Methods}
+\subsection{Temporal-Difference Methods}
 \subsection{Reinforcement Learning vs. Other "Learnings"}
 
 Machine learning consists of the following four classes: i) Supervised learning, ii) Unsupervised learning, iii) Semi-supervised learning, iv) Reinforcement learning.  Supervised learning is fitting a model to a set of labeled data provided by a subject matter expert.  Subsequently, unsupervised learning is used on unlabeled data sets.  The objective of unsupervised learning is to explore the data and identify hidden features. Semi-supervised learning combines the strengths of supervised and unsupervised learning, and is especially useful \cite{machine_learning}.  Often times, industrial data will be partially labelled due to the time and cost associated with data labelling.  For supervised and unsupervised learning, only the labeled and unlabeled data can be used, respectively.  However, all data can be used in semi-supervised learning which allows for maximized data efficiency and increased model performance. Finally, reinforcement learning is a goal-directed learning from interactions with the environment \cite{sutton}.
@@ -51,12 +75,6 @@ Reinforcement learning is a unique class of machine learning.  An ideal supervis
 Evolutionary methods, a family of optimization algorithms such as genetic algorithm, is most similar to reinforcement learning.  For a control problem, such methods can apply multiple static policies for different operating regimes \cite{sutton}.  Policy search is conducted by first initiating $k$ random input trajectories of length $N$, generating input matrix $\mathbb{U}_{[k, N]} \in \pi$.  Subsequently, the loss, $J_U$, of each $U$ is calculated based on the objective function.  Input trajectories with the lowest loss move onto the next generation and generates new pseudo-random input trajectories.  This process is repeated until optimal policy, $\pi^*$ is found for each operating regime \cite{ga_for_control}.
 
 Evolutionary methods work well when the policy space is sufficiently small, easy to find, or a lot of time is available for optimization.  The biggest advantage of such methods compared to reinforcement learning is that the whole state does not need to be known.  However, such methods does not capture the reinforcement learning fundamentals of mapping $S \rightarrow A$.  Unlike evolutionary methods, reinforcement learning keeps memory of each indvidual interaction making it a more data efficient approach \cite{sutton}.
-
-\subsection{Dynamic Programming Methods}
-\subsubsection{Value-Iteration}
-\subsubsection{Policy-Iteration}
-\subsection{Monte Carlo Methods}
-\subsection{Temporal-Difference Methods}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% End Section Intro to RL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

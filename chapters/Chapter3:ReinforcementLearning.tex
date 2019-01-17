@@ -1,4 +1,4 @@
-Reinforcement learning is a goal-directed learning from interactions with the environment \cite{sutton}. The main objectives of reinforcement learning are to identify hidden structures within the environment and to find the optimal policy (i.e., optimal input trajectory) through guidance from an internal scalar reward (feedback).  Modern reinforcement learning methods combines principles of optimal control and learning methods together to solve for the optimal control trajectory in an environment.  In this chapter, fundamental reinforcement learning concepts are first introduced.  Then, tabular based methods will be shown.  However, due to the "curse of dimensionality" of high dimensional problems, tabular based approaches fail to bear fruit.  To overcome these issues, deep neural networks will be used as function approximation, and deep reinforcement learning will be introduced.
+Reinforcement learning is a goal-directed learning from interactions with the environment \cite{sutton}. The main objectives of reinforcement learning are to identify hidden structures within the environment and to find the optimal policy (i.e., optimal input trajectory) through guidance from an internal scalar reward (feedback). Two distinct characteristics that deviate reinforcement learning from other methods are its trial \& error search to find the optimal policy, and its ability to identify delayed reward signals. Modern reinforcement learning methods combines principles of optimal control and learning methods together to solve for the optimal control trajectory in an environment.  In this chapter, fundamental reinforcement learning concepts are first introduced.  Then, tabular based methods will be shown.  However, due to the "curse of dimensionality" of high dimensional problems, tabular based approaches fail to bear fruit.  To overcome these issues, deep neural networks will be used as function approximation, and deep reinforcement learning will be introduced.
 
 
 \section{Introduction to Reinforcement Learning}
@@ -42,13 +42,15 @@ Lastly, reinforcement learning \textit{can} consist of a model. Such cases are c
 
 One key topic of reinforcement learning is: \textbf{exploration} vs. \textbf{exploitation}.  At first, the agent must explore to learn the state space, $\mathbb{X}$.  But the agent must know \textit{when} to stop exploring, and start exploiting (i.e., start taking advantage of what is known).  If the agent explores too much, lots of value is lost.  However, if the agent does not explore enough, the current policy may not be optimal and more value is lost long term.  Exploration vs. exploitation is one of the most important topics today in reinforcement learning, and the time to switch from exploration to exploitation will vary between problems.  In control theory, exploration vs. exploitation is known as the conflict between identification (or estimation) and control \cite{explorevexploitcontrol}.  
 
+Another important distinction between different reinforcement learning algorithms is \textbf{on-policy} vs. \textbf{off-policy}.  On-policy methods select actions that maximizes reward given the current knowledge of the agent.  Subsequently, off-policy methods perform exploratory actions for a chance that the explored action offers superior returns to the current best known action.
+
 \subsection{Reinforcement Learning Basics}
 
 Reinforcement learning takes its roots from the \textit{k-armed bandit problem} that has been studied in engineering, psychology, and statistics.  Originally, the problem disregarded state information, and only worried about the optimal actions for solving \textit{one} specific situation \cite{thompson1, thompson2, robbins, bellman_bandit}.  As a natural extension, Barto, Sutton and Brouwer extended the idea to multi-situation systems \cite{bartosuttonbrouwer} through associative search, also known as \textit{contextual bandits}. The main objective of this algorithm was to find an optimal policy for each situation, $\pi^*(x)$.  However, it only concerns the immediate rewards and not the long term consequences.  Reinforcement learning was then developed to find the optimal policy for each situation and the onward trajectory there-forth.  
 
-\subsubsection{k-armed Bandit}
+\subsubsection{\textit{k}-armed Bandit}
 
-The \textit{k-armed bandit} is the fundamentals to understanding modern reinforcement learning.  Here, an agent is present and must choose action $u$ from $\mathbb{U}$, where $\mathbb{U}$ has k choices.  After each action, a scalar reward from a stationary distribution will be returned to the agent as feedback.  The objective of the agent is to ultimately maximize reward over $N$ steps.  For each action, there is an expected reward called \textit{value}, given by Equation \ref{eq: value}.
+The \textit{k}-armed bandit is the fundamentals to understanding modern reinforcement learning.  Here, an agent is present and must choose action $u$ from $\mathbb{U}$, where $\mathbb{U}$ has $k$ choices.  After each action, a scalar reward from a stationary distribution will be returned to the agent as feedback.  The objective of the agent is to ultimately maximize reward over $N$ steps.  For each action, there is an expected reward called \textit{value}, given by Equation \ref{eq: value}.
 
 \begin{equation}
     \centering
@@ -56,9 +58,35 @@ The \textit{k-armed bandit} is the fundamentals to understanding modern reinforc
     \label{eq: value}
 \end{equation}
 
-The real value is unknown, however, an estimation can be computed and denoted as $Q_t(a)$.
+The real value is unknown, however, an estimation can be computed and is denoted as $Q_t(a)$.  Given all $Q_t(a)$ is maintained, at any time, one $Q_t(a)$ will be greater than all others.  Picking the action that corresponds to the maximum $Q_t(a)$ is known as \textit{greedy}, and the agent is said to be \textit{exploiting}.  If a non-maximum action is picked, the agent is \textit{exploring} \cite{sutton}.
+
+Action selection based on estimating the value of actions are called \textbf{Action-value methods} \cite{action_value_method}.  At time $t$, the estimate of the value is given by Equation \ref{eq: value_est} \cite{sutton}.
+
+\begin{equation}
+    \centering
+    Q_t(a) = \frac{Sum \; of \; rewards \; when \; a \; taken \; prior \; to \; t}
+    {Number \; of \; times \; a \; taken \; prior \; to \; t} 
+    = \frac{\sum_{i=1}^{t - 1} R_i \mathbbm{1}_{A_i=a}}
+    {\sum_{i = 1}^{t - 1} \mathbbm{1}_{A_i = a}}
+    \label{eq: value_est}
+\end{equation}
+
+where $\mathbbm{1}$ denotes 1 if the condition is true, else 0.  As $t \rightarrow \infty$, $Q_t(a) \rightarrow q_*(a)$.  Action selection is based on Equation \ref{eq: bandit_action_selection}.
+
+\begin{equation}
+    \centering
+    A_t = \argmax_a Q_t(a)
+    \label{eq: bandit_action_selection}
+\end{equation}
+
+However, initial successful episodes may cause the agent to be stuck at local minimums. To overcome this, an \textit{off-policy} action selection method called $\epsilon$-greedy can be introduced to promote exploration. In this method, the agent will perform a random action with $\epsilon$ probability (greedy action can be performed).  Higher $\epsilon$ results in more exploratory moves.  Consequently, all $u \in \mathbb{U}$ will be picked many times and by the law of large numbers, $Q_t(a) \rightarrow q_*(a)$ \cite{large_numbers}. During implementation, $\epsilon$ should decay out as $Q_t(a)$ approaches $q_*(a)$ to ensure knowledge of the agent is being adequately exploited. For non-stationary problems, $\epsilon$ should always be greater than zero to ensure other action values have not changed.
+
+Algorithms to solve the \textit{k}-armed bandit problem are easily applied to situations where the concept of state is inert and only the actions are of concern;  a near impossibility in the real world.  
 
 \subsubsection{Contextual Bandit}
+
+
+
 \subsubsection{The Reinforcement Learning Problem}
 
 \subsection{Dynamic Programming Methods}
@@ -84,6 +112,7 @@ Evolutionary methods work well when the policy space is sufficiently small, easy
 \section{Tabular Q-learning}
 \subsection{Introduction to Q-learning}
 \subsubsection{Adaptation to Non-Stationary Problems}
+\subsubsection{Incremental Implementation}
 \subsubsection{Action Selection}
 \subsubsection{Exploration in Tabular Q-learning}
 \subsubsection{Reward Functions}

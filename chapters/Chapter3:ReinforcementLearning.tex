@@ -79,15 +79,34 @@ where $\mathbbm{1}$ denotes 1 if the condition is true, else 0.  As $t \rightarr
     \label{eq: bandit_action_selection}
 \end{equation}
 
-However, initial successful episodes may cause the agent to be stuck at local minimums. To overcome this, an \textit{off-policy} action selection method called $\epsilon$-greedy can be introduced to promote exploration. In this method, the agent will perform a random action with $\epsilon$ probability (greedy action can be performed).  Higher $\epsilon$ results in more exploratory moves.  Consequently, all $u \in \mathbb{U}$ will be picked many times and by the law of large numbers, $Q_t(a) \rightarrow q_*(a)$ \cite{large_numbers}. During implementation, $\epsilon$ should decay out as $Q_t(a)$ approaches $q_*(a)$ to ensure knowledge of the agent is being adequately exploited. For non-stationary problems, $\epsilon$ should always be greater than zero to ensure other action values have not changed.
+However, initial successful episodes may cause the agent to be stuck at local minimums. To overcome this, an \textit{off-policy} action selection method called $\epsilon$-greedy can be introduced to promote exploration. In this method, the agent will perform a random action with $\epsilon$ probability (greedy action can be performed).  Higher $\epsilon$ results in more exploratory moves.  Consequently, all $u \in \mathbb{U}$ will be picked many times and by the law of large numbers, $Q_t(a) \rightarrow q_*(a)$ \cite{large_numbers}. Figure \ref{fig: eps_figure} shows the effect of $\epsilon$ on the performance of the agent.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.38]{images/eps_vs_optAction.png}
+    \caption{Average performance of three agents using different $\epsilon$.  The data is averaged over 2000 runs.  Figure from \textit{Reinforcement Learning: An Introduction} by Sutton and Barto (2018).}
+    \label{fig: eps_figure}
+\end{figure}
+
+During implementation, $\epsilon$ should decay out as $Q_t(a)$ approaches $q_*(a)$ to ensure knowledge of the agent is being adequately exploited. For non-stationary problems, $\epsilon$ should always be greater than zero to ensure other action values have not changed.
 
 Algorithms to solve the \textit{k}-armed bandit problem are easily applied to situations where the concept of state is inert and only the actions are of concern;  a near impossibility in the real world.  
 
 \subsubsection{Contextual Bandit}
 
+A natural extension of the \textit{k}-armed bandit is associative search.  In associative search (sometimes called contextual bandit), different policies are associated with different situations \cite{bartosuttonbrouwer}.  Equation \ref{eq: state-action-value} is the extension of Equation \ref{eq: value} in the associative search problem.
 
+\begin{equation}
+    \centering
+    q_*(x, u) = \mathbb{E}[R_t | X_t = x, U_t = u]
+    \label{eq: state-action-value}
+\end{equation}
+
+Associative search is known as the method between \textit{k}-armed bandits and reinforcement learning.  In associative search, the objective is to associate optimal policies to different situations, but only maximizing the \textit{immediate} reward.  Often times, near term sacrifices are required to initiate the trajectory to a large lump sum reward at the terminal state.  For example, heavy capital and time investment is required for University in the short term.  However, the long term gain is so great that it outweighs the short term losses, making going to University an optimal policy for many individuals.
 
 \subsubsection{The Reinforcement Learning Problem}
+
+In order to find the true optimal policy (i.e., policy that returns the greatest rewards over a long time period), the topic of reinforcement learning is developed.  In reinforcement learning, \textit{sequential decision making} is explored to identify the delayed reward signals from different actions and to ultimately find the optimal policy, $\pi^*$.  In the next sub-sections, the three fundamental reinforcement learning methods (Dynamic Programming, Monte Carlo, Temporal-Difference) will be introduced.
 
 \subsection{Dynamic Programming Methods}
 \subsubsection{Value-Iteration}

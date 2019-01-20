@@ -92,7 +92,7 @@ Due to the difficulty of transfer function simulations in Python, the model was 
 
 \begin{equation}
     \centering
-    Y_1(t) =  
+    y_1(t) =  
     \begin{matrix}
         [0.7665 & 0 & -0.9 & 0]
     \end{matrix}
@@ -138,7 +138,7 @@ Due to the difficulty of transfer function simulations in Python, the model was 
 
 \begin{equation}
     \centering
-    Y_2(t) =  
+    y_2(t) =  
     \begin{matrix}
         [0 & 0.6055 & 0 & -1.3472]
     \end{matrix}
@@ -149,8 +149,9 @@ Due to the difficulty of transfer function simulations in Python, the model was 
 
 \subsection{Model Validation}
 
-To ensure the state space model is equivalent to the original transfer function model, step tests were conducted on both systems.  Explain step test and inputs...
+To ensure the state space model is equivalent to the original transfer function model, step tests were conducted on both systems.  The input for $u_1$ and $u_2$ were set to 1 for 150 time steps and the output trajectory is shown in Figure \cite{XXX} for both the transfer function and state space models. From Figure \cite{XXX}, it can be seen that both trajectories are identical. Explain step test and inputs...
 
+To further confirm the validity of the results, 
 The steady state problem was also calculated to ensure simulations were giving correct results...
 
 \section{Fault in the System}

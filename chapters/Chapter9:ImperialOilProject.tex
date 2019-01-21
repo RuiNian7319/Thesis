@@ -15,11 +15,11 @@ A process flow diagram of the Wood-Berry tower is shown in Figure \ref{fig: wood
 \begin{figure}[h]
     \centering
     \includegraphics[scale=0.45]{images/woodberry.png}
-    \caption{A schematic diagram of a binary distillation tower.  Original figure from Dr. Seborg from UC Santa Barbara.}
+    \caption{A schematic diagram of a binary distillation tower.  Original figure from Dr. Seborg from UC Santa Barbara with minor edits for enhanced clarity.}
     \label{fig: woodberry}
 \end{figure}
 
-In the Wood-Berry distillation tower, the goal is to completely separate methanol and water.  Methanol has a boiling point of 64.7 \textdegree C whereas pure liquid water has a boiling point of 100 \textdegree C \cite{sonntag_thermo}. Thus, making methanol the distillate and water is the bottoms product. Additional detailed information about the operation and inner workings of distillation towers can be found in \cite{henry_distillation}.  
+In the Wood-Berry distillation tower, the goal is to completely separate methanol and water.  Methanol has a boiling point of 64.7 \textdegree C whereas pure liquid water has a boiling point of 100 \textdegree C \cite{sonntag_thermo}. Thus, making methanol the distillate and water is the bottoms product. $X_D$ and $X_B$ are the distillate and bottoms $\%MeOH$, respectively. The objective is to achieve 100\% $X_D$ in the distillate, while achieving 0\% $X_B$. Additional detailed information about the operation and inner workings of distillation towers can be found in \cite{henry_distillation}.  
 
 \subsection{Wood-Berry Models}
 The transfer functions that realize  the Wood-Berry distillation tower is given in Equation \ref{eq: woodberry_tf} \cite{mpc_for_distillation_tower}.
@@ -53,7 +53,15 @@ where: \\
     $
 \end{center}
 
-Due to the difficulty of transfer function simulations in Python, the model was converted into state space form.  After conversion, two control loops had to be developed to realize the system because of inconsistencies in the process time delay for $u_1$.  Equations \ref{eq: x_ss_eq1} and \ref{eq: x_ss_eq2} are the state space models for the distillate and bottoms compositions, respectively.
+Due to the difficulty of transfer function simulations in Python, the model was converted into state space form.  After conversion, two control loops had to be developed to realize the system because of inconsistencies in the input time delay.  Equations \ref{eq: x_ss_eq1} and \ref{eq: x_ss_eq2} are the state space models for the distillate and bottoms compositions, respectively.  The initial states were assumed to be all zero.
+
+\begin{equation}
+    \centering
+    x_0 = 
+    \begin{matrix}
+        [0 & 0 & 0 & 0]
+    \end{matrix}
+\end{equation}
 
 \begin{equation}
     \centering
@@ -92,13 +100,14 @@ Due to the difficulty of transfer function simulations in Python, the model was 
 
 \begin{equation}
     \centering
-    y_1(t) =  
+    X_D(t) =  
     \begin{matrix}
         [0.7665 & 0 & -0.9 & 0]
     \end{matrix}
     \begin{matrix}
         [x_1 & x_2 & x_3 & x_4]^T
     \end{matrix}
+    \label{eq: X_D_output}
 \end{equation}
 
 \begin{equation}
@@ -138,21 +147,206 @@ Due to the difficulty of transfer function simulations in Python, the model was 
 
 \begin{equation}
     \centering
-    y_2(t) =  
+    X_B(t) =  
     \begin{matrix}
         [0 & 0.6055 & 0 & -1.3472]
     \end{matrix}
     \begin{matrix}
         [x_1 & x_2 & x_3 & x_4]^T
     \end{matrix}
+    \label{eq: X_B_output}
 \end{equation}
 
 \subsection{Model Validation}
 
-To ensure the state space model is equivalent to the original transfer function model, step tests were conducted on both systems.  The input for $u_1$ and $u_2$ were set to 1 for 150 time steps and the output trajectory is shown in Figure \cite{XXX} for both the transfer function and state space models. From Figure \cite{XXX}, it can be seen that both trajectories are identical. Explain step test and inputs...
+To ensure the state space model is equivalent to the original transfer function model, step tests were conducted on both systems.  The input for $u_1$ and $u_2$ were set to 1 for 150 time steps and the output trajectory is shown in Figures \ref{fig: X_D_Benchmark} and \ref{fig: X_B_Benchmark} for both the transfer function and state space models. From Figures \ref{fig: X_D_Benchmark} and \ref{fig: X_B_Benchmark}, it can be seen that both trajectories are identical. 
 
-To further confirm the validity of the results, 
-The steady state problem was also calculated to ensure simulations were giving correct results...
+\begin{equation}
+    \centering
+    u_t = 
+    \begin{bmatrix}
+        1  &  1  &  ...  &  1 \\
+        1  &  1  &  ...  &  1
+    \end{bmatrix}_{2 \times N}
+    \; where \; N = 150
+    \label{eq: step_test_input}
+\end{equation}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.35]{images/X_D_Benchmark.png}
+    \caption{A comparison of the $X_D$ trajectory for the transfre function and state space models}
+    \label{fig: X_D_Benchmark}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.35]{images/X_B_Benchmark.png}
+    \caption{A comparison of the $X_B$ trajectory for the transfer function and state space models}
+    \label{fig: X_B_Benchmark}
+\end{figure}
+
+To further confirm the validity of the results, the steady state problem was also calculated to ensure simulations were giving correct results. During steady state, the change in states, $\dot{x_i}$, are zero.
+
+\begin{equation}
+    \centering
+    \dot{x_1}, \dot{x_2}, \dot{x_3}, \dot{x_4} = 0
+\end{equation}
+
+Given that $u_1$ and $u_2$ are one (from Equation \ref{eq: step_test_input}), all states can be analytically solved.  Delays will be omitted because the inputs are assumed to be identical for 150 time steps. Equations \ref{eq: x1_analytical} - \ref{eq: x4_analytical} shows the numerical solution to each state at steady state.
+
+{\setstretch{0.5}
+\begin{equation}
+    \centering
+    x_1 = 16.7
+    \label{eq: x1_analytical}
+\end{equation}
+
+\begin{equation}
+    \centering
+    x_2 = 10.9
+    \label{eq: x2_analytical}
+\end{equation}
+
+\begin{equation}
+    \centering
+    x_3 = 21.0
+    \label{eq: x3_analytical}
+\end{equation}
+
+\begin{equation}
+    \centering
+    x_4 = 14.4
+    \label{eq: x4_analytical}
+\end{equation}
+}
+
+Combining Equations \ref{eq: X_D_output} and \ref{eq: X_B_output} with Equations \ref{eq: x1_analytical} - \ref{eq: x4_analytical}, the steady state values for $X_D$ and $X_B$ are given by Equations \ref{eq: final_xd} and \ref{eq: final_xb}, respectively.
+
+{\setstretch{0.5}
+\begin{equation}
+    \centering
+    X_D = 0.767x_1 - 0.900x_3
+\end{equation}
+
+\begin{equation}
+    \centering
+    X_D = 0.767(16.7) - 0.900(21.0) = -6.1
+    \label{eq: final_xd}
+\end{equation}
+
+\begin{equation}
+    \centering
+    X_B = 0.606x_2 - 1.35x_4
+\end{equation}
+
+\begin{equation}
+    \centering
+    X_B = 0.606(10.9) - 1.35(14.4) = -12.8
+    \label{eq: final_xb}
+\end{equation}
+}
+
+Comparing the analytical steady state solutions found for $X_D$ and $X_B$ to the final steady state values reached in Figures \ref{fig: X_D_Benchmark} and \ref{fig: X_B_Benchmark}, it can be seen that the solutions are identical; further confirming the models validity.
+
+\section{Finding the Optimal Solution}
+
+The optimal solution for the Wood-Berry distillation column is given by Equations \ref{eq: xd_optimal} and \ref{eq: xb_optimal}, i.e., perfect separation of methanol from water. To obtain the ideal steady state inputs, $u_1^*$ and $u_2^*$, Equations \ref{eq: final_xd} and \ref{eq: final_xb} are solved with the conditions:
+
+{\setstretch{0.5}
+\begin{equation}
+    \centering
+    X_D^* = 1
+    \label{eq: xd_optimal}
+\end{equation}
+
+\begin{equation}
+    \centering
+    X_B^* = 0
+    \label{eq: xb_optimal}
+\end{equation}
+}
+
+By solving Equations \ref{eq: X_D_output} and \ref{eq: X_B_output} for $x_1, x_2, x_3$ and $x_4$ when delays are omitted and $\dot{x}_i$ are zero, the following equations are obtained: \\
+
+{\setstretch{0.5}
+\begin{equation}
+    \centering
+    x_1 = 16.7u_1
+    \label{eq: x_1_ss_opt}
+\end{equation}
+
+\begin{equation}
+    \centering
+    x_2 = 10.91u_1
+\end{equation}
+
+\begin{equation}
+    \centering
+    x_3 = 21.0u_2
+\end{equation}
+
+\begin{equation}
+    \centering
+    x_4 = 14.4u_2
+    \label{eq: x_4_ss_opt}
+\end{equation}
+}
+
+Combining Equations \ref{eq: x_1_ss_opt} - \ref{eq: x_4_ss_opt} with \ref{eq: final_xd} and \ref{eq: final_xb}, the optimal inputs are analytically solved and are given by: \\
+
+{\setstretch{0.5}
+\centering
+$X_D^* = 0.767(16.7)u_1 - 0.900(21.0)u_2$
+
+\begin{equation}
+    \centering
+    1 = 12.8u_1 - 18.9u_2
+    \label{eq: opt_xd}
+\end{equation}
+}
+
+{\setstretch{0.5}
+\centering
+$X_B^* = 0.606(10.9)u_1 - 1.347(14.4)u_2$
+
+\begin{equation}
+    \centering
+    0 = 6.6u_1 - 19.5u_2
+    \label{eq: opt_xb}
+\end{equation}
+}
+
+Combining Equations \ref{eq: opt_xd} and \ref{eq: opt_xb}, the optimal steady state inputs are: \\
+
+{\setstretch{0.5}
+\begin{equation}
+    \centering
+    u_{1, ss}^* = 0.157
+\end{equation}
+
+\begin{equation}
+    \centering
+    u_{2, ss}^* = 0.053
+\end{equation}
+}
+
+\subsubsection{Simulating the Optimal Solution}
+Figures \ref{fig: optimal_ss_xd_xb} show the trajectories of $X_D$ and $X_B$ given the optimal control input.
+
+\begin{figure}[h]
+     \centering
+     \begin{subfigure}[b]{0.48\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/optimal_ss_xd.png}
+     \end{subfigure}
+     \begin{subfigure}[b]{0.48\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/optimal_ss_xb.png}
+     \end{subfigure}
+     \caption{Trajectories of $X_D$ and $X_B$ using optimal steady state trajectories, $u_{ss}^*.$}
+     \label{fig: optimal_ss_xd_xb}
+\end{figure}
 
 \section{Fault in the System}
 

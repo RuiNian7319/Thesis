@@ -159,7 +159,7 @@ Due to the difficulty of transfer function simulations in Python, the model was 
 
 \subsection{Model Validation}
 
-To ensure the state space model is equivalent to the original transfer function model, step tests were conducted on both systems.  The input for $u_1$ and $u_2$ were set to 1 for 150 time steps and the output trajectory is shown in Figures \ref{fig: X_D_Benchmark} and \ref{fig: X_B_Benchmark} for both the transfer function and state space models. From Figures \ref{fig: X_D_Benchmark} and \ref{fig: X_B_Benchmark}, it can be seen that both trajectories are identical. 
+To ensure the state space model is equivalent to the original transfer function model, step tests were conducted on both systems.  The input for $u_1$ and $u_2$ were set to 1 for 150 time steps and the output trajectory is shown in Figure \ref{fig: step_test_plots} for both the transfer function and state space models. From Figure \ref{fig: step_test_plots}, it can be seen that both trajectories are identical. 
 
 \begin{equation}
     \centering
@@ -174,16 +174,9 @@ To ensure the state space model is equivalent to the original transfer function 
 
 \begin{figure}[h]
     \centering
-    \includegraphics[scale=0.35]{images/X_D_Benchmark.png}
-    \caption{A comparison of the $X_D$ trajectory for the transfre function and state space models}
-    \label{fig: X_D_Benchmark}
-\end{figure}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[scale=0.35]{images/X_B_Benchmark.png}
-    \caption{A comparison of the $X_B$ trajectory for the transfer function and state space models}
-    \label{fig: X_B_Benchmark}
+    \includegraphics[scale=0.42]{images/step_test_plots.png}
+    \caption{A comparison of the $X_D$ and $X_B$ trajectories for the transfer function and state space models}
+    \label{fig: step_test_plots}
 \end{figure}
 
 To further confirm the validity of the results, the steady state problem was also calculated to ensure simulations were giving correct results. During steady state, the change in states, $\dot{x_i}$, are zero.
@@ -221,7 +214,7 @@ Given that $u_1$ and $u_2$ are one (from Equation \ref{eq: step_test_input}), al
 \end{equation}
 }
 
-Combining Equations \ref{eq: X_D_output} and \ref{eq: X_B_output} with Equations \ref{eq: x1_analytical} - \ref{eq: x4_analytical}, the steady state values for $X_D$ and $X_B$ are given by Equations \ref{eq: final_xd} and \ref{eq: final_xb}, respectively.
+Combining Equations \ref{eq: X_D_output} and \ref{eq: X_B_output} with Equations \ref{eq: x1_analytical} - \ref{eq: x4_analytical}, the steady state values for $X_D$ and $X_B$ are given by Equations \ref{eq: final_xd} and \ref{eq: final_xb}, respectively. \\
 
 {\setstretch{0.5}
 \begin{equation}
@@ -247,7 +240,7 @@ Combining Equations \ref{eq: X_D_output} and \ref{eq: X_B_output} with Equations
 \end{equation}
 }
 
-Comparing the analytical steady state solutions found for $X_D$ and $X_B$ to the final steady state values reached in Figures \ref{fig: X_D_Benchmark} and \ref{fig: X_B_Benchmark}, it can be seen that the solutions are identical; further confirming the models validity.
+Comparing the analytical steady state solutions found for $X_D$ and $X_B$ to the final steady state values reached in Figures \ref{fig: step_test_plots} it can be seen that the solutions are identical; further confirming the models validity.
 
 \section{Finding the Optimal Solution}
 
@@ -336,15 +329,8 @@ Figures \ref{fig: optimal_ss_xd_xb} show the trajectories of $X_D$ and $X_B$ giv
 
 \begin{figure}[h]
      \centering
-     \begin{subfigure}[b]{0.48\textwidth}
-         \centering
-         \includegraphics[width=\textwidth]{images/optimal_ss_xd.png}
-     \end{subfigure}
-     \begin{subfigure}[b]{0.48\textwidth}
-         \centering
-         \includegraphics[width=\textwidth]{images/optimal_ss_xb.png}
-     \end{subfigure}
-     \caption{Trajectories of $X_D$ and $X_B$ using optimal steady state trajectories, $u_{ss}^*.$}
+      \includegraphics[scale=0.42]{images/optimal_input_plots.png}
+     \caption{Trajectories of $X_D$ and $X_B$ using optimal steady state inputs, $u_{ss}^*.$}
      \label{fig: optimal_ss_xd_xb}
 \end{figure}
 

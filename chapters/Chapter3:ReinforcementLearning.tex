@@ -3,7 +3,68 @@ Reinforcement learning is a goal-directed learning algorithm which continually i
 
 \section{Introduction to Reinforcement Learning}
 
-In general terms, reinforcement learning is simply the learning an agent experiences through interactions with the environment.  For added intuition, Figure \ref{fig: simple_rl} shows the generic information flow of reinforcement learning. First, the agent observes some states, $x_t \in \mathbb{X}$, from the environment (some states may be unobservable).  Given $x_t$, the agent performs some actions, $u_t \in \mathbb{U}$ and receives a scalar reward signal, $r_{t+1} \in \mathbb{R}$.  Finally, the environment will transition to a new state, $x_{t+1}$, given probability $P(x_{t+1}, r_{t+1} | x, u)$.
+Reinforcement learning takes its roots from the \textit{k}-armed bandit problem that has been studied in engineering, psychology, and statistics.  Originally, the problem disregarded state information, and only worried about the optimal actions for solving \textit{one} specific situation \cite{thompson1, thompson2, robbins, bellman_bandit}.  As a natural extension, Barto, Sutton and Brouwer extended the idea to multi-situation systems \cite{bartosuttonbrouwer} through associative search, also known as \textit{contextual bandits}. The main objective of this algorithm was to find an optimal policy for each situation, $\pi^*(x)$.  However, it only concerns the immediate rewards and not the long term consequences. Reinforcement learning was then developed to find the optimal policy for each situation and the onward trajectory there-forth.  
+
+\subsubsection{\textit{k}-armed Bandit}
+
+The \textit{k}-armed bandit is the fundamentals to understanding modern reinforcement learning.  Here, an agent is present and must choose action $u$ from $\mathcal{U}$, where $\mathcal{U}$ has $k$ choices.  After each action, a scalar reward from a stationary distribution will be returned to the agent as feedback.  The objective of the agent is to ultimately maximize reward over $N$ steps.  For each action, there is an expected reward called \textit{value}, given by Equation \ref{eq: value}.
+
+\begin{equation}
+    \centering
+    q_*(a) = \mathbb{E}[R_t | A_t = a]
+    \label{eq: value}
+\end{equation}
+
+The real value is unknown, however, an estimation can be computed and is denoted as $Q_t(a)$.  Given all $Q_t(a)$ is maintained, at any time, one $Q_t(a)$ will be greater than all others.  Picking the action that corresponds to the maximum $Q_t(a)$ is known as \textit{greedy}, and the agent is said to be \textit{exploiting}.  If a non-maximum action is picked, the agent is \textit{exploring} \cite{sutton}.
+
+Action selection based on estimating the value of actions are called \textbf{Action-value methods} \cite{action_value_method}.  At time $t$, the estimate of the value is given by Equation \ref{eq: value_est} \cite{sutton}.
+
+\begin{equation}
+    \centering
+    Q_t(a) = \frac{Sum \; of \; rewards \; when \; a \; taken \; prior \; to \; t}
+    {Number \; of \; times \; a \; taken \; prior \; to \; t} 
+    = \frac{\sum_{i=1}^{t - 1} R_i \mathbbm{1}_{A_i=a}}
+    {\sum_{i = 1}^{t - 1} \mathbbm{1}_{A_i = a}}
+    \label{eq: value_est}
+\end{equation}
+where $\mathbbm{1}$ denotes 1 if the condition is true, else 0.  As $t \rightarrow \infty$, $Q_t(a) \rightarrow q_*(a)$.  Action selection is based on Equation \ref{eq: bandit_action_selection}.
+
+\begin{equation}
+    \centering
+    A_t = \argmax_a Q_t(a)
+    \label{eq: bandit_action_selection}
+\end{equation}
+
+However, initial successful episodes may cause the agent to be stuck at local minimums. To overcome this, a semi-stochastic action selection method called $\epsilon$-greedy can be introduced to promote exploration. In this method, the agent will perform a random action with $\epsilon$ probability (greedy action can be performed).  Higher $\epsilon$ results in more exploratory moves.  Consequently, all $u \in \mathcal{U}$ will be picked many times and by the law of large numbers, $Q_t(a) \rightarrow q_*(a)$ \cite{large_numbers}. Figure \ref{fig: eps_figure} shows the effect of $\epsilon$ on the performance of the agent.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.38]{images/eps_vs_optAction.png}
+    \caption{Average performance of three agents using different $\epsilon$.  The data is averaged over 2000 runs.  Figure from \textit{Reinforcement Learning: An Introduction} by Sutton and Barto (2018).}
+    \label{fig: eps_figure}
+\end{figure}
+
+During implementation, $\epsilon$ should decay out as $Q_t(a)$ approaches $q_*(a)$ to ensure knowledge of the agent is being adequately exploited. For non-stationary problems, $\epsilon > 0 \; \forall t$ to ensure other action values have not changed.
+
+Algorithms to solve the \textit{k}-armed bandit problem are easily applied to situations where the concept of state is inert and only the actions are of concern;  a near impossibility in the real world.  
+
+\subsubsection{Contextual Bandit}
+
+A natural extension of the \textit{k}-armed bandit is associative search.  In associative search (sometimes called contextual bandit), different policies are associated with different situations \cite{bartosuttonbrouwer}.  Equation \ref{eq: state-action-value} is the extension of Equation \ref{eq: value} in the associative search problem.
+
+\begin{equation}
+    \centering
+    q_*(x, u) = \mathbb{E}[R_t | X_t = x, U_t = u]
+    \label{eq: state-action-value}
+\end{equation}
+
+Associative search is known as the method between \textit{k}-armed bandits and reinforcement learning.  In associative search, the objective is to associate optimal policies to different situations, but only maximizing the \textit{immediate} reward.  Often times, near term sacrifices are required to initiate the trajectory to a large lump sum reward at the terminal state.  For example, heavy capital and time investment is required for University in the short term.  However, the long term gain is so great that it outweighs the short term losses, making going to University an optimal policy for many individuals.
+
+\subsubsection{The Reinforcement Learning Problem}
+
+In order to find the true optimal policy (i.e., policy that returns the greatest rewards over a long time period), the topic of reinforcement learning is developed.  In reinforcement learning, sequential decision making is explored to identify the delayed reward signals from different actions and to ultimately find the optimal policy, $\pi^*$.  
+
+In general terms, reinforcement learning is simply the learning an agent experiences through interactions with the environment.  For added intuition, Figure \ref{fig: simple_rl} shows the generic information flow of reinforcement learning. First, the agent observes some states, $x_t \in \mathcal{X}$, from the environment (some states may be unobservable).  Given $x_t$, the agent performs some actions, $u_t \in \mathcal{U}$ and receives a scalar reward signal, $r_{t+1} \in \mathcal{R}$.  Finally, the environment will transition to a new state, $x_{t+1}$, given probability $P(x_{t+1}, r_{t+1} | x, u)$.
 
 \begin{figure}[h]
     \centering
@@ -44,69 +105,7 @@ One key topic of reinforcement learning is: \textbf{exploration} vs. \textbf{exp
 
 Another important distinction between different reinforcement learning algorithms is \textbf{on-policy} vs. \textbf{off-policy}.  On-policy methods select actions that maximizes reward given the current knowledge of the agent.  Subsequently, off-policy methods perform exploratory actions for a chance that the explored action offers superior returns to the current best known action.
 
-\subsection{Reinforcement Learning Basics}
-
-Reinforcement learning takes its roots from the \textit{k-armed bandit problem} that has been studied in engineering, psychology, and statistics.  Originally, the problem disregarded state information, and only worried about the optimal actions for solving \textit{one} specific situation \cite{thompson1, thompson2, robbins, bellman_bandit}.  As a natural extension, Barto, Sutton and Brouwer extended the idea to multi-situation systems \cite{bartosuttonbrouwer} through associative search, also known as \textit{contextual bandits}. The main objective of this algorithm was to find an optimal policy for each situation, $\pi^*(x)$.  However, it only concerns the immediate rewards and not the long term consequences.  Reinforcement learning was then developed to find the optimal policy for each situation and the onward trajectory there-forth.  
-
-\subsubsection{\textit{k}-armed Bandit}
-
-The \textit{k}-armed bandit is the fundamentals to understanding modern reinforcement learning.  Here, an agent is present and must choose action $u$ from $\mathbb{U}$, where $\mathbb{U}$ has $k$ choices.  After each action, a scalar reward from a stationary distribution will be returned to the agent as feedback.  The objective of the agent is to ultimately maximize reward over $N$ steps.  For each action, there is an expected reward called \textit{value}, given by Equation \ref{eq: value}.
-
-\begin{equation}
-    \centering
-    q_*(a) = \mathbb{E}[R_t | A_t = a]
-    \label{eq: value}
-\end{equation}
-
-The real value is unknown, however, an estimation can be computed and is denoted as $Q_t(a)$.  Given all $Q_t(a)$ is maintained, at any time, one $Q_t(a)$ will be greater than all others.  Picking the action that corresponds to the maximum $Q_t(a)$ is known as \textit{greedy}, and the agent is said to be \textit{exploiting}.  If a non-maximum action is picked, the agent is \textit{exploring} \cite{sutton}.
-
-Action selection based on estimating the value of actions are called \textbf{Action-value methods} \cite{action_value_method}.  At time $t$, the estimate of the value is given by Equation \ref{eq: value_est} \cite{sutton}.
-
-\begin{equation}
-    \centering
-    Q_t(a) = \frac{Sum \; of \; rewards \; when \; a \; taken \; prior \; to \; t}
-    {Number \; of \; times \; a \; taken \; prior \; to \; t} 
-    = \frac{\sum_{i=1}^{t - 1} R_i \mathbbm{1}_{A_i=a}}
-    {\sum_{i = 1}^{t - 1} \mathbbm{1}_{A_i = a}}
-    \label{eq: value_est}
-\end{equation}
-
-where $\mathbbm{1}$ denotes 1 if the condition is true, else 0.  As $t \rightarrow \infty$, $Q_t(a) \rightarrow q_*(a)$.  Action selection is based on Equation \ref{eq: bandit_action_selection}.
-
-\begin{equation}
-    \centering
-    A_t = \argmax_a Q_t(a)
-    \label{eq: bandit_action_selection}
-\end{equation}
-
-However, initial successful episodes may cause the agent to be stuck at local minimums. To overcome this, an \textit{off-policy} action selection method called $\epsilon$-greedy can be introduced to promote exploration. In this method, the agent will perform a random action with $\epsilon$ probability (greedy action can be performed).  Higher $\epsilon$ results in more exploratory moves.  Consequently, all $u \in \mathbb{U}$ will be picked many times and by the law of large numbers, $Q_t(a) \rightarrow q_*(a)$ \cite{large_numbers}. Figure \ref{fig: eps_figure} shows the effect of $\epsilon$ on the performance of the agent.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[scale=0.38]{images/eps_vs_optAction.png}
-    \caption{Average performance of three agents using different $\epsilon$.  The data is averaged over 2000 runs.  Figure from \textit{Reinforcement Learning: An Introduction} by Sutton and Barto (2018).}
-    \label{fig: eps_figure}
-\end{figure}
-
-During implementation, $\epsilon$ should decay out as $Q_t(a)$ approaches $q_*(a)$ to ensure knowledge of the agent is being adequately exploited. For non-stationary problems, $\epsilon$ should always be greater than zero to ensure other action values have not changed.
-
-Algorithms to solve the \textit{k}-armed bandit problem are easily applied to situations where the concept of state is inert and only the actions are of concern;  a near impossibility in the real world.  
-
-\subsubsection{Contextual Bandit}
-
-A natural extension of the \textit{k}-armed bandit is associative search.  In associative search (sometimes called contextual bandit), different policies are associated with different situations \cite{bartosuttonbrouwer}.  Equation \ref{eq: state-action-value} is the extension of Equation \ref{eq: value} in the associative search problem.
-
-\begin{equation}
-    \centering
-    q_*(x, u) = \mathbb{E}[R_t | X_t = x, U_t = u]
-    \label{eq: state-action-value}
-\end{equation}
-
-Associative search is known as the method between \textit{k}-armed bandits and reinforcement learning.  In associative search, the objective is to associate optimal policies to different situations, but only maximizing the \textit{immediate} reward.  Often times, near term sacrifices are required to initiate the trajectory to a large lump sum reward at the terminal state.  For example, heavy capital and time investment is required for University in the short term.  However, the long term gain is so great that it outweighs the short term losses, making going to University an optimal policy for many individuals.
-
-\subsubsection{The Reinforcement Learning Problem}
-
-In order to find the true optimal policy (i.e., policy that returns the greatest rewards over a long time period), the topic of reinforcement learning is developed.  In reinforcement learning, sequential decision making is explored to identify the delayed reward signals from different actions and to ultimately find the optimal policy, $\pi^*$.  In the next sub-sections, the three fundamental reinforcement learning methods (Dynamic Programming, Monte Carlo, Temporal-Difference) will be introduced.
+In the next sub-sections, the three fundamental reinforcement learning methods (Dynamic Programming, Monte Carlo, Temporal-Difference) will be introduced.
 
 \subsection{Dynamic Programming Methods}
 \subsubsection{Value-Iteration}
@@ -119,7 +118,7 @@ Machine learning consists of the following four classes: i) Supervised learning,
 
 Reinforcement learning is a unique class of machine learning.  An ideal supervised learning model can only be as good as the subject matter expert providing the labels to the data set, which may not be 100\%.  For example, in a complex control task, the control law is usually highly non-linear. Control experts can try to provide control strategies for such systems, but optimality may not be guaranteed for highly non-linear systems. Also, supervised learning is used to generalize responses for occurrences not present in the data \cite{sutton}.  Reinforcement learning works by directly interacting with the environment \textit{without labels}. Through adequate exploration, reinforcement learning will identify peculiar features to optimally control such problems [citation required].  Reinforcement learning is \textit{similar} to unsupervised learning in terms of identifying hidden structures within the environment.  However, reinforcement learning tries to maximize an internal scalar "reward" signal, rather than purely data mining.
 
-Evolutionary methods, a family of optimization algorithms such as genetic algorithm, is most similar to reinforcement learning.  For a control problem, such methods can apply multiple static policies for different operating regimes \cite{sutton}.  Policy search is conducted by first initiating $k$ random input trajectories of length $N$, generating input matrix $\mathbb{U}_{[k, N]} \in \pi$.  Subsequently, the loss, $J_U$, of each $U$ is calculated based on the objective function.  Input trajectories with the lowest loss move onto the next generation and generates new pseudo-random input trajectories.  This process is repeated until optimal policy, $\pi^*$ is found for each operating regime \cite{ga_for_control}.
+Evolutionary methods, a family of optimization algorithms such as genetic algorithm, are most similar to reinforcement learning.  For a control problem, such methods can apply multiple static policies for different operating regimes \cite{sutton}.  Policy search is conducted by first initiating $k$ random input trajectories of length $N$, generating input matrix $\mathbb{U}_{[k, N]} \in \pi$.  Subsequently, the loss, $J_U$, of each $U$ is calculated based on the objective function.  Input trajectories with the lowest loss move onto the next generation and generates new pseudo-random input trajectories.  This process is repeated until optimal policy, $\pi^*$ is found for each operating regime \cite{ga_for_control}.
 
 Evolutionary methods work well when the policy space is sufficiently small, easy to find, or a lot of time is available for optimization.  The biggest advantage of such methods compared to reinforcement learning is that the whole state does not need to be known.  However, such methods does not capture the reinforcement learning fundamentals of mapping $X \rightarrow U$.  Unlike evolutionary methods, reinforcement learning keeps memory of each indvidual interaction making it a more data efficient approach \cite{sutton}.
 

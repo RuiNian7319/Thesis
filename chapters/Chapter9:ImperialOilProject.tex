@@ -402,15 +402,40 @@ The standard form of Equation \ref{eq: general_ss_form} is:
     \label{eq: y2_iol}
 \end{equation}}
 
-The relative gain, $\lambda_{ij}$, is given by:
+The relative gain, $\lambda_{11}$, is given by:
 
 \begin{equation}
     \centering
     {\Large
-    \lambda_{ij} = \frac{(\frac{\partial y_1}{\partial u_1})_{u_2}}{(\frac{\partial y_1}{\partial u_1})_{y_2}}
+    \lambda_{11} = \frac{(\frac{\partial y_1}{\partial u_1})_{u_2}}{(\frac{\partial y_1}{\partial u_1})_{y_2}}
     }
     \label{eq: relative_gain}
 \end{equation}
+
+Solving for the numerator yields:
+\begin{equation}
+    \centering
+    (\frac{\partial y_1}{\partial u_1})_{u_2} = \frac{\partial}{\partial u_1}[K_{11}u_1 + K_{12}u_2] = K_{11}
+\end{equation}
+
+Subsequently, solving for the denominator of Equation \ref{eq: relative_gain}:
+\begin{equation}
+    \centering
+    (\frac{\partial y_1}{\partial u_1})_{y_2} = \frac{\partial}{\partial u_1}[K_{21}u_1 + K_{22}u_2]
+\end{equation}
+
+Since $y_2$ does not appear in Equation \ref{eq: y1_iol}, Equation \ref{eq: y2_iol} must be substituted into Equation \ref{eq: y1_iol}.  Because $y_2$ is a deviation variable, $y_2 = 0$ giving:
+
+\begin{equation}
+    \centering
+    0 = K_{21}u_1 + K_{22}u_2
+\end{equation}
+solving for $u_2$:
+\begin{equation}
+    \centering
+    u_2 = \frac{-K_{21}u_1}{K_{22}}
+\end{equation}
+
 
 \section{Introduction to Fault Tolerant Control}
 

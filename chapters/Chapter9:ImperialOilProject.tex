@@ -43,17 +43,16 @@ The transfer functions that realize  the Wood-Berry distillation tower is given 
     \end{bmatrix}
     \label{eq: woodberry_tf}
 \end{equation}
-
-where: \\
-\begin{center}
-    $
-    \large
-    \begin{matrix}
-        G_{11} = \frac{12.8e^{-s}}{16.7s + 1}     &     G_{12} = \frac{-18.9e^{-3s}}{21s + 1} \\
-        G_{21} = \frac{6.6e^{-7s}}{10.9s + 1}     &     G_{22} = \frac{-19.4e^{-3s}}{14.4s + 1}
-    \end{matrix}
-    $
-\end{center}
+where: 
+\begin{equation}
+    \centering
+        {\large
+        \begin{matrix}
+            G_{11} = \frac{12.8e^{-s}}{16.7s + 1}     &     G_{12} = \frac{-18.9e^{-3s}}{21s + 1} \\
+            G_{21} = \frac{6.6e^{-7s}}{10.9s + 1}     &     G_{22} = \frac{-19.4e^{-3s}}{14.4s + 1}
+        \end{matrix}}
+    \label{eq: transfer_functions_woodberry}
+\end{equation}
 
 Due to the difficulty of transfer function simulations in Python, the model was converted into state space form.  After conversion, two control loops had to be developed to realize the system because of inconsistencies in the input time delay.  Equations \ref{eq: x_ss_eq1} and \ref{eq: x_ss_eq2} are the state space models for the distillate and bottoms compositions, respectively.  The initial states were assumed to be all zero.
 
@@ -335,6 +334,83 @@ Figures \ref{fig: optimal_ss_xd_xb} show the trajectories of $X_D$ and $X_B$ giv
      \caption{Trajectories of $X_D$ and $X_B$ using optimal steady state inputs, $u_{ss}^*.$}
      \label{fig: optimal_ss_xd_xb}
 \end{figure}
+
+\section{Design of the Control System}
+Controllers must first be designed to control the system to desired set-points.  Given that the system has multiple inputs and multiple outputs (MIMO), two different control designs can be explored.  The first control design is building one multi-variate controller capable of controlling both inputs, given feedback from both outputs.  The second design decomposes the system into smaller sub-systems so multiple single-input single-output (SISO) controllers can be applied for control.  In this study, two SISO PID controllers will be designed for regulatory control.  Then, a model predictive controller (MPC) will be designed as a multi-variate supervisory controller.  
+
+\subsection{Relative Gain Array}
+Due to the MIMO system being coupled (i.e, the control signal sent to one actuator will directly affect the output signal of the second control loop), the relative interactions between the control actions will be explored.  The relative gain array will be computed for the system to determine the degree of coupling, and proper input output pairing \cite{RGA}. A flaw in the relative gain array is the lack of consideration for time delays.  However, the PID controllers will be evaluated every 10 seconds, so the effect of delays are assumed to be negligible.  To solve for the relative gains, the process gain, $K_{process}$, for each transfer function for the system must first be identified.  The definition of $K_{process}$ is given in Equation \ref{eq: process_gain}:
+
+\begin{equation}
+    \centering
+    K_{process} = \frac{\partial y_i}{\partial u_i} \approx \frac{\varDelta y_i}{\varDelta u_i}
+    \label{eq: process_gain}
+\end{equation}
+where $\partial y_i$ and $\partial u_i$ are the partial derivative of the outputs and inputs, respectively. The function can be approximated by the change in $y_i$ and $u_i$, given the step sizes are sufficiently small.
+
+The standard form of a transfer function is given by:
+
+\begin{equation}
+    \centering
+    G(s) = \frac{Y(s)}{U(s)} = \frac{K}{\tau s + 1}
+\end{equation}
+where $K$ and $\tau$ are the process gain and time constant, respectively.
+
+Referring to Equation \ref{eq: transfer_functions_woodberry}, all the transfer functions are in standard form.  Therefore, their process gains are given by:
+
+\begin{equation}
+    \centering
+    K_{ij} =
+    \begin{bmatrix}
+    12.8     &     -18.9 \\
+    6.6      &     -19.4 
+    \end{bmatrix}
+    \label{eq: process_gains}
+\end{equation}
+
+The general form of the system outputs is:
+
+\begin{equation}
+    \centering
+    \begin{bmatrix}
+        y_1 \\
+        y_2
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        K_{11}  &  K_{12} \\
+        K_{21}  &  K_{22}
+    \end{bmatrix}
+    \begin{bmatrix}
+        u_1 \\
+        u_2
+    \end{bmatrix}
+    \label{eq: general_ss_form}
+\end{equation}
+where $y_1$ and $y_2$ are the system outputs.  Subsequently, $u_1$ and $u_2$ are the system inputs. \\
+
+The standard form of Equation \ref{eq: general_ss_form} is:
+{\setstretch{0.5}
+\begin{equation}
+    \centering
+    y_1 = K_{11}u_1 + K_{12}u_2
+    \label{eq: y1_iol}
+\end{equation}
+\begin{equation}
+    \centering
+    y_2 = K_{21}u_1 + K_{22}u_2
+    \label{eq: y2_iol}
+\end{equation}}
+
+The relative gain, $\lambda_{ij}$, is given by:
+
+\begin{equation}
+    \centering
+    {\Large
+    \lambda_{ij} = \frac{(\frac{\partial y_1}{\partial u_1})_{u_2}}{(\frac{\partial y_1}{\partial u_1})_{y_2}}
+    }
+    \label{eq: relative_gain}
+\end{equation}
 
 \section{Introduction to Fault Tolerant Control}
 

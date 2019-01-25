@@ -1,11 +1,13 @@
-One area identified for potential reinforcement learning application is in the design of a fault tolerant controller.  Fault tolerant controllers activate when a process fault occurs, rendering normal controllers useless [citation required]. The objective of fault tolerant controllers are to guide the process out of the fault situation safely.  Subsequently, process engineers can diagnose the problem and re-activate the normal process controllers.  
+Distillation towers are integral units in industrial processes that require the separation of
+mixtures of different components into products based on their relative volatility. Heavy oil
+upgrading facilities utilize distillation towers to separate feed mixtures into various products based on their specific gravity.  For many chemical plants, the distillation tower can account up to 50\% of the total operating cost, making optimization of the distillation tower a low hanging fruit in terms of cost savings.  
 
-Farivar and Ahmadabadi (2015) has designed fault tolerant controllers using reinforcement learning for a class of unknown linear systems \cite{ahmad}.  Zhang and Gao (2018) applied reinforcement learning fault tolerant controllers to flux cored wired systems \cite{zhang_gao}.  In this project, a reinforcement learning fault tolerant controller will be built for the mitigation of flooding in an industrial distillation tower. 
+Flooding is a common and costly problem in industrial distillation towers.  Flooding occurs when liquids are entrained in the vapour due to abnormally high vapour flow rates.  Moreover, the excess pressure also causes liquid holdup in the higher plates of the distillation tower. Ultimately, this leads to significant reduction in separation efficiency causing a loss in production, wasted energy, and off-spec products.
 
-Flooding is one of the most common problems in industrial distillation towers.  Flooding causes XXX damage and XXX. Reinforcement learning can be used to create an experience driven, online learning fault tolerant controller to mitigate damage caused by flooding in distillation towers.  In this chapter, the process will first be introduced. Then, common faults will be introduced into the system.  Following that, PID, MPC and RL will all be used to try to guide the system out of the fault situation.  Finally, the performance of each controller will be compared.
+In this chapter, a reinforcement learning based fault tolerant controller will be introduced to mitigate damage caused by flooding events in distillation towers.  The process will first be introduced. Then, common faults will be introduced into the system.  Following that, PID, MPC and RL will all be used to try to guide the system out of the fault situation.  Finally, the performance of each controller will be compared.
 
 \section{Process Introduction}
-The Wood-Berry distillation tower, located in the Unversity of Alberta, will be used to compare the performance between PID, MPC, and RL controllers in a fault positive scenario.  
+The Wood-Berry distillation tower, located in the University of Alberta, will be used for this study to compare the performance between PID, MPC, and RL controllers in a fault positive scenario.  
 
 \subsection{Process Description}
 Distillation is the process of separating a liquid or vapour mixture of two or more components into desirable purities through the addition or removal of heat. The fundamental theory of distillation is that low boiling point components are richer in the vapour of a boiling mixture, while the liquids would contain more of the less volatile components \cite{distillation_intro}.  Liquids exit the bottom of the distillation tower and is sent to a reboiler, where heat is added to vaporize any straggling high volatility product to ensure maximum separation. Similarly, vapour from the top of the tower is sent to a condenser, where heat is removed and additional low volatility components may be recovered. The condensed vapour is collected in the reflux drum, and will be recycled back into the distillation tower. Typically, distillation columns are large vertical drums with evenly spaced trays to enhance separation of the vapour and liquid components \cite{mpc_for_distillation_tower}.  The tower is separated into two sections.  The rectifying section is located between the feed tray and the top of the column and aims to concentrate light components in the vapour phase.  Moreover, the stripping section is located between the feed tray and the column bottom and is used to concentrate the heavier components in the liquid phase \cite{henry_distillation}.
@@ -15,11 +17,11 @@ A process flow diagram of the Wood-Berry tower is shown in Figure \ref{fig: wood
 \begin{figure}[h]
     \centering
     \includegraphics[scale=0.45]{images/woodberry.png}
-    \caption{A schematic diagram of a binary distillation tower.  Original figure from Dr. Seborg from UC Santa Barbara with minor edits for enhanced clarity.}
+    \caption{A schematic diagram of a binary distillation tower.  Original figure from Dr. Seborg from UC Santa Barbara with edits for enhanced clarity.}
     \label{fig: woodberry}
 \end{figure}
 
-In the Wood-Berry distillation tower, the goal is the complete separation of methanol and water.  Methanol has a boiling point of 64.7 \textdegree C whereas pure liquid water has a boiling point of 100 \textdegree C \cite{sonntag_thermo}. Thus, making methanol the distillate and water is the bottoms product. $X_D$ and $X_B$ are the distillate and bottoms $\%MeOH$, respectively. The objective is to achieve 100\% $X_D$, while achieving 0\% $X_B$. Additional detailed information about the operation and inner workings of distillation towers can be found in \cite{henry_distillation}.  
+In the Wood-Berry distillation tower, the goal is the complete separation of methanol and water.  Methanol has a boiling point of 64.7 \textdegree C whereas pure liquid water has a boiling point of 100 \textdegree C \cite{sonntag_thermo}. Thus, making methanol the distillate and water is the bottoms product. $X_D$ and $X_B$ are the distillate and bottoms $\%MeOH$, respectively. The two manipulated variables in the system are the reflux flow rate, $R \; (lb/min)$ and the steam flow rate, $S \; (lb/min)$.  The objective of the manipulated variables is to achieve 100\% $X_D$, while maintaining $X_B$ at 0\%. Additional detailed information about the operation and inner workings of distillation towers can be found in \cite{henry_distillation}.  
 
 \subsection{Wood-Berry Models}
 The transfer functions that realize  the Wood-Berry distillation tower is given in Equation \ref{eq: woodberry_tf} \cite{mpc_for_distillation_tower}.
@@ -249,7 +251,7 @@ The optimal solution for the Wood-Berry distillation column is given by Equation
 {\setstretch{0.5}
 \begin{equation}
     \centering
-    X_D^* = 1
+    X_D^* = 100
     \label{eq: xd_optimal}
 \end{equation}
 
@@ -294,7 +296,7 @@ $X_D^* = 0.767(16.7)u_1 - 0.900(21.0)u_2$
 
 \begin{equation}
     \centering
-    1 = 12.8u_1 - 18.9u_2
+    100 = 12.8u_1 - 18.9u_2
     \label{eq: opt_xd}
 \end{equation}
 }
@@ -315,12 +317,12 @@ Combining Equations \ref{eq: opt_xd} and \ref{eq: opt_xb}, the optimal steady st
 {\setstretch{0.5}
 \begin{equation}
     \centering
-    u_{1, ss}^* = 0.157
+    u_{1, ss}^* = 15.7
 \end{equation}
 
 \begin{equation}
     \centering
-    u_{2, ss}^* = 0.053
+    u_{2, ss}^* = 5.3
 \end{equation}
 }
 
@@ -334,7 +336,13 @@ Figures \ref{fig: optimal_ss_xd_xb} show the trajectories of $X_D$ and $X_B$ giv
      \label{fig: optimal_ss_xd_xb}
 \end{figure}
 
-\section{Fault in the System}
+\section{Introduction to Fault Tolerant Control}
+
+Inevitably, all process equipment such as sensors, actuators, pumps, will malfunction or breakdown along their operational lifetime. Therefore, it is desirable to to have a fault tolerant control system (FTCS) in place to accommodate for these inevitable failures and ensure an acceptable level of performance during such events. The application of FTCS in the industrial environment results in increased operation robustness, production, and safety. The complete fault tolerant control system requires two algorithms: i) Fault prediction system to identify the location and type of fault. ii) Fault tolerant controller to "safe land" the process during a fault positive situation \cite{process_faults}.  This particular study is only concerned with the fault tolerant controller design, and assumes that the fault is appropriately identified using existing methods.
+
+One area identified for potential reinforcement learning application is in the design of a fault tolerant controller.  Fault tolerant controllers activate when a process fault occurs, rendering normal controllers useless [citation required]. The objective of fault tolerant controllers are to guide the process out of the fault situation safely.  Subsequently, process engineers can diagnose the problem and re-activate the normal process controllers when deemed acceptable.  
+
+Farivar and Ahmadabadi (2015) has designed fault tolerant controllers using reinforcement learning for a class of unknown linear systems \cite{ahmad}.  Zhang and Gao (2018) applied reinforcement learning fault tolerant controllers to flux cored wired systems \cite{zhang_gao}.  In this project, a reinforcement learning fault tolerant controller will be built for the mitigation of flooding in an industrial distillation tower. 
 
 \section{Controlling using PID}
 A PI controller was selected instead of a P or PID controller, because PI controllers are shown to achieve superior control performances compared to their counterparts \cite{PI_controller}.

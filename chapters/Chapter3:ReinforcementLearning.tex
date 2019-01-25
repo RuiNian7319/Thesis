@@ -11,7 +11,7 @@ The \textit{k}-armed bandit is the fundamentals to understanding modern reinforc
 
 \begin{equation}
     \centering
-    q_*(a) = \mathbb{E}[R_t | A_t = a]
+    q_*(a) = \mathbb{E}[R_t | U_t = u]
     \label{eq: value}
 \end{equation}
 
@@ -21,13 +21,12 @@ Action selection based on estimating the value of actions are called \textbf{Act
 
 \begin{equation}
     \centering
-    Q_t(a) = \frac{Sum \; of \; rewards \; when \; a \; taken \; prior \; to \; t}
-    {Number \; of \; times \; a \; taken \; prior \; to \; t} 
-    = \frac{\sum_{i=1}^{t - 1} R_i \mathbbm{1}_{A_i=a}}
-    {\sum_{i = 1}^{t - 1} \mathbbm{1}_{A_i = a}}
+    Q_t(a) = \
+    = \frac{\sum_{i=1}^{t - 1} R_i \mathbbm{1}_{U_i=u}}
+    {\sum_{i = 1}^{t - 1} \mathbbm{1}_{U_i = u}}
     \label{eq: value_est}
 \end{equation}
-where $\mathbbm{1}$ denotes 1 if the condition is true, else 0.  As $t \rightarrow \infty$, $Q_t(a) \rightarrow q_*(a)$.  Action selection is based on Equation \ref{eq: bandit_action_selection}.
+where $\mathbbm{1}$ equals 1 if the condition is true, else 0.  $R_i$ is the reward obtained at the $i^{th}$ episode through selecting action, $U_i$.  Intuitively, the numerator is the sum of rewards when action, $u$, was taken prior to $t$.  Likewise, the denominator is the number of times action, $u$, was taken prior to $t$. As $t \rightarrow \infty$, $Q_t(a) \rightarrow q_*(a)$.  Action selection is based on Equation \ref{eq: bandit_action_selection}.
 
 \begin{equation}
     \centering

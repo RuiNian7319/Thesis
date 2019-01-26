@@ -402,7 +402,7 @@ The standard form of Equation \ref{eq: general_ss_form} is:
     \label{eq: y2_iol}
 \end{equation}}
 
-The relative gain, $\lambda_{11}$, is given by:
+The relative gain between $y_1$ and $u_1$, $\lambda_{11}$, is given by:
 
 \begin{equation}
     \centering
@@ -418,24 +418,80 @@ Solving for the numerator yields:
     (\frac{\partial y_1}{\partial u_1})_{u_2} = \frac{\partial}{\partial u_1}[K_{11}u_1 + K_{12}u_2] = K_{11}
 \end{equation}
 
+\noindent
 Subsequently, solving for the denominator of Equation \ref{eq: relative_gain}:
 \begin{equation}
     \centering
-    (\frac{\partial y_1}{\partial u_1})_{y_2} = \frac{\partial}{\partial u_1}[K_{21}u_1 + K_{22}u_2]
+    (\frac{\partial y_1}{\partial u_1})_{y_2} = \frac{\partial}{\partial u_1}[K_{11}u_1 + K_{12}u_2]
+    \label{eq: y2_relative_gain}
 \end{equation}
-
 Since $y_2$ does not appear in Equation \ref{eq: y1_iol}, Equation \ref{eq: y2_iol} must be substituted into Equation \ref{eq: y1_iol}.  Because $y_2$ is a deviation variable, $y_2 = 0$ giving:
 
 \begin{equation}
     \centering
     0 = K_{21}u_1 + K_{22}u_2
+    \label{eq: u2_relative_gain1}
 \end{equation}
 solving for $u_2$:
 \begin{equation}
     \centering
     u_2 = \frac{-K_{21}u_1}{K_{22}}
+    \label{eq: u2_relative_gain2}
 \end{equation}
 
+\noindent
+Substituting Equation \ref{eq: u2_relative_gain2} into Equation \ref{eq: y2_relative_gain} and solving the partial derivative yields:
+
+\begin{equation}
+    \centering
+        (\frac{\partial y_1}{\partial u_1})_{y_2} = \frac{\partial}{\partial u_1}[K_{11}u_1 - \frac{K_{12}K_{21}u_1}{K_{22}}] = K_{11} - \frac{K_{12}K_{21}}{K_{22}}
+\end{equation}
+The relative gain array, $\Lambda$, is:
+
+\begin{equation}
+    \centering
+    \Lambda = 
+    \begin{bmatrix}
+    \lambda_{11}   &   \lambda_{12}   \\
+    \lambda_{21}   &   \lambda_{22}
+    \end{bmatrix}
+\end{equation}
+and satisfies the following conditions if $\Lambda$ is a square matrix:
+{\setstretch{0.5}
+\begin{equation}
+    \centering
+    \sum_{j = 1}^N \lambda_{ij} = 1
+\end{equation}
+\begin{equation}
+    \centering
+    \sum_{i = 1}^M \lambda_{ij} = 1
+\end{equation}
+\begin{equation}
+    \centering
+    \lambda_{ij} = \lambda_{ji}
+\end{equation}}
+where N and M are the total number of elements in the rows and columns, respectively.
+
+Using the above conditions, the relative gain matrix can be simplified to:
+\begin{equation}
+    \centering
+    \begin{bmatrix}
+     K_{11} - \frac{K_{12}K_{21}}{K_{22}}   &   1 - K_{11} - \frac{K_{12}K_{21}}{K_{22}}   \\
+     1 - K_{11} - \frac{K_{12}K_{21}}{K_{22}}   &   K_{11} - \frac{K_{12}K_{21}}{K_{22}}
+    \end{bmatrix}
+    \label{eq: final_relative_gain_array}
+\end{equation}
+Substituting values from Equation \ref{eq: process_gains} into Equation \ref{eq: final_relative_gain_array}:
+
+\begin{equation}
+    \centering
+    \Lambda = 
+    \begin{bmatrix}
+     2   &   -1   \\
+     -1  &    2
+    \end{bmatrix}
+    \label{eq: relative_gain_array_w_values}
+\end{equation}
 
 \section{Introduction to Fault Tolerant Control}
 

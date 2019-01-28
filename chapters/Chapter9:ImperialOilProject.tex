@@ -493,6 +493,8 @@ Substituting values from Equation \ref{eq: process_gains} into Equation \ref{eq:
     \label{eq: relative_gain_array_w_values}
 \end{equation}
 
+Evaluating $\Lambda$, $y_1$ should be paired with $u_1$ and $y_2$ should be paired with $u_2$.  
+
 \section{Introduction to Fault Tolerant Control}
 
 Inevitably, all process equipment such as sensors, actuators, pumps, will malfunction or breakdown along their operational lifetime. Therefore, it is desirable to to have a fault tolerant control system (FTCS) in place to accommodate for these inevitable failures and ensure an acceptable level of performance during such events. The application of FTCS in the industrial environment results in increased operation robustness, production, and safety. The complete fault tolerant control system requires two algorithms: i) Fault prediction system to identify the location and type of fault. ii) Fault tolerant controller to "safe land" the process during a fault positive situation \cite{process_faults}.  This particular study is only concerned with the fault tolerant controller design, and assumes that the fault is appropriately identified using existing methods.

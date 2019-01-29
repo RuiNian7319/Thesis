@@ -339,7 +339,7 @@ Figures \ref{fig: optimal_ss_xd_xb} show the trajectories of $X_D$ and $X_B$ giv
 Controllers must first be designed to control the system to desired set-points.  Given that the system has multiple inputs and multiple outputs (MIMO), two different control designs can be explored.  The first control design is building one multi-variate controller capable of controlling both inputs, given feedback from both outputs.  The second design decomposes the system into smaller sub-systems so multiple single-input single-output (SISO) controllers can be applied for control.  In this study, two SISO PID controllers will be designed for regulatory control.  Then, a model predictive controller (MPC) will be designed as a multi-variate supervisory controller.  
 
 \subsection{Relative Gain Array}
-Due to the MIMO system being coupled (i.e, the control signal sent to one actuator will indirectly affect the output signal of the second control loop), the relative interactions between the control actions will be explored. Exploration of the coupling effect is required to tune the control system appropriately and ensure instabilities do not exist. One simple way to investigate the degree of coupling is to compute the relative gain matrix, $\Lambda$. Using the relative gain matrix, the proper input output pairing can also be determined \cite{RGA}. A flaw in the relative gain array is the lack of consideration for time delays.  However, the PID controllers will be evaluated every 10 seconds, so the effect of delays are assumed to be negligible.  To solve for the relative gains, the process gain, $K_{process}$, for each transfer function in the system must first be identified.  The definition of $K_{process}$ is given in Equation \ref{eq: process_gain}:
+Due to the MIMO system being coupled (i.e, the control signal sent to one actuator will indirectly affect the output signal of the second control loop), the relative interactions between the control actions needs to be explored. Exploration of the coupling effect is required to tune the control system appropriately and ensure instabilities do not exist. One simple way to investigate the degree of coupling is to compute the relative gain matrix, $\Lambda$. Using the relative gain matrix, the proper input output pairing can also be determined \cite{RGA}. A flaw in the relative gain array is the lack of consideration for time delays.  However, the PID controllers will be evaluated every 10 seconds, so the effect of delays are assumed to be negligible.  To solve for the relative gains, the process gain, $K_{process}$, for each transfer function in the system must first be identified.  The definition of $K_{process}$ is given in Equation \ref{eq: process_gain}:
 
 \begin{equation}
     \centering
@@ -515,13 +515,31 @@ The physical meaning of the relative gains are summarized in Table \ref{tab: rel
     \label{tab: relative_gains}
 \end{table}
 
-From $\Lambda$, $\lambda_{12}$ is negative, meaning that pairing $y_1$ with $u_2$ results in opposing open and closed loop gains.  A similar outcome can be seen by pairing $y_2$ with $u_1$.  Both scenarios should be avoided to ensure stability in the system. From Table \ref{tab: relative_gains}, $\lambda_{11}$ and $\lambda_{22}$ are 2.  Although this is better than the relative gain being negative, it is still far from 1, so a decoupler should be implemented to achieve independent control of $y_1$ and $y_2$ using $u_1$ and $u_2$.
+From $\Lambda$, $\lambda_{12}$ is negative, meaning that pairing $y_1$ with $u_2$ results in opposing open and closed loop gains.  A similar outcome can be seen by pairing $y_2$ with $u_1$.  Both scenarios should be avoided to ensure stability in the system. From Table \ref{tab: relative_gains}, $\lambda_{11}, \lambda_{22} = 2$.  Although this is better than the relative gain being negative, it is still far from 1, so a decoupler should be implemented to achieve independent control of $y_1$ and $y_2$ using $u_1$ and $u_2$.
 
-\section{Dynamic Decoupling}
-why select dynamic decoupling?
-- Decouple MIMO into simplier SISO control loops because relative gain array is too far from 1.
+\subsection{Simple Decoupling using Equivalent Transfer Functions}
+In literature, there are three popular decoupling methods: i) ideal, ii) simplified, and iii) inverted [Cite].  The ideal decoupling method requires inversing of the transfer functions, and leads to modelling errors [Cite].  The simplified method overcomes these shortcomings, however, the decoupled process cannot be directly used for controller design without the model reduction technique [Cite].  The inverted method combines all the advantages of the ideal and simplified methods, but high dimensional systems may be physically unrealizable, and it is also more prone to errors [cite].  Rajapandiyan et al. (2012) proposed a new method to perform decoupling of systems with time delays that improve upon the classical methods.  
 
-In literature, there are three popular decoupling methods: i) ideal, ii) simplified, and iii) inverted [Cite].  The ideal decoupling method requires inversing of the transfer functions, and leads to modelling errors [Cite].  The simplified method overcomes these shortcomings, however, the decoupled process cannot be directly used for controller design without the model reduction technique [Cite].  The inverted method combines all the advantages of the ideal and simplified methods, but high dimensional systems may be physically unrealizable, and it is also more prone to errors [cite].  Rajapandiyan et al. (2012) proposed a new method to perform decoupling of systems with time delays that improve upon the classical methods.  The method first decouples the multi-loop system into multiple single loop systems using the simplified decoupler matrix.  The decoupled process is then approximated using the equivalent transfer function (ETF) method.  From the ETFs, the decentralized PID controllers are designed using the simplified internal model control (SIMC) method. 
+First, the multi-loop system is decoupled into multiple single loop systems using the simplified decoupler matrix.  The decoupled process is then approximated using its effective open-loop transfer function (EOTF).  Subsequently, Rajapandiyan et al. (2012) showed that the EOTF was exactly equivalent to the equivalent transfer function (ETF) when the system is open-loop stable and there are no oscillatory characteristics.  From the EOTFs, the decentralized PID controllers can then be designed using the simplified internal model control (SIMC) method. 
+
+Referring to Equation \ref{eq: woodberry_tf}, it can be seen that the Wood-Berry distillation system is open-loop stable because all poles are in the left-half plane.  From Figure \ref{fig: step_test_plots}, the system also has no oscillations during step tests. Thus, the system in this study satisfies the requirements posed by Rajapandiyan et al. (2012). 
+
+\subsubsection{Decoupler Design}
+Figure \ref{fig: control_loop_IOL} shows the simplified closed-loop control system for the Wood-Berry distillation tower.  
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.45]{images/pid_loop_iol.png}
+    \caption{Simplified control system of the Wood-Berry distillation tower.}
+    \label{fig: control_loop_IOL}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.39]{images/decoupled_pid_loop_iol.png}
+    \caption{Simplified decoupled control system of the Wood-Berry distillation tower.}
+    \label{fig: decoupled_control_loop_IOL}
+\end{figure}
 
 \section{Introduction to Fault Tolerant Control}
 

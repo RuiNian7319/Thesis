@@ -461,7 +461,7 @@ The relative gain array, $\Lambda$, is:
     \lambda_{21}   &   \lambda_{22}
     \end{bmatrix}
 \end{equation}
-and satisfies the following conditions if $\Lambda$ is a square matrix:
+and satisfies the following conditions given $\Lambda$ is a square matrix:
 {\setstretch{0.5}
 \begin{equation}
     \centering
@@ -525,7 +525,7 @@ First, the multi-loop system is decoupled into multiple single loop systems usin
 Referring to Equation \ref{eq: woodberry_tf}, it can be seen that the Wood-Berry distillation system is open-loop stable because all poles are in the left-half plane.  From Figure \ref{fig: step_test_plots}, the system also has no oscillations during step tests. Thus, the system in this study satisfies the requirements posed by Rajapandiyan et al. (2012). 
 
 \subsubsection{Decoupler Design}
-Figure \ref{fig: control_loop_IOL} shows the simplified closed-loop control system for the Wood-Berry distillation tower.  
+Figure \ref{fig: control_loop_IOL} shows the simplified closed-loop control system for the Wood-Berry distillation tower \cite{decoupler_design}.  $G_c(s)$ and $G(s)$ are the distributed controller matrix and the process transfer functions, respectively, and are shown in Equations \ref{eq: transfer_functions_woodberry} and \ref{eq: controller_tf_iol}.  $y_{r_1}$ and ...
 
 \begin{figure}
     \centering
@@ -534,7 +534,17 @@ Figure \ref{fig: control_loop_IOL} shows the simplified closed-loop control syst
     \label{fig: control_loop_IOL}
 \end{figure}
 
-\begin{figure}
+\begin{equation}
+    \centering
+    G_{c}(s) = 
+    \begin{bmatrix}
+    g_{c_{11}}  &  0 \\ 
+    0         &  g_{c_{22}}
+    \end{bmatrix}
+    \label{eq: controller_tf_iol}
+\end{equation}
+
+\begin{figure}[h]
     \centering
     \includegraphics[scale=0.39]{images/decoupled_pid_loop_iol.png}
     \caption{Simplified decoupled control system of the Wood-Berry distillation tower.}

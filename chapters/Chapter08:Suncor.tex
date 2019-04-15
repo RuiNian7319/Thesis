@@ -1,6 +1,6 @@
 Pipelines are critical for safe and efficient transportation of fluids across long distances.  For example, pipelines are used by utility companies to transport clean water and natural gas to homes for heating and living purposes.  Furthermore, pipelines are also used in agriculture to transport irrigation water to hydrate crops.  Moreover, pipelines are used by energy companies for transporting energy-rich hydrocarbons to fuel the world's transportation and manufacturing. In the United States, over 70\% of petroleum products are shipped by pipeline.  In Canada, the number increases to 97\% \cite{pipeline_transport}.  The latest data in 2014 estimates that there are about 3,500,000 km of operational pipelines in 120 countries \cite{CIA_pipeline}. Due to the world's dependency on pipelines for transporting their basic needs, ensuring its reliability and efficiency has a global-scale impact.
 
-Typical pipelines have hundreds of digital measurements per minute and are hard to analyze; however, machine learning methods benefit greatly from large amounts of data. Thus, an opportunity was discovered where machine learning methods will be applied to pipelines used to transport petroleum products. The objectives of this project were to leverage machine learning to identify anomalous pipeline behaviour, and to build a real time optimization tool.
+Typical pipelines have hundreds of digital measurements per minute and are hard to analyze; however, machine learning methods benefit greatly from large amounts of data. Thus, an opportunity was discovered where machine learning methods will be applied to pipelines used to transport petroleum products. The objectives of this project were to leverage machine learning to identify anomalous pipeline behaviour, and to build a real time optimization tool to automate, normalize and enhance the pipeline operation.
 
 In this chapter, a time-series neural network classifier will first be introduced to detect anomalous activity within any pipeline equipment.  Then, a real time optimization tool based on a linear model optimized using mixed integer linear program will be introduced.  Due to confidentiality agreements, all data presented here-forth will be normalized, and all parties of this project will remain anomalous.
 
@@ -102,17 +102,54 @@ The distribution of the remaining variables along the pipeline can be seen in Ta
     \centering
     {\setstretch{1.5}
     \begin{tabular}{ c | c | c | c | c | c | c}
-             &  Cheyenne & CIG & Ault & Fort Lupton & Commerce City & Others      \\
+             &  Cheyenne & CIG & Ault & Fort Lupton & Comm. City & Other      \\
         \hline
-        # of Variables  &  24  &  21  &  21  &  33  &  22  &  3  \\
+        \# of Variables  &  24  &  21  &  21  &  33  &  22  &  3  \\
     \end{tabular}}
-    \caption{Distribution of variables along line RM06A.}
+    \caption{Distribution of variables along line RM06A after phase 1 data pre-processing.}
     \label{tab:08Ph1Data}
 \end{table}
 
 \subsubsection{Automated Data Pre-processing}
+Next, the data set is further filtered using the following methods:
+
+\begin{itemize}
+    \item \textbf{Missing data removal}: Remove \textit{rows} of data containing missing data.
+    \item \textbf{Data imbalance analysis}: Remove boolean variables that contain 97\% or more of a single class.  Heavily imbalanced variables cause model bias towards the majority class \cite{data_preprocessing}.
+    \item \textbf{Collinear analysis}: Identifies variables that are heavily correlated.  One variable is kept while the rest are removed to prevent one variable from being weighed many times in the final model \cite{data_preprocessing}.
+\end{itemize}
+
+This phase is known as \textit{automated} because no human interaction and/or expertise is required. After performing the above methods, the data set reduced from 124 to 65.  
+
+The distribution of the new data set is shown in Table \ref{tab:08Ph2Data}.
+
+\begin{table}[h]
+    \centering
+    {\setstretch{1.5}
+    \begin{tabular}{ c | c | c | c | c | c | c}
+             &  Cheyenne & CIG & Ault & Fort Lupton & Comm. City & Other      \\
+        \hline
+        \# of Variables  &  10  &  11  &  11  &  18  &  12  &  3  \\
+    \end{tabular}}
+    \caption{Distribution of variables along line RM06A after phase 2 data pre-processing.}
+    \label{tab:08Ph1Data}
+\end{table}
 
 \subsubsection{Manual Data Pre-processing}
+Finally, the data set is then manually pre-processed to remove data from badly behaving sensors and irregular operating conditions. In normal operations, the density fluctuates between 10 - 50 API, depending on the type of crude present in the pipeline.  Fort Lupton 
+
+Furthermore, due to the hydraulic setup of the pipeline, both sweet and sour crude are sent into the pipeline in a cyclical fashion. The sour crude is too heavy to be shipped without doing so.  Moreover, when a DRA set point is changed, there is a 10 hour time delay to realize the change in dynamics because it takes time for the pipeline to be coated in DRA.  Finally, because the pipeline is fully loaded and crude is incompressible, pressure changes upstream will be propagated down the pipeline at close to the speed of sound \cite{fluid_mechanics}.  
+
+A comprehensive list of the manual data pre-processing procedures is as follows:
+\begin{itemize}
+    \item 1. Shift flow rates up one time step: $flow_{t + 1} = flow_t$.
+    \item 2. Smooth DRA data using exponentially weighted moving average given in Equation \ref{eq:08EWMA}.  
+    \item 3. Remove first 10 hours data corresponding to DRA set point changes.
+    \item 4. Remove data points where flow is under 800 bbl/hr.
+    \item 5. Remove data when only sweet or sour crude was sent through the pipeline.
+    \item 6. Remove data when DRA was not being used.
+\end{itemize}
+
 
 \subsection{Model Identification}
 \subsubsection{Feature Selection}

@@ -65,6 +65,9 @@ To overcome this problem, machine learning was used to firstly identify a model 
 
 The new communication framework for line RM06A is shown in Figure \ref{fig:08scheduleV2}.
 
+The rest of the chapters is as follows.  First, the data pre-processing step will be shown.  Then, the model identification phase will be introduced.  Following that, the optimization algorithm and all it's constraints for real-time optimization are presented.  Finally, the chapter is concluded with some conceptual software design regarding its implementation into a supervisory control and data acquisition (SCADA) system and the overall project impact will also be shown.
+
+
 \begin{figure}[h]
     \centering
     \includegraphics[scale=0.35]{images/08ScheduleV2.png}
@@ -73,15 +76,54 @@ The new communication framework for line RM06A is shown in Figure \ref{fig:08sch
 \end{figure}
 
 \subsection{Data Pre-processing}
+Two data sets were provided by Suncor.  The details of are shown in Table \ref{tab:08data}. Model identification and optimization evaluations were conducted for both datasets; however, the steps are very similar.  Because the 2019 algorithm will go into live production, whereas the 2018 data was used as a proof of concept, only the 2019 algorithm steps will be shown in detail.
 
-The initial data set contained one year data sampled
+\begin{table}[h]
+    \centering
+    {\setstretch{1.5}
+    \begin{tabular}{ c | c }
+        Date of Collection     &      Data Dimension      \\
+        \hline
+        June 2017 - June 2018  &    $525,601 \times 899$   \\
+        Dec. 2018 - March 2019 &    $159,851 \times 738$   \\
+    \end{tabular}}
+    \caption{Suncor data details.}
+    \label{tab:08data}
+\end{table}
+
+Data pre-processing can be broken down into three phases: Filtering by subject matter experts, automated data pre-processing, and manual data pre-processing.  After the third phase, an iterative procedure followed where the subject matter experts worked alongside the machine learning scientists to give suggestions on the variables that should be included in the final model.
+
+\subsubsection{Filtering by Subject Matter Experts}
+The first phase of data pre-processing was conducted by the subject matter experts at Suncor.  The original data set contained all data corresponding to the pipeline.  Variables such as alarm limits, fire detector status, monitor on/off status, etc., have low predictive power and were removed.  After this phase, the number of variables reduced from 738 to 124.  
+
+The distribution of the remaining variables along the pipeline can be seen in Table \ref{tab:08Ph1Data}.
+
+\begin{table}[h]
+    \centering
+    {\setstretch{1.5}
+    \begin{tabular}{ c | c | c | c | c | c | c}
+             &  Cheyenne & CIG & Ault & Fort Lupton & Commerce City & Others      \\
+        \hline
+        # of Variables  &  24  &  21  &  21  &  33  &  22  &  3  \\
+    \end{tabular}}
+    \caption{Distribution of variables along line RM06A.}
+    \label{tab:08Ph1Data}
+\end{table}
+
+\subsubsection{Automated Data Pre-processing}
+
+\subsubsection{Manual Data Pre-processing}
 
 \subsection{Model Identification}
 \subsubsection{Feature Selection}
 \subsubsection{Feature Engineering}
-\subsubsection{Model Structure}
+\subsubsection{Exploratory Modelling}
+\paragraph{Linear Regression}
+\paragraph{Non-linear Regression}
 
-A linear parameter-varying model structure was selected to model this pipeline due to the bi-modal behaviour of the flow rate.  
+\subsubsection{Model Structure}
+Ultimately, a linear parameter-varying (LPV) model was selected to model this pipeline.  It is clear that the process is heavily non-linear due to the increase in accuracy when switching to a non-linear model structure; therefore, LPV models were selected due to their non-linear nature while still retaining the interpretability of linear models. To enhance credibility, any non-linear model can be approximated by a LPV model via the White's Theorem \cite{LPV}.
 
 \subsection{Mixed Integer Linear Programming}
 \subsection{Conceptual Software Design}
+\subsection{Cost Savings and Impact on Society}

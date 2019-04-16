@@ -132,23 +132,75 @@ The distribution of the new data set is shown in Table \ref{tab:08Ph2Data}.
         \# of Variables  &  10  &  11  &  11  &  18  &  12  &  3  \\
     \end{tabular}}
     \caption{Distribution of variables along line RM06A after phase 2 data pre-processing.}
-    \label{tab:08Ph1Data}
+    \label{tab:08Ph2Data}
 \end{table}
 
 \subsubsection{Manual Data Pre-processing}
-Finally, the data set is then manually pre-processed to remove data from badly behaving sensors and irregular operating conditions. In normal operations, the density fluctuates between 10 - 50 API, depending on the type of crude present in the pipeline.  Fort Lupton 
+Finally, the data set is then manually pre-processed to remove data from badly behaving sensors and irregular operating conditions. Figures \ref{fig:08Density} to \ref{fig:08DRA} show some examples of poor data.  
 
-Furthermore, due to the hydraulic setup of the pipeline, both sweet and sour crude are sent into the pipeline in a cyclical fashion. The sour crude is too heavy to be shipped without doing so.  Moreover, when a DRA set point is changed, there is a 10 hour time delay to realize the change in dynamics because it takes time for the pipeline to be coated in DRA.  Finally, because the pipeline is fully loaded and crude is incompressible, pressure changes upstream will be propagated down the pipeline at close to the speed of sound \cite{fluid_mechanics}.  
+In normal operations, the density fluctuates between 10 - 50 API, depending on the type of crude present in the pipeline.  After analysis, the Fort Lupton densitometer was behaving abnormally compared to other densitometer and is shown in Figure \ref{fig:08Density}.  After confirming with Suncor that the densitometer was behaving abnormally, the variable was removed.  
+
+\begin{figure}[ht]
+     \centering
+     \begin{subfigure}[b]{0.48\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/08CheyDensity.eps}
+         \caption{Cheyenne API data for 10,000 mins.}
+         \label{fig:08GoodDensity}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.48\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/08FLDensity.eps}
+         \caption{Fort Lupton API data for 10,000 mins.}
+         \label{fig:08BadDensity}
+     \end{subfigure}
+        \caption{Comparison of normal and abnormal density readings.}
+        \label{fig:08Density}
+\end{figure}
+
+Furthermore, both sweet and sour crude are sent into the pipeline in a cyclical fashion due to the hydraulic dynamics of the pipeline. The sour crude is too heavy to be transported for sustainable periods otherwise. However, downstream demand for each product can disrupt this operating cycle.  From Figure \ref{fig:08API}, it can be seen that there were extended periods of time where only sweet or sour crude were being transported.  Such scenarios deviate from normal operations and were removed from the data.
+
+\begin{figure}[ht]
+     \centering
+     \begin{subfigure}[b]{1.0\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/08NonFilteredDensity.eps}
+         \caption{API data before abnormal condition removal.}
+         \label{fig:08APIBefore}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{1.0\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/08FilteredDensity.eps}
+         \caption{API data after abnormal condition removal.}
+         \label{fig:08APIAfter}
+     \end{subfigure}
+        \caption{API data before and after removing abnormal operating conditions.}
+        \label{fig:08API}
+\end{figure}
+
+Moreover, when a DRA set point is changed, there is a time delay for the flow rate to react because the new DRA concentration must be transported throughout the line before its effect can be fully realized.  DRA is catastrophically destroyed when passing through a pump; thus, DRA is only required to coat the pipeline between pump stations for its full effect to be exploited.  For CIG, it must coat the pipeline between CIG to Ault.  For Ault, the pipeline spanning between Ault and Fort Lupton must be coated.  Given the flow rate of the pipeline, it will take approximately ten hours to sufficiently coat the majority of the pipeline. Hence, data corresponding to transitional periods when DRA set points change are removed. At times, it may take longer; however, removing additional data will reduce the available data for identification of the machine learning models.  
+
+DRA parts per million (ppm) is measured continuously for the control loop of the DRA injection pumps. 
+
+\begin{equation}
+    v_(t) = \beta v_{t - 1} + (1 - \beta) \theta_t
+    \label{eq:08EWMA}
+\end{equation}
+
+Finally, because the pipeline is fully loaded and crude is incompressible, pressure changes upstream will be propagated down the pipeline at close to the speed of sound \cite{fluid_mechanics}.  
+
 
 A comprehensive list of the manual data pre-processing procedures is as follows:
-\begin{itemize}
-    \item 1. Shift flow rates up one time step: $flow_{t + 1} = flow_t$.
-    \item 2. Smooth DRA data using exponentially weighted moving average given in Equation \ref{eq:08EWMA}.  
-    \item 3. Remove first 10 hours data corresponding to DRA set point changes.
-    \item 4. Remove data points where flow is under 800 bbl/hr.
-    \item 5. Remove data when only sweet or sour crude was sent through the pipeline.
-    \item 6. Remove data when DRA was not being used.
-\end{itemize}
+\begin{enumerate}
+    \item Shift flow rates up one time step: $Q_{t + 1} = Q_t$.
+    \item Smooth DRA data using exponentially weighted moving average given in Equation \ref{eq:08EWMA}.  
+    \item Remove first 10 hours data corresponding to DRA set point changes.
+    \item Remove data points where flow is under 800 bbl/hr.
+    \item Remove data when only sweet or sour crude was sent through the pipeline.
+    \item Remove data when DRA was not being used.
+\end{enumerate}
 
 
 \subsection{Model Identification}
@@ -160,6 +212,14 @@ A comprehensive list of the manual data pre-processing procedures is as follows:
 
 \subsubsection{Model Structure}
 Ultimately, a linear parameter-varying (LPV) model was selected to model this pipeline.  It is clear that the process is heavily non-linear due to the increase in accuracy when switching to a non-linear model structure; therefore, LPV models were selected due to their non-linear nature while still retaining the interpretability of linear models. To enhance credibility, any non-linear model can be approximated by a LPV model via the White's Theorem \cite{LPV}.
+
+\subsubsection{Model Validation}
+Why some weights are 0.
+
+\subsubsection{Adaptive Machine Learning}
+\paragraph{Online Learning vs. Incremental Learning}
+\paragraph{ART: Adaptive Resonance Theory}
+\paragraph{Implementation of Adaptive Machine Learning}
 
 \subsection{Mixed Integer Linear Programming}
 \subsection{Conceptual Software Design}

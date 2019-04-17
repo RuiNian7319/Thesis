@@ -19,7 +19,7 @@ The schematic of line 11 is shown in Figure \ref{fig:08Line11}. For Line 11, the
 
 
 \subsection{Line RM06A}
-A schematic of line RM06A is shown in Figure \ref{fig:08RM06A}.  Line RM06A is a complex pipeline spanning 151 km and carries two products, a lighter sweet product and a heavier sour product. The two products are batched (i.e., rotate between sending each product) and each product is sent for approximately eight hours before switching to the other product. The American Petroleum Institute (API) gravity for the lighter and heavier products are roughly 40 and 20, respectively. For the rest of this chapter, the lighter and heavier product will be referred to as \textit{sweet crude} and \textit{sour crude}, respectively.
+A schematic of line RM06A is shown in Figure \ref{fig:08RM06A}.  Line RM06A is a complex pipeline spanning 151 km and carries two products, a lighter sweet product and a heavier sour product. The two products are batched (i.e., rotate between sending each product) and each product is sent for approximately eight hours before switching to the other product. The American Petroleum Institute (API) gravity for the lighter and heavier products are roughly 40 and 20, respectively. For the rest of this chapter, the lighter and heavier product will be referred to as \textit{sweet crude} and \textit{sour crude}, respectively. The majority of the pipeline is operated between 1300 bbl/h to 3100 bbl/h. 
 
 \begin{figure}[h]
     \centering
@@ -136,7 +136,122 @@ The distribution of the new data set is shown in Table \ref{tab:08Ph2Data}.
 \end{table}
 
 \subsubsection{Manual Data Pre-processing}
-Finally, the data set is then manually pre-processed to remove data from badly behaving sensors and irregular operating conditions. Figures \ref{fig:08Density} to \ref{fig:08DRA} show some examples of poor data.  
+Finally, the data set is then manually pre-processed to modify data from badly behaving sensors and irregular operating conditions.  In this phase, only the number of training examples where be reduced.
+
+For this pipeline, both sweet and sour crude are transported in a cyclical fashion due to the hydraulic dynamics of the pipeline. Otherwise, the sour crude is too heavy to be transported for sustainable periods. However, downstream demand for each product can disrupt this operating cycle.  From Figure \ref{fig:08API}, it can be seen that there were extended periods of time where only sweet or sour crude were being transported, and was caused by the lack of demand downstream.  Such scenarios deviate from normal operations and were removed from the data.
+
+\begin{figure}[ht]
+     \centering
+     \begin{subfigure}[b]{1.0\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/08NonFilteredDensity.eps}
+         \caption{API data before abnormal condition removal.}
+         \label{fig:08APIBefore}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{1.0\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/08FilteredDensity.eps}
+         \caption{API data after abnormal condition removal.}
+         \label{fig:08APIAfter}
+     \end{subfigure}
+        \caption{API data before and after removing abnormal operating conditions.}
+        \label{fig:08API}
+\end{figure}
+
+Moreover, when a DRA set point is changed, there is a time delay for the flow rate to react because the new DRA concentration must be transported throughout the line before its effect can be fully realized.  DRA is catastrophically destroyed when passing through a pump; thus, DRA is only required to coat the pipeline between pump stations for its full effect to be exploited.  For CIG, it must coat the pipeline between CIG In normal operations, the density fluctuates between 10 - 50 API, depending on the type of crude present in the pipeline.  After analysis, the Fort Lupton densitometer was behaving abnormally compared to other densitometer and is shown in Figure \ref{fig:08Density}.  After confirming with Suncor that the densitometer was behaving abnormally, the variable was removed.  
+
+\begin{figure}[ht]
+     \centering
+     \begin{subfigure}[b]{0.48\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/08CheyDensity.eps}
+         \caption{Cheyenne API data for 10,000 mins.}
+         \label{fig:08GoodDensity}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.48\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/08FLDensity.eps}
+         \caption{Fort Lupton API data for 10,000 mins.}
+         \label{fig:08BadDensity}
+     \end{subfigure}
+        \caption{Comparison of normal and abnormal density readings.}
+        \label{fig:08Density}
+\end{figure}to Ault.  For Ault, the pipeline spanning between Ault and Fort Lupton must be coated.  Given the flow rate of the pipeline, it will take approximately ten hours to sufficiently coat the majority of the pipeline. Hence, data corresponding to transitional periods when DRA set points change are removed. At times, it may take longer; however, removing additional data will reduce the available data for identification of the machine learning models.  
+
+Pre- and post-processed DRA parts per million (ppm) measurements are shown in Figure \ref{fig:08DRA}. DRA ppm is measured continuously for the control of the DRA injection pumps. However, the measurement is very difficult, unreliable and corrupted with noise. Because DRA set points are rarely changes, an exponentially weighted moving average (EWMA) was applied to the DRA ppm readings for increased measurement reliability.  The EWMA formula and bias correction are given in Equations \ref{eq:08EWMA} and \ref{eq:08Bias_Correction}, respectively: 
+\begin{equation}
+    v_t = \beta v_{t - 1} + (1 - \beta) \theta_t, \; v_0 = 0
+    \label{eq:08EWMA}
+\end{equation}
+\begin{equation}
+    v_t \leftarrow \frac{v_t}{1 - \beta^t}, \forall v \in V
+    \label{eq:08Bias_Correction}
+\end{equation}
+where $v_{t}$ is the exponentially weighted value at time $t$.  $\beta$ is the exponentially weighing factor.  Larger $\beta$ results in smoother results.  $\theta_t$ is the original value at time $t$. $V$ is a vector representing the exponentially weighted values before bias correction.  
+
+\begin{figure}[ht]
+     \centering
+     \begin{subfigure}[b]{0.9\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/08CIGSour.eps}
+         \caption{CIG sour DRA sensor reading.}
+         \label{fig:08CIGSour}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.9\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/08CIGSweet.eps}
+         \caption{CIG sweet DRA sensor reading.}
+         \label{fig:08CIGSweet}
+     \end{subfigure}
+          \begin{subfigure}[b]{1\textwidth}
+         \centering
+         \includegraphics[width=0.9\textwidth]{images/08AultSour.eps}
+         \caption{Ault sour DRA sensor reading.}
+         \label{fig:08AultSour}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{1\textwidth}
+         \centering
+         \includegraphics[width=0.9\textwidth]{images/08AultSweet.eps}
+         \caption{CIG sweet DRA sensor reading.}
+         \label{fig:08AultSweet}
+     \end{subfigure}
+        \caption{Pre- and post-processed DRA sensor readings.}
+        \label{fig:08DRA}
+\end{figure}
+
+Finally, the objective of the machine learning model was to predict the flow rate at Commerce City.  However, there is a natural time delay between the time an equipment status changed and the corresponding impact on downstream flow rate.  Because the pipeline is fully loaded and the product is incompressible, pressure changes upstream will be propagated downstream at close to the speed of sound \cite{fluid_mechanics}.  Table \ref{tab:08TimeToCC} shows the time required for pressure to propagate down the pipeline starting from each pump station.  The pump data for each pump station was shifted accordingly to account for this time delay, so predicted flow rates correspond to correct equipment configurations.  
+
+\begin{table}[h]
+    \centering
+    {\setstretch{1.5}
+    \begin{tabular}{ p{6cm} | c | c | c | c}
+             &  Cheyenne & CIG & Ault & Fort Lupton \\
+        \hline
+        Time to Commerce City at speed of sound in liquids (1480 m/s) \cite{fluid_mechanics}
+        &  1.7 min  &  1.5 min  &  1.0 min  &  0.45 min  \\
+    \end{tabular}}
+    \caption{Time required for pressure changes at each pump station to be realized at Commerce City.}
+    \label{tab:08TimeToCC}
+\end{table}
+
+A comprehensive list of the manual data pre-processing procedures is as follows:
+\begin{enumerate}
+    \item Shift data to accommodate the time delay at Commerce City.
+    \item Smooth DRA data using exponentially weighted moving average given in Equation \ref{eq:08EWMA}.  
+    \item Remove first 10 hours data corresponding to DRA set point changes.
+    \item Remove data points where flow is under 800 bbl/hr.
+    \item Remove data when only sweet or sour crude was sent through the pipeline.
+\end{enumerate}
+
+The final data set contained 65 variables and 97,470 data points.
+
+\subsection{Model Identification}
+\subsubsection{Feature Selection}
+For each pump station, there was a variety of sensors measuring the same process variables at different locations.  For example, VFD pumps have four readings each: On/off status, RPM, HZ, and current. So many variables relating to one equipment is redundant; therefore, only the current was selected for VFD pumps. Additionally, some sensors were behaving abnormally.
 
 In normal operations, the density fluctuates between 10 - 50 API, depending on the type of crude present in the pipeline.  After analysis, the Fort Lupton densitometer was behaving abnormally compared to other densitometer and is shown in Figure \ref{fig:08Density}.  After confirming with Suncor that the densitometer was behaving abnormally, the variable was removed.  
 
@@ -159,58 +274,32 @@ In normal operations, the density fluctuates between 10 - 50 API, depending on t
         \label{fig:08Density}
 \end{figure}
 
-Furthermore, both sweet and sour crude are sent into the pipeline in a cyclical fashion due to the hydraulic dynamics of the pipeline. The sour crude is too heavy to be transported for sustainable periods otherwise. However, downstream demand for each product can disrupt this operating cycle.  From Figure \ref{fig:08API}, it can be seen that there were extended periods of time where only sweet or sour crude were being transported.  Such scenarios deviate from normal operations and were removed from the data.
+Table \ref{tab:08featselect} shows the features selected for each pump station. The predicted variable was the flow rate (bbl/h) at Commerce City.
 
-\begin{figure}[ht]
-     \centering
-     \begin{subfigure}[b]{1.0\textwidth}
-         \centering
-         \includegraphics[width=\textwidth]{images/08NonFilteredDensity.eps}
-         \caption{API data before abnormal condition removal.}
-         \label{fig:08APIBefore}
-     \end{subfigure}
-     \hfill
-     \begin{subfigure}[b]{1.0\textwidth}
-         \centering
-         \includegraphics[width=\textwidth]{images/08FilteredDensity.eps}
-         \caption{API data after abnormal condition removal.}
-         \label{fig:08APIAfter}
-     \end{subfigure}
-        \caption{API data before and after removing abnormal operating conditions.}
-        \label{fig:08API}
-\end{figure}
+\begin{table}[h]
+    \centering
+    {\tiny
+    {\setstretch{1.5}
+    \begin{tabular}{ c | c | c | c | c}
+        Cheyenne & CIG & Ault & Fort Lupton & Commerce City \\
+        \hline
+        Boost. Pump Status  &  Sweet DRA (ppm)  &  Sweet DRA (ppm)        &  Boost. Pump Status  & Inlet Temp. (°C) \\
+        VFD Current (Amp)   &  Sour DRA (ppm)   &  Sour DRA (ppm)         &  VFD Current (Amp)   & \\
+        Inlet Temp. (°C)    &  Inlet Temp. (°C) &  Boost. Pump Status x2  &  Inlet Temp. (°C)    & \\
+        API                 &  API              &  Inlet Temp. (°C)       &             
+        & \\
+                            &                   &       API               &       
+        & \\
+        
+    \end{tabular}}}
+    \caption{Features selected for machine learning models.}
+    \label{tab:08featselect}
+\end{table}
 
-Moreover, when a DRA set point is changed, there is a time delay for the flow rate to react because the new DRA concentration must be transported throughout the line before its effect can be fully realized.  DRA is catastrophically destroyed when passing through a pump; thus, DRA is only required to coat the pipeline between pump stations for its full effect to be exploited.  For CIG, it must coat the pipeline between CIG to Ault.  For Ault, the pipeline spanning between Ault and Fort Lupton must be coated.  Given the flow rate of the pipeline, it will take approximately ten hours to sufficiently coat the majority of the pipeline. Hence, data corresponding to transitional periods when DRA set points change are removed. At times, it may take longer; however, removing additional data will reduce the available data for identification of the machine learning models.  
+\paragraph{Linear Modelling}
+\paragraph{Non-linear Modelling}
 
-DRA parts per million (ppm) is measured continuously for the control loop of the DRA injection pumps. 
-
-\begin{equation}
-    v_(t) = \beta v_{t - 1} + (1 - \beta) \theta_t
-    \label{eq:08EWMA}
-\end{equation}
-
-Finally, because the pipeline is fully loaded and crude is incompressible, pressure changes upstream will be propagated down the pipeline at close to the speed of sound \cite{fluid_mechanics}.  
-
-
-A comprehensive list of the manual data pre-processing procedures is as follows:
-\begin{enumerate}
-    \item Shift flow rates up one time step: $Q_{t + 1} = Q_t$.
-    \item Smooth DRA data using exponentially weighted moving average given in Equation \ref{eq:08EWMA}.  
-    \item Remove first 10 hours data corresponding to DRA set point changes.
-    \item Remove data points where flow is under 800 bbl/hr.
-    \item Remove data when only sweet or sour crude was sent through the pipeline.
-    \item Remove data when DRA was not being used.
-\end{enumerate}
-
-
-\subsection{Model Identification}
-\subsubsection{Feature Selection}
-\subsubsection{Feature Engineering}
-\subsubsection{Exploratory Modelling}
-\paragraph{Linear Regression}
-\paragraph{Non-linear Regression}
-
-\subsubsection{Model Structure}
+\subsubsection{Selected Model Structure}
 Ultimately, a linear parameter-varying (LPV) model was selected to model this pipeline.  It is clear that the process is heavily non-linear due to the increase in accuracy when switching to a non-linear model structure; therefore, LPV models were selected due to their non-linear nature while still retaining the interpretability of linear models. To enhance credibility, any non-linear model can be approximated by a LPV model via the White's Theorem \cite{LPV}.
 
 \subsubsection{Model Validation}

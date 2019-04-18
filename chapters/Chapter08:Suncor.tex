@@ -251,7 +251,7 @@ The final data set contained 65 variables and 97,470 data points.
 
 \subsection{Model Identification}
 \subsubsection{Feature Selection}
-For each pump station, there was a variety of sensors measuring the same process variables at different locations.  For example, VFD pumps have four readings each: On/off status, RPM, HZ, and current. So many variables relating to one equipment is redundant; therefore, only the current was selected for VFD pumps. Additionally, some sensors were behaving abnormally.
+For each pump station, there was a variety of sensors measuring the same process variables at different locations.  For example, VFD pumps have four readings each: On/off status, RPM, HZ, and current. Many variables relating to one equipment is redundant; thus, only one variable was selected when redundancy existed. Additionally, some sensors were behaving abnormally.
 
 In normal operations, the density fluctuates between 10 - 50 API, depending on the type of crude present in the pipeline.  After analysis, the Fort Lupton densitometer was behaving abnormally compared to other densitometer and is shown in Figure \ref{fig:08Density}.  After confirming with Suncor that the densitometer was behaving abnormally, the variable was removed.  
 
@@ -296,8 +296,43 @@ Table \ref{tab:08featselect} shows the features selected for each pump station. 
     \label{tab:08featselect}
 \end{table}
 
-\paragraph{Linear Modelling}
-\paragraph{Non-linear Modelling}
+\subsubsection{Feature Scaling}
+
+\begin{equation}
+    x_{norm} = \frac{x - x^{min}}{x^{max} - x^{min}}
+\end{equation}
+
+\subsubsection{Data Partitioning}
+The data set was split into three sections to validate and test the machine learning models: training, validation, test.  The partition and description of each section is described in Table \ref{tab:08datapart}.
+
+\begin{table}[h]
+    \centering
+    {\setstretch{1.5}
+    \begin{tabular}{ c | c | p{9cm}}
+                            & \% of Data        &  Description \\
+        \hline
+        Training            &  90\%             
+        &  Used to identify the machine learning model        \\
+        
+        Validation          &  5\%              
+        &           \\
+        
+        Testing             &  5\%             
+        &  Used to explore the effec       \\             
+        
+    \end{tabular}}
+    \caption{Features selected for machine learning models.}
+    \label{tab:08datapart}
+\end{table}
+
+\subsubsection{Model Optimization}
+
+\subsubsection{Linear Modelling}
+Linear regression was selected as a 
+
+
+\subsubsection{Non-linear Modelling}
+The following non-linear methods were explored for modelling the pipeline flow rate:
 
 \subsubsection{Selected Model Structure}
 Ultimately, a linear parameter-varying (LPV) model was selected to model this pipeline.  It is clear that the process is heavily non-linear due to the increase in accuracy when switching to a non-linear model structure; therefore, LPV models were selected due to their non-linear nature while still retaining the interpretability of linear models. To enhance credibility, any non-linear model can be approximated by a LPV model via the White's Theorem \cite{LPV}.

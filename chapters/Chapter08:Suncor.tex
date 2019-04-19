@@ -164,26 +164,7 @@ For this pipeline, both sweet and sour crude are transported in a cyclical fashi
         \label{fig:08API}
 \end{figure}
 
-Moreover, when a DRA set point is changed, there is a time delay for the flow rate to react because the new DRA concentration must be transported throughout the line before its effect can be fully realized.  DRA is catastrophically destroyed when passing through a pump; thus, DRA is only required to coat the pipeline between pump stations for its full effect to be exploited.  For CIG, it must coat the pipeline between CIG In normal operations, the density fluctuates between 10 - 50 API, depending on the type of crude present in the pipeline.  After analysis, the Fort Lupton densitometer was behaving abnormally compared to other densitometer and is shown in Figure \ref{fig:08Density}.  After confirming with Suncor that the densitometer was behaving abnormally, the variable was removed.  
-
-\begin{figure}[ht]
-     \centering
-     \begin{subfigure}[b]{0.48\textwidth}
-         \centering
-         \includegraphics[width=\textwidth]{images/08CheyDensity.eps}
-         \caption{Cheyenne API data for 10,000 mins.}
-         \label{fig:08GoodDensity}
-     \end{subfigure}
-     \hfill
-     \begin{subfigure}[b]{0.48\textwidth}
-         \centering
-         \includegraphics[width=\textwidth]{images/08FLDensity.eps}
-         \caption{Fort Lupton API data for 10,000 mins.}
-         \label{fig:08BadDensity}
-     \end{subfigure}
-        \caption{Comparison of normal and abnormal density readings.}
-        \label{fig:08Density}
-\end{figure}to Ault.  For Ault, the pipeline spanning between Ault and Fort Lupton must be coated.  Given the flow rate of the pipeline, it will take approximately ten hours to sufficiently coat the majority of the pipeline. Hence, data corresponding to transitional periods when DRA set points change are removed. At times, it may take longer; however, removing additional data will reduce the available data for identification of the machine learning models.  
+Moreover, when a DRA set point is changed, there is a time delay for the flow rate to react because the new DRA concentration must be transported throughout the line before its effect can be fully realized.  DRA is catastrophically destroyed when passing through a pump; thus, DRA is only required to coat the pipeline between pump stations for its full effect to be exploited.  For CIG, it must coat the pipeline between CIG to Ault.  For Ault, the pipeline spanning between Ault and Fort Lupton must be coated.  Given the flow rate of the pipeline, it will take approximately ten hours to sufficiently coat the majority of the pipeline. Hence, data corresponding to transitional periods when DRA set points change are removed. At times, it may take longer; however, removing additional data will reduce the available data for identification of the machine learning models.  
 
 Pre- and post-processed DRA parts per million (ppm) measurements are shown in Figure \ref{fig:08DRA}. DRA ppm is measured continuously for the control of the DRA injection pumps. However, the measurement is very difficult, unreliable and corrupted with noise. Because DRA set points are rarely changes, an exponentially weighted moving average (EWMA) was applied to the DRA ppm readings for increased measurement reliability.  The EWMA formula and bias correction are given in Equations \ref{eq:08EWMA} and \ref{eq:08Bias_Correction}, respectively: 
 \begin{equation}
@@ -339,17 +320,81 @@ The data set was split into three sections to validate and test the machine lear
     \label{tab:08datapart}
 \end{table}
 
-\subsubsection{Cost Function and Performance Assessment}
+\subsubsection{Cost Function}
 
-The mean squared error cost function is used and is given by:
+For all predictive models, the mean squared error (MSE) cost function is used and is given by:
 \begin{equation}
-    Loss = \frac{1}{n}\sum\limits^n_{i=1}(\hat{y}_i - y_i)^2
+    J = \frac{1}{n}\sum\limits^n_{i=1}(\hat{y}_i - y_i)^2
     \label{eq:08MSE}
 \end{equation}
-where $n$ is the number of samples in the current optimization step.  $\hat{y}_i$ and $y_i$ are the $i^{th}$ predicted and actual labels, respectively. 
+where $n$ is the number of samples in the current optimization step.  $\hat{y}_i$ and $y_i$ are the $i^{th}$ predicted and actual labels, respectively. Here, $J$ is the loss. The MSE cost function was selected due to its convex nature \cite{deeplearning_course}.
 
 
 \subsubsection{Model Optimization}
+
+The adaptive momentum (ADAM) gradient descent optimizer was used to update the weights and bias of the models.  The general gradient descent formulation is given by Equation \ref{eq:08GradientDescent} \cite{ADAM}.  
+\begin{equation}
+    \theta_j^{m+1} \leftarrow \theta_j^{m} - \alpha \frac{\partial J}{\partial \theta_j}
+    \label{eq:08GradientDescent}
+\end{equation}
+where $\theta_j$ is the $j^{th}$ weight of the model.  $m$ represents the $m^{th}$ update of gradient descent and $\alpha$ is the learning rate.  ADAM improves upon Equation \ref{eq:08GradientDescent} by computing an adaptive learning rate for each parameter. To do so, the exponentially decaying average of the past gradients and squared gradients of the weights and biases are computed and stored using Equations \ref{eq:08momentW} to \ref{eq:08squared_momentb}.
+\begin{equation}
+    V_{dW} = \beta_1 V_{dW} + (1 - \beta_1)dW
+    \label{eq:08momentW}
+\end{equation}
+\begin{equation}
+    V_{db} = \beta_1 V_{db} + (1 - \beta_1)db
+    \label{eq:08momentb}
+\end{equation}
+\begin{equation}
+    S_{dW} = \beta_2 S_{dW} + (1 - \beta_2)dW^2
+    \label{eq:08squared_momentW}
+\end{equation}
+\begin{equation}
+    S_{db} = \beta_2 S_{db} + (1 - \beta_2)db^2
+    \label{eq:08squared_momentb}
+\end{equation}
+where $V$ and $S$ are the estimates of the gradient and squared gradients, respectively.  $V$ and $S$ are typically initiated as zero vectors and are heavily biased towards zero at initial steps.  Hence, the biases for the initial terms are corrected using:
+\begin{equation}
+    V_{dW}^{corrected} = \frac{V_{dW}}{1 - \beta_1^t}
+\end{equation}
+\begin{equation}
+    V_{db}^{corrected} = \frac{V_{db}}{1 - \beta_1^t}
+\end{equation}
+\begin{equation}
+    S_{dW}^{corrected} = \frac{S_{dW}}{1 - \beta_2^t}
+\end{equation}
+\begin{equation}
+    S_{db}^{corrected} = \frac{S_{db}}{1 - \beta_2^t}
+\end{equation}
+Combining the above equations, the weights and biases are updated using ADAM by:
+\begin{equation}
+    W_j \leftarrow W_j - \alpha \frac{V_{dW}^{corrected}}{S_{dW}^{corrected} + \epsilon}
+\end{equation}
+\begin{equation}
+    b \leftarrow b - \alpha \frac{V_{db}^{corrected}}{S_{db}^{corrected} + \epsilon}
+\end{equation}
+where $\epsilon$ is a small scalar to avoid division by zero. The authors proposed values of 0.9, 0.999 and $10^{-8}$ for $\beta_1$, $\beta_2$, and $\epsilon$, respectively.
+
+Due to the size of the data, batch gradient descent where all data are used to compute the gradient at each step is computationally infeasible.  Thus, mini-batch gradient descent was used where smaller batches of data were sampled from the original data set to perform parameter updates at each step.
+
+\subsubsection{Performance Assessment}
+The model performances were assessed using the following three ways:
+\begin{enumerate}
+    \item Root mean squared error:
+    \begin{equation}
+        J = \sqrt{\frac{1}{n}\sum\limits^n_{i=1}(\hat{y}_i - y_i)^2}
+        \label{eq:08RMSE}
+    \end{equation}
+    
+    \item Mean absolute error:
+    \begin{equation}
+        J = \frac{1}{n}\sum\limits^n_{i=1}(\hat{y}_i - y_i)
+        \label{eq:08MSE}
+    \end{equation}
+    \item Coefficient of determination:
+    
+\end{enumerate}
 
 \subsubsection{Linear Modelling}
 Linear regression was selected as a 

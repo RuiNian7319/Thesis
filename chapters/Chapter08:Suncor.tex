@@ -379,22 +379,43 @@ where $\epsilon$ is a small scalar to avoid division by zero. The authors propos
 Due to the size of the data, batch gradient descent where all data are used to compute the gradient at each step is computationally infeasible.  Thus, mini-batch gradient descent was used where smaller batches of data were sampled from the original data set to perform parameter updates at each step.
 
 \subsubsection{Performance Assessment}
-The model performances were assessed using the following three ways:
+The model performance were assessed using the following three ways:
 \begin{enumerate}
-    \item Root mean squared error:
+    \item Root mean squared error (RMSE):
     \begin{equation}
         J = \sqrt{\frac{1}{n}\sum\limits^n_{i=1}(\hat{y}_i - y_i)^2}
         \label{eq:08RMSE}
     \end{equation}
     
-    \item Mean absolute error:
+    \item Mean absolute error (MAE):
     \begin{equation}
         J = \frac{1}{n}\sum\limits^n_{i=1}(\hat{y}_i - y_i)
         \label{eq:08MSE}
     \end{equation}
-    \item Coefficient of determination:
-    
+    \item Coefficient of determination ($R^2$):
+    \begin{equation}
+        R^2 = 1 - \frac{\sum\limits^n_{i = 1}(\hat{y_i} - y_i)^2}{\sum\limits^n_{i = 1}(y_i - \bar{y_i})^2}
+    \end{equation}
 \end{enumerate}
+
+Table \ref{tab:08performanceassessment} shows the advantages and disadvantages of each assessment metric.
+
+\begin{table}[h]
+    \centering
+    {\setstretch{1.5}
+    \begin{tabular}{ c | p{7cm} | p{7cm}}
+         Method             & Advantages        &  Disadvantages \\
+        \hline
+        RMSE                &  Large deviations are identified             &  Used to identify the machine learning model        \\
+                            &  Large deviations are identified             &  Used to identify the machine learning model        \\
+        
+        MAE                 &  5\%                                         &  Validates the performance of the machine learning model         \\
+        
+        $R^2$               &  5\%                                         &  Used to test performance of machine learning model on unseen data       \\             
+    \end{tabular}}
+    \caption{Advantages and disadvantages of each performance assessment metric.}
+    \label{tab:08performanceassessment}
+\end{table}
 
 \subsubsection{Linear Modelling}
 Linear regression was selected as a 

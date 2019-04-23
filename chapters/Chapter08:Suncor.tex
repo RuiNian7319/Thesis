@@ -417,7 +417,14 @@ Table \ref{tab:08performanceassessment} shows the advantages and disadvantages o
 \end{table}
 
 \subsubsection{Linear Modelling}
-Linear regression was selected as a 
+Least squares regression was selected as the benchmark due to its simplicity and linear nature. The model structure of least squares is given as:
+\begin{equation}
+    \hat{y} = W^Tx + b
+    \ref{eq:08LS}
+\end{equation}
+where $x$ is a vector of features. 
+
+Hyper parameters of the linear regression are shown in Table \ref{tab:08LSHparameters}.
 
 
 \subsubsection{Non-linear Modelling}

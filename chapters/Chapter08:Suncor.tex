@@ -145,7 +145,7 @@ Finally, the data set is then manually pre-processed to modify data from badly b
 
 For this pipeline, both sweet and sour crude are transported in a cyclical fashion due to the hydraulic dynamics of the pipeline. Otherwise, the sour crude is too heavy to be transported for sustainable periods. However, downstream demand for each product can disrupt this operating cycle.  From Figure \ref{fig:08API}, it can be seen that there were extended periods of time where only sweet or sour crude were being transported, and was caused by the lack of demand downstream.  Such scenarios deviate from normal operations and were removed from the data.
 
-\begin{figure}[ht]
+\begin{figure}[h]
      \centering
      \begin{subfigure}[b]{1.0\textwidth}
          \centering
@@ -177,7 +177,7 @@ Pre- and post-processed DRA parts per million (ppm) measurements are shown in Fi
 \end{equation}
 where $v_{t}$ is the exponentially weighted value at time $t$.  $\beta$ is the exponentially weighing factor.  Larger $\beta$ results in smoother results.  $\theta_t$ is the original value at time $t$. $V$ is a vector representing the exponentially weighted values before bias correction.  
 
-\begin{figure}[ht]
+\begin{figure}[h]
      \centering
      \begin{subfigure}[b]{0.9\textwidth}
          \centering
@@ -241,7 +241,7 @@ For each pump station, there was a variety of sensors measuring the same process
 
 In normal operations, the density fluctuates between 10 - 50 API, depending on the type of crude present in the pipeline.  After analysis, the Fort Lupton densitometer was behaving abnormally compared to other densitometer and is shown in Figure \ref{fig:08Density}.  After confirming with Suncor that the densitometer was behaving abnormally, the variable was removed.  
 
-\begin{figure}[ht]
+\begin{figure}[h]
      \centering
      \begin{subfigure}[b]{0.48\textwidth}
          \centering
@@ -285,7 +285,7 @@ Table \ref{tab:08featselect} shows the features selected for each pump station. 
 \subsubsection{Feature Scaling}
 Figure \ref{fig:08featscale} shows the contour of a normalized and non-normalized cost function. It can be seen that the optimization of a non-normalized cost function can be significantly hindered depending on where the optimization is initialized.
 
-\begin{figure}
+\begin{figure}[h]
     \centering
     \includegraphics[width=1\textwidth]{images/08featscale.png}
     \caption{Coutour of normalized and non-normalized cost functions. Original images from \cite{deeplearning_course}.}
@@ -299,7 +299,7 @@ To avoid this problem, the min-max normalization is applied to each variable and
 where $x^{norm}$ is the normalized values.  Here, $x^{min}$ and $x^{max}$ are the minimum and maximum values of each variable, respectively.  By applying this normalization, all data are bounded between $x_i \in [0, 1]$, and the elongation issue of the cost function can be resolved.
 
 \subsubsection{Data Partitioning}
-The data set was split into three sections to validate and test the machine learning models: training, validation, and testing.  The partition and description of each section is described in Table \ref{tab:08datapart}. The training data set is used to identify the machine learning model(s).  Then, the model is validated on un-trained data via the validation data set.  The error of the model on the validation data set, $e_{validation}$, should be similar to the training data error, $e_{train}$, to ensure that the model did not overfit to the training data. Finally, the model will be tested on the testing data to explore the performance of the model in live production.
+The data set was split into three sections to validate and test the machine learning models: training, validation, and testing.  The partition and description of each section is described in Table \ref{tab:08datapart}. The training data set is used to identify the machine learning model(s).  Then, the model is validated on un-trained data via the validation data set (sometimes called development data).  The error of the model on the validation data set, $e_{validation}$, should be similar to the training data error, $e_{train}$, to ensure that the model did not overfit to the training data. Finally, the model will be tested on the testing data to explore the performance of the model in live production.
 
 \begin{table}[h]
     \centering
@@ -324,11 +324,17 @@ The data set was split into three sections to validate and test the machine lear
 
 For all predictive models, the mean squared error (MSE) cost function is used and is given by:
 \begin{equation}
-    J = \frac{1}{n}\sum\limits^n_{i=1}(\hat{y}_i - y_i)^2
+    J(W) = \frac{1}{n}\sum\limits^n_{i=1}(\hat{y}_i - y_i)^2
     \label{eq:08MSE}
 \end{equation}
 where $n$ is the number of samples in the current optimization step.  $\hat{y}_i$ and $y_i$ are the $i^{th}$ predicted and actual labels, respectively. Here, $J$ is the loss. The MSE cost function was selected due to its convex nature \cite{deeplearning_course}.
 
+To ensure adequate performance on the validation and testing data, the model must avoid overfitting to the training data.  One common way to reduce model complexity is by removing or reducing individual variables' impact on the model.  This study used a ridge regularization to reduce model complexity:
+\begin{equation}
+    J(W) = \frac{1}{n}\sum\limits^n_{i=1}(\hat{y}_i - y_i)^2 + \lambda \sum\limits^n_{j=1} W_j^2
+    \label{eq:08MSE_wR}
+\end{equation}
+where $\lambda$ is the regularization penalty.  Here, as $\lambda \rightarrow \infty$, $W \rightarrow 0$.  That is, the larger $\lambda$ is, the stronger the weights are penalized. 
 
 \subsubsection{Model Optimization}
 
@@ -417,14 +423,47 @@ Table \ref{tab:08performanceassessment} shows the advantages and disadvantages o
 \end{table}
 
 \subsubsection{Linear Modelling}
-Least squares regression was selected as the benchmark due to its simplicity and linear nature. The model structure of least squares is given as:
+The least squares regression was the first regression method to be explored, and was selected as the benchmark due to its simplicity and linear nature. The model structure of least squares is given as:
 \begin{equation}
     \hat{y} = W^Tx + b
-    \ref{eq:08LS}
+    \label{eq:08LS}
 \end{equation}
 where $x$ is a vector of features. 
 
 Hyper parameters of the linear regression are shown in Table \ref{tab:08LSHparameters}.
+
+\begin{table}[h]
+    \centering
+    {\setstretch{1.5}
+    \begin{tabular}{ c | c}
+        Hyper Parameter                  &  Value       \\
+        \hline
+        Epochs                           &  800      \\
+        Minibatch Size                   &  8192     \\
+        Learning rate, $\alpha$          &  0.001    \\
+        Regularization, $\lambda$          &  0.001  \\
+    \end{tabular}}
+    \caption{Hyper parameters for least squares regression.}
+    \label{tab:08LSHparameters}
+\end{table}
+
+The performance assessment of the least squares model is shown in Table \ref{tab:08LSperformance}.
+
+\begin{table}[h]
+    \centering
+    {\setstretch{1.5}
+    \begin{tabular}{ c | c | c | c}
+                             &  Training data    &  Validation data   &    Test data      \\
+        \hline
+        MAE                  &  98               &    98              &  102     \\
+        RMSE                 &  127              &   127              &  135    \\ 
+        $R^2$                &  0.91             &   0.91             &  0.70   \\
+    \end{tabular}}
+    \caption{Performance assessment for the least squares model.}
+    \label{tab:08LSperformance}
+\end{table}
+
+
 
 
 \subsubsection{Non-linear Modelling}

@@ -1,4 +1,4 @@
-Pipelines are critical for safe and efficient transportation of fluids across long distances.  For example, pipelines are used by utility companies to transport clean water and natural gas to homes for heating and living purposes.  Furthermore, pipelines are also used in agriculture to transport irrigation water to hydrate crops.  Moreover, pipelines are used by energy companies for transporting energy-rich hydrocarbons to fuel the world's transportation and manufacturing. In the United States, over 70\% of petroleum products are shipped by pipeline.  In Canada, the number increases to 97\% \cite{pipeline_transport}.  The latest data in 2014 estimates that there are about 3,500,000 km of operational pipelines in 120 countries \cite{CIA_pipeline}. Due to the world's dependency on pipelines for transporting their basic needs, ensuring its reliability and efficiency has a global-scale impact.
+Pipelines are critical for safe and efficient transportation of fluids across long distances.  For example, pipelines are used by utility companies to transport clean water and natural gas to homes for heating and living purposes.  Furthermore, pipelines are also used in agriculture to transport irrigation water to hydrate crops.  Moreover, pipelines are used by energy companies for transporting energy-rich hydrocarbons to fuel the world's transportation and manufacturing needs. In the United States, over 70\% of petroleum products are shipped by pipeline.  In Canada, the number increases to 97\% \cite{pipeline_transport}.  The latest data in 2014 estimates that there are about 3,500,000 km of operational pipelines across 120 countries \cite{CIA_pipeline}. Due to the world's dependency on pipelines for transporting their basic needs, ensuring its reliability and efficiency has a global-scale impact.
 
 Typical pipelines have hundreds of digital measurements per minute and are hard to analyze; however, machine learning methods benefit greatly from large amounts of data. Thus, an opportunity was discovered where machine learning methods will be applied to pipelines used to transport petroleum products. The objectives of this project were to leverage machine learning to identify anomalous pipeline behaviour, and to build a real time optimization tool to automate, normalize and enhance the pipeline operation.
 
@@ -19,7 +19,7 @@ The schematic of line 11 is shown in Figure \ref{fig:08Line11}. For Line 11, the
 
 
 \subsection{Line RM06A}
-A schematic of line RM06A is shown in Figure \ref{fig:08RM06A}.  Line RM06A is a complex pipeline spanning 151 km and carries two products, a lighter sweet product and a heavier sour product. The two products are batched (i.e., rotate between sending each product) and each product is sent for approximately eight hours before switching to the other product. The American Petroleum Institute (API) gravity for the lighter and heavier products are roughly 40 and 20, respectively. For the rest of this chapter, the lighter and heavier product will be referred to as \textit{sweet crude} and \textit{sour crude}, respectively. The majority of the pipeline is operated between 1300 bbl/h to 3100 bbl/h. 
+A schematic of line RM06A is shown in Figure \ref{fig:08RM06A}.  Line RM06A is a complex pipeline spanning 151 km and carries two products, a lighter sweet product and a heavier sour product. The two products are batched (i.e., rotate between sending each product) and each product is sent for approximately eight hours before switching to the other product. The American Petroleum Institute (API) gravity for the lighter and heavier products are roughly 40 and 20, respectively. For the rest of this chapter, the lighter and heavier product will be referred to as \textit{sweet crude} and \textit{sour crude}, respectively. The pipeline is operated between 1500 bbl/h to 3050 bbl/h for the majority of the time. 
 
 \begin{figure}[h]
     \centering
@@ -28,7 +28,7 @@ A schematic of line RM06A is shown in Figure \ref{fig:08RM06A}.  Line RM06A is a
     \label{fig:08RM06A}
 \end{figure}
 
-Equipment wise, Line RM06A boasts eight pumps spread across four pump stations. Two pumps are variable frequency drives (VFD), while the rest are on/off pumps. Additionally, there are four drag reducing agent (DRA) injection pumps situated across the second and third pump stations. Each pump station contains a sour crude and sweet crude DRA pump. The sour and sweet crude uses different types of DRA and is injected based on the product present at the pump station. 
+Equipment wise, Line RM06A boasts eight pumps spread across four pump stations. Two pumps are variable frequency drives (VFD), while the rest are on/off pumps. Additionally, there are four drag reducing agent (DRA) injection pumps situated across the second and third pump stations. Each pump station contains a sour crude and sweet crude DRA pump. The sour and sweet crude uses different types of DRA.  The DRA is injected based on the product present at the pump station. 
 
 
 
@@ -40,14 +40,14 @@ Equipment wise, Line RM06A boasts eight pumps spread across four pump stations. 
 \subsection{Conceptual Software Design}
 
 \section{Real Time Optimization}
-Modern control systems typically consists of three layers: real time optimization (RTO), supervisory control and regulatory control.  From the top, real time optimization is evaluated the least frequently, and performs a steady state optimization of the process.  The outputs of RTO are the ideal set points for all equipment.  Next, the supervisory control layer performs dynamical optimization to identify the most efficient input trajectory to achieve the set points from RTO. Supervisory control is evaluated faster than RTO, but slower than regulatory control. Model predictive control (MPC) and economic model predictive control (EMPC) are typical supervisory control frameworks. Finally, the regulatory controllers actuate physical equipment to achieve the input trajectory given by the supervisory control layer.  Common regulatory controllers are proportional-integral-derivative (PID) controllers.
+Modern control systems typically consists of three layers: real time optimization (RTO), supervisory control and regulatory control.  From the top, real time optimization is evaluated the least frequently, and performs a steady state optimization of the process.  The outputs of RTO are the ideal set points for all equipment.  Next, the supervisory control layer performs dynamic optimization to identify the most efficient input trajectory to achieve the set points from RTO. Supervisory control is evaluated faster than RTO, but slower than regulatory control. Model predictive control (MPC) and economic model predictive control (EMPC) are typical supervisory control frameworks. Finally, the regulatory controllers actuate physical equipment to achieve the input trajectory given by the supervisory control layer.  Common regulatory controllers are proportional-integral-derivative (PID) controllers.
 
 The hierarchical structure of APC is shown in Figure \ref{fig:08APC}.
 
 \begin{figure}[h]
     \centering
     \includegraphics[scale=0.15]{images/08APC.png}
-    \caption{Hierarchy of a typical modern control system.}
+    \caption{Hierarchy of a typical control system.}
     \label{fig:08APC}
 \end{figure}
 
@@ -65,9 +65,6 @@ To overcome this problem, machine learning was used to firstly identify a model 
 
 The new communication framework for line RM06A is shown in Figure \ref{fig:08scheduleV2}.
 
-The rest of the chapters is as follows.  First, the data pre-processing step will be shown.  Then, the model identification phase will be introduced.  Following that, the optimization algorithm and all it's constraints for real-time optimization are presented.  Finally, the chapter is concluded with some conceptual software design regarding its implementation into a supervisory control and data acquisition (SCADA) system and the overall project impact will also be shown.
-
-
 \begin{figure}[h]
     \centering
     \includegraphics[scale=0.35]{images/08ScheduleV2.png}
@@ -75,8 +72,10 @@ The rest of the chapters is as follows.  First, the data pre-processing step wil
     \label{fig:08scheduleV2}
 \end{figure}
 
+The rest of the section is as follows.  First, the data pre-processing step will be shown.  Then, the model identification phase will be introduced.  Following that, the optimization algorithm and all it's constraints for real-time optimization are presented.  Finally, the section is concluded with some conceptual software design regarding its implementation into a supervisory control and data acquisition (SCADA) system and the overall project impact will also be shown.
+
 \subsection{Data Pre-processing}
-Two data sets were provided by Suncor.  The details of are shown in Table \ref{tab:08data}. Model identification and optimization evaluations were conducted for both datasets; however, the steps are very similar.  Because the 2019 algorithm will go into live production, whereas the 2018 data was used as a proof of concept, only the 2019 algorithm steps will be shown in detail.
+Two data sets were provided by Suncor.  The details are shown in Table \ref{tab:08data}. Model identification and optimization evaluations were conducted for both datasets; however, the steps are very similar.  Because the 2019 algorithm will go into live production, whereas the 2018 data was used primarily as a proof of concept, only the 2019 algorithm steps will be shown in detail.
 
 \begin{table}[h]
     \centering
@@ -91,7 +90,7 @@ Two data sets were provided by Suncor.  The details of are shown in Table \ref{t
     \label{tab:08data}
 \end{table}
 
-Data pre-processing can be broken down into three phases: Filtering by subject matter experts, automated data pre-processing, and manual data pre-processing.  After the third phase, an iterative procedure followed where the subject matter experts worked alongside the machine learning scientists to give suggestions on the variables that should be included in the final model.
+Data pre-processing can be broken down into three phases: Filtering by subject matter experts, automated data pre-processing, and manual data pre-processing.  An iterative procedure followed phase three where the subject matter experts worked alongside the machine learning scientists to give suggestions on which variables should be included/excluded in the final model.
 
 \subsubsection{Filtering by Subject Matter Experts}
 The first phase of data pre-processing was conducted by the subject matter experts at Suncor.  The original data set contained all data corresponding to the pipeline.  Variables such as alarm limits, fire detector status, monitor on/off status, etc., have low predictive power and were removed.  After this phase, the number of variables reduced from 738 to 124.  
@@ -118,7 +117,7 @@ Next, the data set is further filtered using the following methods:
     \item \textbf{Data imbalance analysis}: Remove boolean variables that contain 97\% or more of a single class.  Heavily imbalanced variables cause model bias towards the majority class \cite{data_preprocessing}.
     \item \textbf{Collinear analysis}: Identifies variables that are correlated over 90\%. Correlation, $r_{xy}$ is given in Equation \ref{eq:08correlation}. One variable is kept while the rest are removed to prevent one variable from being weighed many times in the final model \cite{data_preprocessing}.
     \begin{equation}
-        r_{xy} = \frac{\sum(x_i - \bar{x})(y_i - \bar{y}}{\sqrt{\sum(x_i - \bar{x})^2\sum(y_i-\bar{y})^2}}
+        r_{xy} = \frac{\sum(x_i - \bar{x})(y_i - \bar{y})}{\sqrt{\sum(x_i - \bar{x})^2\sum(y_i-\bar{y})^2}}
         \label{eq:08correlation}
     \end{equation}
     
@@ -267,14 +266,21 @@ Table \ref{tab:08featselect} shows the features selected for each pump station. 
     {\tiny
     {\setstretch{1.5}
     \begin{tabular}{ c | c | c | c | c}
-        Cheyenne & CIG & Ault & Fort Lupton & Commerce City \\
+        Cheyenne                       & CIG                      & Ault                        & Fort Lupton                    & Commerce City \\
         \hline
-        Boost. Pump Status  &  Sweet DRA (ppm)  &  Sweet DRA (ppm)        &  Boost. Pump Status  & Inlet Temp. (°C) \\
-        VFD Current (Amp)   &  Sour DRA (ppm)   &  Sour DRA (ppm)         &  VFD Current (Amp)   & \\
-        Inlet Temp. (°C)    &  Inlet Temp. (°C) &  Boost. Pump Status x2  &  Inlet Temp. (°C)    & \\
-        API                 &  API              &  Inlet Temp. (°C)       &             
+        $x_5$: Boos. Pump Status       &  $x_1$: Sweet DRA (ppm)  &  $x_3$: Sweet DRA (ppm)     &  $x_{18}$: Boos. Pump Status   &  $x_1$: Inlet Temp. (°C) \\
+        
+        $x_9$: VFD Current (Amp)       &  $x_2$: Sour DRA (ppm)   &  $x_4$: Sour DRA (ppm)      & $x_{10}$: VFD Current (Amp)      & \\
+        
+        $x_{14}$: Inlet Temp. (°C)     &  $x_{15}$: Inlet Temp. (°C) &  $x_6$: Small Pump Status &  $x_{17}$: Inlet Temp. (°C)  & \\
+        
+        $x_{11}$: API                   &  $x_{12}$: API          &  $x_7$: Large Pump Status   &             
         & \\
-                            &                   &       API               &       
+        
+                                       &                          &  $x_{16}$: Inlet Temp. (°C)  &             
+        & \\
+        
+                                       &                          &  $x_{13}$: API               &       
         & \\
         
     \end{tabular}}}
@@ -439,7 +445,7 @@ Hyper parameters of the linear regression are shown in Table \ref{tab:08LSHparam
         Hyper Parameter                  &  Value       \\
         \hline
         Epochs                           &  800      \\
-        Minibatch Size                   &  8192     \\
+        Minibatch size                   &  8192     \\
         Learning rate, $\alpha$          &  0.001    \\
         Regularization, $\lambda$          &  0.001  \\
     \end{tabular}}
@@ -461,6 +467,22 @@ The performance assessment of the least squares model is shown in Table \ref{tab
     \end{tabular}}
     \caption{Performance assessment for the least squares model.}
     \label{tab:08LSperformance}
+\end{table}
+
+The model parameters are given in Table \ref{tab:08paramLS}.
+
+\begin{table}[h]
+    \centering
+    {\setstretch{1.5}
+    \begin{tabular}{ c | c | c | c}
+                             &  Training data    &  Validation data   &    Test data      \\
+        \hline
+        MAE                  &  98               &    98              &  102     \\
+        RMSE                 &  127              &   127              &  135    \\ 
+        $R^2$                &  0.91             &   0.91             &  0.70   \\
+    \end{tabular}}
+    \caption{Model parameters of the least squared model.}
+    \label{tab:08paramLS}
 \end{table}
 
 

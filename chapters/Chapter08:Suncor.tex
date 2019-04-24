@@ -268,7 +268,7 @@ Table \ref{tab:08featselect} shows the features selected for each pump station. 
     \begin{tabular}{ c | c | c | c | c}
         Cheyenne                       & CIG                      & Ault                        & Fort Lupton                    & Commerce City \\
         \hline
-        $x_5$: Boos. Pump Status       &  $x_1$: Sweet DRA (ppm)  &  $x_3$: Sweet DRA (ppm)     &  $x_{18}$: Boos. Pump Status   &  $x_1$: Inlet Temp. (°C) \\
+        $x_5$: Boos. Pump Status       &  $x_1$: Sweet DRA (ppm)  &  $x_3$: Sweet DRA (ppm)     &  $x_{8}$: Boos. Pump Status   &  $x_{18}$: Inlet Temp. (°C) \\
         
         $x_9$: VFD Current (Amp)       &  $x_2$: Sour DRA (ppm)   &  $x_4$: Sour DRA (ppm)      & $x_{10}$: VFD Current (Amp)      & \\
         
@@ -434,7 +434,7 @@ The least squares regression was the first regression method to be explored, and
     \hat{y} = W^Tx + b
     \label{eq:08LS}
 \end{equation}
-where $x$ is a vector of features. 
+where $x$ is a vector of features and the superscript $T$ represents the transpose operation.
 
 Hyper parameters of the linear regression are shown in Table \ref{tab:08LSHparameters}.
 
@@ -469,21 +469,35 @@ The performance assessment of the least squares model is shown in Table \ref{tab
     \label{tab:08LSperformance}
 \end{table}
 
-The model parameters are given in Table \ref{tab:08paramLS}.
+The model performance on the validation and test data sets are shown in Figures \ref{fig:08LSValidation} and \ref{fig:08LSTest}.
 
-\begin{table}[h]
-    \centering
-    {\setstretch{1.5}
-    \begin{tabular}{ c | c | c | c}
-                             &  Training data    &  Validation data   &    Test data      \\
-        \hline
-        MAE                  &  98               &    98              &  102     \\
-        RMSE                 &  127              &   127              &  135    \\ 
-        $R^2$                &  0.91             &   0.91             &  0.70   \\
-    \end{tabular}}
-    \caption{Model parameters of the least squared model.}
-    \label{tab:08paramLS}
-\end{table}
+\begin{figure}[h]
+     \centering
+     \begin{subfigure}[b]{0.48\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/08ls_validation.eps}
+         \caption{Predicted vs. actual flow rate for the validation data set.}
+         \label{fig:08LSValidation}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.48\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/08ls_test.eps}
+         \caption{Predicted vs. actual flow rate for the test data set.}
+         \label{fig:08LSTest}
+     \end{subfigure}
+        \caption{Comparison of normal and abnormal density readings.}
+        \label{fig:08LSPlots}
+\end{figure}
+
+
+The least squares model is given in Equation \ref{eq:08LS}.
+
+\begin{multline}
+    \hat{y} = 0.10x_1 + 0.15x_2 + 0.13x_3 + 0.04x_4 + 0.04x_5 + 0.09x_6 + 0.12x_7 - 0.01x_8 \\
+    + 0.49x_9 + 0.02x_{10} + 0.09x_{11} - 0.18x_{15} + 0.30x_{16} - 0.05x_{17} + 0.04x_{18}
+    \label{eq:08LS}
+\end{multline}
 
 
 

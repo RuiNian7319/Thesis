@@ -174,9 +174,9 @@ Pre- and post-processed DRA parts per million (ppm) measurements are shown in Fi
     v_t \leftarrow \frac{v_t}{1 - \beta^t}, \forall v \in V
     \label{eq:08Bias_Correction}
 \end{equation}
-where $v_{t}$ is the exponentially weighted value at time $t$.  $\beta$ is the exponentially weighing factor.  Larger $\beta$ results in smoother results.  $\theta_t$ is the original value at time $t$. $V$ is a vector representing the exponentially weighted values before bias correction.  
+where $v_{t}$ is the exponentially weighted value at time $t$.  $\beta$ is the exponentially weighing factor.  Larger $\beta$ results in smoother results.  $\theta_t$ is the original value at time $t$. $V$ is a vector representing the exponentially weighted values before bias correction.
 
-\begin{figure}[h]
+\begin{figure}
      \centering
      \begin{subfigure}[b]{0.9\textwidth}
          \centering
@@ -184,23 +184,21 @@ where $v_{t}$ is the exponentially weighted value at time $t$.  $\beta$ is the e
          \caption{CIG sour DRA sensor reading.}
          \label{fig:08CIGSour}
      \end{subfigure}
-     \hfill
      \begin{subfigure}[b]{0.9\textwidth}
          \centering
          \includegraphics[width=\textwidth]{images/08CIGSweet.eps}
          \caption{CIG sweet DRA sensor reading.}
          \label{fig:08CIGSweet}
      \end{subfigure}
-          \begin{subfigure}[b]{1\textwidth}
+     \begin{subfigure}[b]{0.9\textwidth}
          \centering
-         \includegraphics[width=0.9\textwidth]{images/08AultSour.eps}
+         \includegraphics[width=\textwidth]{images/08AultSour.eps}
          \caption{Ault sour DRA sensor reading.}
          \label{fig:08AultSour}
      \end{subfigure}
-     \hfill
-     \begin{subfigure}[b]{1\textwidth}
+     \begin{subfigure}[b]{0.9\textwidth}
          \centering
-         \includegraphics[width=0.9\textwidth]{images/08AultSweet.eps}
+         \includegraphics[width=\textwidth]{images/08AultSweet.eps}
          \caption{CIG sweet DRA sensor reading.}
          \label{fig:08AultSweet}
      \end{subfigure}
@@ -209,7 +207,6 @@ where $v_{t}$ is the exponentially weighted value at time $t$.  $\beta$ is the e
 \end{figure}
 
 Finally, the objective of the machine learning model was to predict the flow rate at Commerce City.  However, there is a natural time delay between the time an equipment status changed and the corresponding impact on downstream flow rate.  Because the pipeline is fully loaded and the product is incompressible, pressure changes upstream will be propagated downstream at close to the speed of sound \cite{fluid_mechanics}.  Table \ref{tab:08TimeToCC} shows the time required for pressure to propagate down the pipeline starting from each pump station.  The pump data for each pump station was shifted accordingly to account for this time delay, so predicted flow rates correspond to correct equipment configurations.  
-
 \begin{table}[h]
     \centering
     {\setstretch{1.5}
@@ -222,7 +219,6 @@ Finally, the objective of the machine learning model was to predict the flow rat
     \caption{Time required for pressure changes at each pump station to be realized at Commerce City.}
     \label{tab:08TimeToCC}
 \end{table}
-
 A comprehensive list of the manual data pre-processing procedures is as follows:
 \begin{enumerate}
     \item Shift data to accommodate the time delay at Commerce City.
@@ -239,7 +235,6 @@ The final data set contained 65 variables and 97,470 data points.
 For each pump station, there was a variety of sensors measuring the same process variables at different locations.  For example, VFD pumps have four readings each: On/off status, RPM, HZ, and current. Many variables relating to one equipment is redundant; thus, only one variable was selected when redundancy existed. Additionally, some sensors were behaving abnormally.
 
 In normal operations, the density fluctuates between 10 - 50 API, depending on the type of crude present in the pipeline.  After analysis, the Fort Lupton densitometer was behaving abnormally compared to other densitometer and is shown in Figure \ref{fig:08Density}.  After confirming with Suncor that the densitometer was behaving abnormally, the variable was removed.  
-
 \begin{figure}[h]
      \centering
      \begin{subfigure}[b]{0.48\textwidth}
@@ -260,7 +255,6 @@ In normal operations, the density fluctuates between 10 - 50 API, depending on t
 \end{figure}
 
 Table \ref{tab:08featselect} shows the features selected for each pump station. The predicted variable was the flow rate (bbl/h) at Commerce City.
-
 \begin{table}[h]
     \centering
     {\tiny
@@ -304,9 +298,15 @@ To avoid this problem, the min-max normalization is applied to each variable and
 \end{equation}
 where $x^{norm}$ is the normalized values.  Here, $x^{min}$ and $x^{max}$ are the minimum and maximum values of each variable, respectively.  By applying this normalization, all data are bounded between $x_i \in [0, 1]$, and the elongation issue of the cost function can be resolved.
 
+\subsubsection{Exploratory Data Analysis}
+- Bi-modal distribution
+- Clustering analysis
+  - Average characteristics
+- Other characteristics for other variables.
+
+
 \subsubsection{Data Partitioning}
 The data set was split into three sections to validate and test the machine learning models: training, validation, and testing.  The partition and description of each section is described in Table \ref{tab:08datapart}. The training data set is used to identify the machine learning model(s).  Then, the model is validated on un-trained data via the validation data set (sometimes called development data).  The error of the model on the validation data set, $e_{validation}$, should be similar to the training data error, $e_{train}$, to ensure that the model did not overfit to the training data. Finally, the model will be tested on the testing data to explore the performance of the model in live production.
-
 \begin{table}[h]
     \centering
     {\setstretch{1.5}
@@ -389,7 +389,6 @@ Combining the above equations, the weights and biases are updated using ADAM by:
 where $\epsilon$ is a small scalar to avoid division by zero. The authors proposed values of 0.9, 0.999 and $10^{-8}$ for $\beta_1$, $\beta_2$, and $\epsilon$, respectively.
 
 Due to the size of the data, batch gradient descent where all data are used to compute the gradient at each step is computationally infeasible.  Thus, mini-batch gradient descent was used where smaller batches of data were sampled from the original data set to perform parameter updates at each step.
-
 \subsubsection{Performance Assessment}
 The model performance were assessed using the following three ways:
 \begin{enumerate}
@@ -402,16 +401,14 @@ The model performance were assessed using the following three ways:
     \item Mean absolute error (MAE):
     \begin{equation}
         J = \frac{1}{n}\sum\limits^n_{i=1}|\hat{y}_i - y_i|
-        \label{eq:08MSE}
+        \label{eq:08MSE_Error}
     \end{equation}
     \item Coefficient of determination ($R^2$):
     \begin{equation}
         R^2 = 1 - \frac{\sum\limits^n_{i = 1}(\hat{y_i} - y_i)^2}{\sum\limits^n_{i = 1}(y_i - \bar{y_i})^2}
     \end{equation}
 \end{enumerate}
-
 Table \ref{tab:08performanceassessment} shows the advantages and disadvantages of each assessment metric.
-
 \begin{table}[h]
     \centering
     {\setstretch{1.5}
@@ -424,10 +421,9 @@ Table \ref{tab:08performanceassessment} shows the advantages and disadvantages o
         
         $R^2$               &  Easy to understand, $0 \leq R^2 \leq 1$                                         &  Valid only for linear relationships       \\             
     \end{tabular}}
-    \caption{Advantages and disadvantages of each performance assessment metric.}
+    \caption{Constrained least squares validation and test plots.}
     \label{tab:08performanceassessment}
 \end{table}
-
 \subsubsection{Linear Modelling}
 The least squares regression was the first regression method to be explored, and was selected as the benchmark due to its simplicity and linear nature. The model structure of least squares is given as:
 \begin{equation}
@@ -437,7 +433,6 @@ The least squares regression was the first regression method to be explored, and
 where $x$ is a vector of features and the superscript $T$ represents the transpose operation.
 
 Hyper parameters of the linear regression are shown in Table \ref{tab:08LSHparameters}.
-
 \begin{table}[h]
     \centering
     {\setstretch{1.5}
@@ -452,9 +447,7 @@ Hyper parameters of the linear regression are shown in Table \ref{tab:08LSHparam
     \caption{Hyper parameters for least squares regression.}
     \label{tab:08LSHparameters}
 \end{table}
-
 The performance assessment of the least squares model is shown in Table \ref{tab:08LSperformance}.
-
 \begin{table}[h]
     \centering
     {\setstretch{1.5}
@@ -468,9 +461,7 @@ The performance assessment of the least squares model is shown in Table \ref{tab
     \caption{Performance assessment for the least squares model.}
     \label{tab:08LSperformance}
 \end{table}
-
 The model performance on the validation and test data sets are shown in Figures \ref{fig:08LSValidation} and \ref{fig:08LSTest}.
-
 \begin{figure}[h]
      \centering
      \begin{subfigure}[b]{0.48\textwidth}
@@ -489,21 +480,157 @@ The model performance on the validation and test data sets are shown in Figures 
         \caption{Comparison of normal and abnormal density readings.}
         \label{fig:08LSPlots}
 \end{figure}
-
-
-The least squares model is given in Equation \ref{eq:08LS}.
-
+The least squares model is given in Equation \ref{eq:08LS}.  Weights for $x_{11} - x_{14}$ were very small and were omitted.
 \begin{multline}
     \hat{y} = 0.10x_1 + 0.15x_2 + 0.13x_3 + 0.04x_4 + 0.04x_5 + 0.09x_6 + 0.12x_7 - 0.01x_8 \\
     + 0.49x_9 + 0.02x_{10} + 0.09x_{11} - 0.18x_{15} + 0.30x_{16} - 0.05x_{17} + 0.04x_{18}
-    \label{eq:08LS}
+    \label{eq:08LS_eq}
 \end{multline}
 
+From Equation \ref{eq:08LS}, it can be seen that turning on the booster pump at Fort Lupton results in a decrease in flow rate.  Theoretically, this is impossible and is most likely caused by noise in the data.  To increase the models ability to reflect reality, engineering knowledge was injected into the model via constraining $x_1 - x_{10}$ to be strictly positive.
 
+The new constrained least squares uses the same hyper parameters as shown in Table \ref{tab:08LSHparameters}.  Performance assessment of the constrained least squares is shown in Table \ref{tab:08ConstLSPerformance}.
+\begin{table}[h]
+    \centering
+    {\setstretch{1.5}
+    \begin{tabular}{ c | c | c | c}
+                             &  Training data    &  Validation data   &    Test data      \\
+        \hline
+        MAE                  &  98               &    98              &  94     \\
+        RMSE                 &  128              &   129              &  123    \\ 
+        $R^2$                &  0.91             &   0.91             &  0.74   \\
+    \end{tabular}}
+    \caption{Performance assessment for the constrained least squares model.}
+    \label{tab:08ConstLSPerformance}
+\end{table}
+The constrained least squares model performance on the validation and test data sets are shown in Figures \ref{fig:08CLSValidation} and \ref{fig:08CLSTest}. The results are nearly identical to the unconstrained model, with lower error in the test data set.
+\begin{figure}[h]
+     \centering
+     \begin{subfigure}[b]{0.48\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/08ConstrainedLS_validation.eps}
+         \caption{Predicted vs. actual flow rate for the validation data set.}
+         \label{fig:08CLSValidation}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.48\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/08ConstrainedLS_test.eps}
+         \caption{Predicted vs. actual flow rate for the test data set.}
+         \label{fig:08CLSTest}
+     \end{subfigure}
+        \caption{Constrained least squares validation and test plots.}
+        \label{fig:08CLSPlots}
+\end{figure}
 
+The least squares model is given in Equation \ref{eq:08CLS}.  Weights for $x_{8}, x_{11} - x_{14}$ were very small and were omitted.
+\begin{multline}
+    \hat{y} = 0.10x_1 + 0.15x_2 + 0.13x_3 + 0.04x_4 + 0.04x_5 + 0.09x_6 + 0.11x_7 \\
+    + 0.49x_9 + 0.02x_{10}  - 0.18x_{15} + 0.30x_{16} - 0.05x_{17} + 0.03x_{18}
+    \label{eq:08CLS}
+\end{multline}
 
 \subsubsection{Non-linear Modelling}
-The following non-linear methods were explored for modelling the pipeline flow rate:
+To further increase the accuracy of the models, the following non-linear methods were explored for modelling the pipeline flow rate:
+\begin{itemize}
+    \item Polynomial models
+    \begin{itemize}
+        \item Quadratic model
+        \item Square-root model
+    \end{itemize}
+    \item Feed-forward neural networks
+    \begin{itemize}
+        \item Small neural network (3 layers, 20 nodes per layer)
+        \item Medium neural network (6 layers, 30 nodes per layer)
+        \item Large neural network (8 layers, 40 nodes per layer)
+    \end{itemize}
+    \item Linear parameter-varying model
+\end{itemize}
+
+The quadratic and square-root model structures given by Equations \ref{eq:08quad_model} and \ref{eq:08sqrt_model}, respectively:
+\begin{equation}
+    \hat{y} = W_1^T X^2 + W^T_2 X + b
+    \label{eq:08quad_model}
+\end{equation}
+\begin{equation}
+    \hat{y} = W_1^T X^{1/2} + W^T_2 X + b
+    \label{eq:08sqrt_model}
+\end{equation}
+where $W_1$ are the weights for the squared and square rooted variables for the quadratic and square-root models, respectively. Furthermore, $W_2$ are the weights for the original variables. The hyper parameters for both models are shown in Table \ref{tab:08poly_hp}.
+\begin{table}[h]
+    \centering
+    {\setstretch{1.5}
+    \begin{tabular}{ c | c}
+        Hyper Parameter                  &  Value       \\
+        \hline
+        Epochs                           &  1000      \\
+        Minibatch size                   &  8192     \\
+        Learning rate, $\alpha$          &  0.001    \\
+        Regularization, $\lambda$          &  0.001  \\
+    \end{tabular}}
+    \caption{Hyper parameters for least squares regression.}
+    \label{tab:08poly_hp}
+\end{table}
+
+The performance assessment of the quadratic and square root models are shown in Table \ref{tab:08quad_sq_performance}. Compared to the constrained least squares, the MAE and RMSE went down by up to 10\% and 9\% when using the polynomial models, respectively.
+\begin{table}[h]
+    \centering
+    {\setstretch{1.5}
+    \begin{tabular}{ c | c | c | c}
+                             &  Training data     &  Validation data    &    Test data      \\
+        \hline
+                             &  Quad $\mid$ Sqrt  &   Quad $\mid$ Sqrt  &  Quad $\mid$ Sqrt \\
+        \hline
+        MAE                  &  92 $\mid$ 89      &    92 $\mid$ 89     &  89 $\mid$ 91   \\
+        RMSE                 &  121 $\mid$ 118    &   121 $\mid$ 117    &  120 $\mid$ 115  \\ 
+        $R^2$                &  0.92 $\mid$ 0.93  &   0.92 $\mid$ 0.93  &  0.76 $\mid$ 0.81 \\
+    \end{tabular}}
+    \caption{Performance assessment for the quadratic and square root model.}
+    \label{tab:08quad_sq_performance}
+\end{table}
+
+The neural network models
+
+The hyper parameters for each neural network is given in Table \ref{tab:08NN_hp}.
+\begin{table}[h]
+    \centering
+    {\setstretch{1.5}
+    \begin{tabular}{ c | c | c | c}
+        Hyper Parameter                            &  Small NN  &  Med. NN  & Large NN       \\
+        \hline
+        Epochs                                     &  700       & 1000      & 1200  \\
+        Minibatch size                             &  8192      & 8192      & 8192  \\
+        Learning rate, $\alpha$                    &  0.001     & 0.001     & 0.001 \\
+        Regularization, $\lambda$                  &  0.001     & 0.001     & 0.001 \\
+        Number of layers                           &  3         & 6         & 8     \\
+        Neurons per layer                          &  20        & 30        & 40    \\
+        Activation function for hidden layers      & ReLU       & ReLU      & ReLU  \\
+    \end{tabular}}
+    \caption{Hyper parameters for the feed-forward neural network.}
+    \label{tab:08NN_hp}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    {\setstretch{1.5}
+    \begin{tabular}{ c | c | c | c}
+                    &  Training data     &  Validation data    &    Test data      \\
+        \hline
+                    &  Small $\mid$ Med $\mid$ Large  &   Small $\mid$ Med $\mid$ Large
+                    &  Small $\mid$ Med $\mid$ Large \\
+        \hline
+        MAE         &  48 $\mid$ 42 $\mid$ xx     &    50 $\mid$ 45 $\mid$ xx   
+                    &  87 $\mid$ 103 $\mid$ xx   \\
+                    
+        RMSE        &  66 $\mid$ 58 $\mid$ xx    &   69 $\mid$ 61 $\mid$ xx    
+                    &  121 $\mid$ 123 $\mid$ xx \\ 
+                    
+        $R^2$       &  0.98 $\mid$ 0.98 $\mid$ xx  &   0.91 $\mid$ 0.90 $\mid$ xx   
+                    &  0.77 $\mid$ 0.74 $\mid$ xx \\
+    \end{tabular}}
+    \caption{Performance assessment for the quadratic and square root model.}
+    \label{tab:08quad_sq_performance}
+\end{table}
 
 \subsubsection{Selected Model Structure}
 Ultimately, a linear parameter-varying (LPV) model was selected to model this pipeline.  It is clear that the process is heavily non-linear due to the increase in accuracy when switching to a non-linear model structure; therefore, LPV models were selected due to their non-linear nature while still retaining the interpretability of linear models. To enhance credibility, any non-linear model can be approximated by a LPV model via the White's Theorem \cite{LPV}.

@@ -424,6 +424,13 @@ Table \ref{tab:08performanceassessment} shows the advantages and disadvantages o
     \caption{Constrained least squares validation and test plots.}
     \label{tab:08performanceassessment}
 \end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Least squares model
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \subsubsection{Linear Modelling}
 The least squares regression was the first regression method to be explored, and was selected as the benchmark due to its simplicity and linear nature. The model structure of least squares is given as:
 \begin{equation}
@@ -489,6 +496,12 @@ The least squares model is given in Equation \ref{eq:08LS}.  Weights for $x_{11}
 
 From Equation \ref{eq:08LS}, it can be seen that turning on the booster pump at Fort Lupton results in a decrease in flow rate.  Theoretically, this is impossible and is most likely caused by noise in the data.  To increase the models ability to reflect reality, engineering knowledge was injected into the model via constraining $x_1 - x_{10}$ to be strictly positive.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Constrained LS
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 The new constrained least squares uses the same hyper parameters as shown in Table \ref{tab:08LSHparameters}.  Performance assessment of the constrained least squares is shown in Table \ref{tab:08ConstLSPerformance}.
 \begin{table}[h]
     \centering
@@ -547,6 +560,12 @@ To further increase the accuracy of the models, the following non-linear methods
     \item Linear parameter-varying model
 \end{itemize}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  Quadratic and Sqrt models
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 The quadratic and square-root model structures given by Equations \ref{eq:08quad_model} and \ref{eq:08sqrt_model}, respectively:
 \begin{equation}
     \hat{y} = W_1^T X^2 + W^T_2 X + b
@@ -589,6 +608,46 @@ The performance assessment of the quadratic and square root models are shown in 
     \label{tab:08quad_sq_performance}
 \end{table}
 
+The polynomial model performances are shown in Figures \ref{fig:08quad_validation} to \ref{fig:08sqrt_test}.  
+
+\begin{figure}[h]
+     \centering
+     \begin{subfigure}[b]{0.48\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/08quad_validation.eps}
+         \caption{Predicted vs. actual flow rate for validation data set using the quadratic model.}
+         \label{fig:08quad_validation}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.48\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/08quad_test.eps}
+         \caption{Predicted vs. actual flow rate for the test data set using the quadratic model.}
+         \label{fig:08quad_test}
+     \end{subfigure}
+     \begin{subfigure}[b]{0.48\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/08sqrt_validation.eps}
+         \caption{Predicted vs. actual flow rate for the validation data set using the square root model.}
+         \label{fig:08sqrt_validation}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.48\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/08sqrt_test.eps}
+         \caption{Predicted vs. actual flow rate for the test data set using the square root model.}
+         \label{fig:08sqrt_test}
+     \end{subfigure}
+        \caption{Polynomial regression validation and test plots.}
+        \label{fig:08PolynomialPlots}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Neural Network Models
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 The neural network models
 
 The hyper parameters for each neural network is given in Table \ref{tab:08NN_hp}.
@@ -619,24 +678,86 @@ The hyper parameters for each neural network is given in Table \ref{tab:08NN_hp}
                     &  Small $\mid$ Med $\mid$ Large  &   Small $\mid$ Med $\mid$ Large
                     &  Small $\mid$ Med $\mid$ Large \\
         \hline
-        MAE         &  48 $\mid$ 42 $\mid$ xx     &    50 $\mid$ 45 $\mid$ xx   
-                    &  87 $\mid$ 103 $\mid$ xx   \\
+        MAE         &  48 $\mid$ 42 $\mid$ 38     &    50 $\mid$ 45 $\mid$ 37   
+                    &  87 $\mid$ 87 $\mid$ 115   \\
                     
-        RMSE        &  66 $\mid$ 58 $\mid$ xx    &   69 $\mid$ 61 $\mid$ xx    
-                    &  121 $\mid$ 123 $\mid$ xx \\ 
+        RMSE        &  66 $\mid$ 58 $\mid$ 57    &   69 $\mid$ 61 $\mid$ 56    
+                    &  121 $\mid$ 107 $\mid$ 138 \\ 
                     
-        $R^2$       &  0.98 $\mid$ 0.98 $\mid$ xx  &   0.91 $\mid$ 0.90 $\mid$ xx   
-                    &  0.77 $\mid$ 0.74 $\mid$ xx \\
+        $R^2$       &  0.97 $\mid$ 0.98 $\mid$ 0.99  &   0.91 $\mid$ 0.90 $\mid$ 0.94   
+                    &  0.77 $\mid$ 0.83 $\mid$ 0.66 \\
     \end{tabular}}
     \caption{Performance assessment for the quadratic and square root model.}
     \label{tab:08quad_sq_performance}
 \end{table}
 
+The performance of the neural networks are shown in Figures \ref{fig:08smallnn_valid} to \ref{fig:08largenn_test}.  
+
+\begin{figure}[h]
+     \centering
+     \begin{subfigure}[b]{0.48\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/08smallnn_valid.eps}
+         \caption{Predicted vs. actual flow rate for validation data set using the small neural net.}
+         \label{fig:08smallnn_valid}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.48\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/08smallnn_test.eps}
+         \caption{Predicted vs. actual flow rate for the test data set using the small neural net.}
+         \label{fig:08smallnn_test}
+     \end{subfigure}
+     \begin{subfigure}[b]{0.48\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/08mednn_valid.eps}
+         \caption{Predicted vs. actual flow rate for the validation data set using the medium neural net.}
+         \label{fig:08mednn_valid}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.48\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/08mednn_test.eps}
+         \caption{Predicted vs. actual flow rate for the test data set using the medium neural net.}
+         \label{fig:08mednn_test}
+     \end{subfigure}
+     \begin{subfigure}[b]{0.48\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/08largenn_valid.eps}
+         \caption{Predicted vs. actual flow rate for the validation data set using the large neural net.}
+         \label{fig:08largenn_valid}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.48\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/08largenn_test.eps}
+         \caption{Predicted vs. actual flow rate for the test data set using the large neural net.}
+         \label{fig:08largenn_test}
+     \end{subfigure}
+        \caption{Feed-forward neural network validation and test plots.}
+        \label{fig:08PolynomialPlots}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% LPV MODELS
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Lastly, the linear parameter-varying model (LPV) is given by \cite{LPV}:
+\begin{equation}
+    \begin{split}
+        \hat{y} = W_1^Tx + b_1 \\
+        \hat{y} = W_2^Tx + b_2 \\
+        ... \\
+        \hat{y} = W_n^Tx + b_n \\
+    \end{split}
+    \label{eq:08LPV_structure}
+\end{equation}
+where $n \geq 1$ represents the number of linear models used to capture the data set. Here, $W_n$ and $b_n$ are the weights and biases corresponding to the $n^{th}$ model, respectively. 
+
+
 \subsubsection{Selected Model Structure}
 Ultimately, a linear parameter-varying (LPV) model was selected to model this pipeline.  It is clear that the process is heavily non-linear due to the increase in accuracy when switching to a non-linear model structure; therefore, LPV models were selected due to their non-linear nature while still retaining the interpretability of linear models. To enhance credibility, any non-linear model can be approximated by a LPV model via the White's Theorem \cite{LPV}.
-
-\subsubsection{Model Validation}
-Why some weights are 0.
 
 \subsubsection{Adaptive Machine Learning}
 \paragraph{Online Learning vs. Incremental Learning}

@@ -287,7 +287,7 @@ Figure \ref{fig:08featscale} shows the contour of a normalized and non-normalize
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=1\textwidth]{images/08featscale.png}
+    \includegraphics[width=.8\textwidth]{images/08featscale.png}
     \caption{Coutour of normalized and non-normalized cost functions. Original images from \cite{deeplearning_course}.}
     \label{fig:08featscale}
 \end{figure}
@@ -295,15 +295,49 @@ Figure \ref{fig:08featscale} shows the contour of a normalized and non-normalize
 To avoid this problem, the min-max normalization is applied to each variable and is given by:
 \begin{equation}
     x^{norm} = \frac{x - x^{min}}{x^{max} - x^{min}}
+    \label{eq:08normalization}
 \end{equation}
 where $x^{norm}$ is the normalized values.  Here, $x^{min}$ and $x^{max}$ are the minimum and maximum values of each variable, respectively.  By applying this normalization, all data are bounded between $x_i \in [0, 1]$, and the elongation issue of the cost function can be resolved.
 
 \subsubsection{Exploratory Data Analysis}
-- Bi-modal distribution
-- Clustering analysis
-  - Average characteristics
-- Other characteristics for other variables.
+Exploratory data analysis was then conducted to gain insights into the data set.  First, the distribution of the flow rate was explored and shown in Figure \ref{fig:08flowrate_dist}.  Here, it can be seen that the flow rate follows a bi-modal distribution meaning that there are two different operating strategies: a high demand strategy and a low demand strategy.
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.35]{images/08Flowrate_KDE.eps}
+    \caption{Flow rate distribution of the pre-processed data set.}
+    \label{fig:08flowrate_dist}
+\end{figure}
+
+To segregate the two Gaussian distributions, DBSCAN was used.  DBSCAN is a density-based algorithm for discovering clusters in large spatial data \cite{DBSCAN}. It contains two hyper parameters, $\epsilon$ and $min-points$.  The steps of DBSCAN is as follows:
+\begin{enumerate}
+    \item Normalize the data using Equation \ref{eq:08normalization} so each variable is weighted similarily.
+    \item Create an $n-$dimensional sphere of radius $\epsilon$ around an initial data points.  Euclidean distance was used for the distance metric and is given by:
+    \begin{equation}
+        distance = \sqrt{(x_1^{(1)} - x_1^{(2)})^2 + (x_2^{(1)} - x_2^{(2)})^2 + ... + (x_m^{(1)} - x_m^{(2)})^2}
+    \end{equation}
+    where superscripts $1$ and $2$ are the first and second data points.
+    \item If there are more than $min-points$ in this sphere, then all points within this sphere belong to the same cluster.
+    \item Expand the cluster by recursively applying the above criteria to the edge points of the cluster.
+    \item If the cluster can no longer be expanded, apply step 1 to a new data point currently not belonging to a cluster.
+    \item If there are less than $min-points$ in this sphere, then the data point is ignored and we proceed to the next data point.
+    \item Outlier data points are ones that fail to belong to any cluster.
+\end{enumerate}
+The resultant segregation created by DBSCAN is shown in Figure \ref{fig:08DBSCAN}. The hyper parameters for $\epsilon$ and $min-points$ are 1.13 and 10,000, respectively.  The first cluster (black) contained 56,738 data points while the second cluster (green) contained 36,779 data points.  The remaining 3953 data points (blue) were identified as outliers.
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.8]{images/08DBSCAN.eps}
+    \caption{Clusters identified after applying the density-based scan.}
+    \label{fig:08DBSCAN}
+\end{figure}
+
+The operating conditions of each cluster is shown in Figure \ref{fig:08cluster_variables}. The main differences are the flow rate, DRA usage, and pump usage.  Cluster 1 had 32\% higher average flow rate.  Cluster 1 also used substantially more DRA compared to cluster 1, where almost no DRA was used. Furthermore, the Cheyenne booster pump, Ault booster pump 1, Fort Lupton boooster pump, and Fort Lupton VFD were only used in cluster 1.  Ault booster pump 2 was only used in cluster 2.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/08AvgChar.png}
+    \caption{Average operating variables for the two operating conditions.}
+    \label{fig:08cluster_variables}
+\end{figure}
 
 \subsubsection{Data Partitioning}
 The data set was split into three sections to validate and test the machine learning models: training, validation, and testing.  The partition and description of each section is described in Table \ref{tab:08datapart}. The training data set is used to identify the machine learning model(s).  Then, the model is validated on un-trained data via the validation data set (sometimes called development data).  The error of the model on the validation data set, $e_{validation}$, should be similar to the training data error, $e_{train}$, to ensure that the model did not overfit to the training data. Finally, the model will be tested on the testing data to explore the performance of the model in live production.
@@ -430,7 +464,8 @@ Table \ref{tab:08performanceassessment} shows the advantages and disadvantages o
 % Least squares model
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+\noindent
+\textit{Least Squares} \\
 \subsubsection{Linear Modelling}
 The least squares regression was the first regression method to be explored, and was selected as the benchmark due to its simplicity and linear nature. The model structure of least squares is given as:
 \begin{equation}
@@ -501,7 +536,8 @@ From Equation \ref{eq:08LS}, it can be seen that turning on the booster pump at 
 % Constrained LS
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+\noindent
+\textit{Constrained Least Squares} \\
 The new constrained least squares uses the same hyper parameters as shown in Table \ref{tab:08LSHparameters}.  Performance assessment of the constrained least squares is shown in Table \ref{tab:08ConstLSPerformance}.
 \begin{table}[h]
     \centering
@@ -565,8 +601,9 @@ To further increase the accuracy of the models, the following non-linear methods
 %  Quadratic and Sqrt models
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-The quadratic and square-root model structures given by Equations \ref{eq:08quad_model} and \ref{eq:08sqrt_model}, respectively:
+\noindent
+\textit{Polynomial Models} \\
+The first non-linear model The quadratic and square-root model structures given by Equations \ref{eq:08quad_model} and \ref{eq:08sqrt_model}, respectively:
 \begin{equation}
     \hat{y} = W_1^T X^2 + W^T_2 X + b
     \label{eq:08quad_model}
@@ -591,48 +628,57 @@ where $W_1$ are the weights for the squared and square rooted variables for the 
     \label{tab:08poly_hp}
 \end{table}
 
-The performance assessment of the quadratic and square root models are shown in Table \ref{tab:08quad_sq_performance}. Compared to the constrained least squares, the MAE and RMSE went down by up to 10\% and 9\% when using the polynomial models, respectively.
+The performance assessment of the quadratic and square root models are shown in Table \ref{tab:08quad_performance} and \ref{tab:08sq_performance}, respectively. Compared to the constrained least squares, the MAE and RMSE went down by up to 10\% and 9\% when using the polynomial models, respectively.
 \begin{table}[h]
     \centering
     {\setstretch{1.5}
     \begin{tabular}{ c | c | c | c}
                              &  Training data     &  Validation data    &    Test data      \\
         \hline
-                             &  Quad $\mid$ Sqrt  &   Quad $\mid$ Sqrt  &  Quad $\mid$ Sqrt \\
-        \hline
-        MAE                  &  92 $\mid$ 89      &    92 $\mid$ 89     &  89 $\mid$ 91   \\
-        RMSE                 &  121 $\mid$ 118    &   121 $\mid$ 117    &  120 $\mid$ 115  \\ 
-        $R^2$                &  0.92 $\mid$ 0.93  &   0.92 $\mid$ 0.93  &  0.76 $\mid$ 0.81 \\
+        MAE                  &  92      &    92     &  89    \\
+        RMSE                 &  121     &   121     &  120   \\ 
+        $R^2$                &  0.92    &   0.92    &  0.76  \\
     \end{tabular}}
-    \caption{Performance assessment for the quadratic and square root model.}
-    \label{tab:08quad_sq_performance}
+    \caption{Performance assessment for the quadratic model.}
+    \label{tab:08quad_performance}
+\end{table}
+\begin{table}[h]
+    \centering
+    {\setstretch{1.5}
+    \begin{tabular}{ c | c | c | c}
+                             &  Training data     &  Validation data    &    Test data      \\
+        \hline
+        MAE                  &  89      &  89     &  91   \\
+        RMSE                 &   118    &  117    &  115  \\ 
+        $R^2$                &    0.93  &   0.93  &  0.81 \\
+    \end{tabular}}
+    \caption{Performance assessment for the square root model.}
+    \label{tab:08sq_performance}
 \end{table}
 
 The polynomial model performances are shown in Figures \ref{fig:08quad_validation} to \ref{fig:08sqrt_test}.  
 
 \begin{figure}[h]
      \centering
-     \begin{subfigure}[b]{0.48\textwidth}
+     \begin{subfigure}[b]{0.49\textwidth}
          \centering
          \includegraphics[width=\textwidth]{images/08quad_validation.eps}
          \caption{Predicted vs. actual flow rate for validation data set using the quadratic model.}
          \label{fig:08quad_validation}
      \end{subfigure}
-     \hfill
-     \begin{subfigure}[b]{0.48\textwidth}
+     \begin{subfigure}[b]{0.49\textwidth}
          \centering
          \includegraphics[width=\textwidth]{images/08quad_test.eps}
          \caption{Predicted vs. actual flow rate for the test data set using the quadratic model.}
          \label{fig:08quad_test}
      \end{subfigure}
-     \begin{subfigure}[b]{0.48\textwidth}
+     \begin{subfigure}[b]{0.49\textwidth}
          \centering
          \includegraphics[width=\textwidth]{images/08sqrt_validation.eps}
          \caption{Predicted vs. actual flow rate for the validation data set using the square root model.}
          \label{fig:08sqrt_validation}
      \end{subfigure}
-     \hfill
-     \begin{subfigure}[b]{0.48\textwidth}
+     \begin{subfigure}[b]{0.49\textwidth}
          \centering
          \includegraphics[width=\textwidth]{images/08sqrt_test.eps}
          \caption{Predicted vs. actual flow rate for the test data set using the square root model.}
@@ -647,7 +693,8 @@ The polynomial model performances are shown in Figures \ref{fig:08quad_validatio
 % Neural Network Models
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+\noindent
+\textit{Neural Network Models} \\
 The neural network models
 
 The hyper parameters for each neural network is given in Table \ref{tab:08NN_hp}.
@@ -660,7 +707,7 @@ The hyper parameters for each neural network is given in Table \ref{tab:08NN_hp}
         Epochs                                     &  700       & 1000      & 1200  \\
         Minibatch size                             &  8192      & 8192      & 8192  \\
         Learning rate, $\alpha$                    &  0.001     & 0.001     & 0.001 \\
-        Regularization, $\lambda$                  &  0.001     & 0.001     & 0.001 \\
+        Regularization, $\lambda$                  &  0.001     & 0.003     & 0.005 \\
         Number of layers                           &  3         & 6         & 8     \\
         Neurons per layer                          &  20        & 30        & 40    \\
         Activation function for hidden layers      & ReLU       & ReLU      & ReLU  \\
@@ -668,30 +715,54 @@ The hyper parameters for each neural network is given in Table \ref{tab:08NN_hp}
     \caption{Hyper parameters for the feed-forward neural network.}
     \label{tab:08NN_hp}
 \end{table}
-
+Tables \ref{tab:08small_nn} to \ref{tab:08large_nn} show the performance assessment of the small, medium and large neural networks.
 \begin{table}[h]
     \centering
     {\setstretch{1.5}
     \begin{tabular}{ c | c | c | c}
                     &  Training data     &  Validation data    &    Test data      \\
         \hline
-                    &  Small $\mid$ Med $\mid$ Large  &   Small $\mid$ Med $\mid$ Large
-                    &  Small $\mid$ Med $\mid$ Large \\
-        \hline
-        MAE         &  48 $\mid$ 42 $\mid$ 38     &    50 $\mid$ 45 $\mid$ 37   
-                    &  87 $\mid$ 87 $\mid$ 115   \\
+        MAE         &  48      &    50    &    87    \\
                     
-        RMSE        &  66 $\mid$ 58 $\mid$ 57    &   69 $\mid$ 61 $\mid$ 56    
-                    &  121 $\mid$ 107 $\mid$ 138 \\ 
+        RMSE        &  66      &    69    &   117 \\ 
                     
-        $R^2$       &  0.97 $\mid$ 0.98 $\mid$ 0.99  &   0.91 $\mid$ 0.90 $\mid$ 0.94   
-                    &  0.77 $\mid$ 0.83 $\mid$ 0.66 \\
+        $R^2$       &  0.97    &   0.91   &   0.77  \\
     \end{tabular}}
-    \caption{Performance assessment for the quadratic and square root model.}
-    \label{tab:08quad_sq_performance}
+    \caption{Performance assessment for the small neural network model.}
+    \label{tab:08small_nn}
+\end{table}
+\begin{table}[h]
+    \centering
+    {\setstretch{1.5}
+    \begin{tabular}{ c | c | c | c}
+                    &  Training data     &  Validation data    &    Test data      \\
+        \hline
+        MAE         &  42     &     45   &   87    \\
+                    
+        RMSE        &  58     &     61   &   107   \\ 
+                    
+        $R^2$       &  0.98   &    0.90  &  0.83   \\
+    \end{tabular}}
+    \caption{Performance assessment for the medium neural network model.}
+    \label{tab:08med_nn}
+\end{table}
+\begin{table}[h]
+    \centering
+    {\setstretch{1.5}
+    \begin{tabular}{ c | c | c | c}
+                    &  Training data     &  Validation data    &    Test data      \\
+        \hline
+        MAE         &  38     &    37   &    91   \\
+                    
+        RMSE        &  57     &    56   &   118 \\ 
+                    
+        $R^2$       &  0.99  &    0.94  &   0.77 \\
+    \end{tabular}}
+    \caption{Performance assessment for the large neural network model.}
+    \label{tab:08large_nn}
 \end{table}
 
-The performance of the neural networks are shown in Figures \ref{fig:08smallnn_valid} to \ref{fig:08largenn_test}.  
+The performance figures of the neural nets are shown in Figures \ref{fig:08smallnn_valid} to \ref{fig:08largenn_test}.  
 
 \begin{figure}[h]
      \centering
@@ -701,7 +772,6 @@ The performance of the neural networks are shown in Figures \ref{fig:08smallnn_v
          \caption{Predicted vs. actual flow rate for validation data set using the small neural net.}
          \label{fig:08smallnn_valid}
      \end{subfigure}
-     \hfill
      \begin{subfigure}[b]{0.48\textwidth}
          \centering
          \includegraphics[width=\textwidth]{images/08smallnn_test.eps}
@@ -714,7 +784,6 @@ The performance of the neural networks are shown in Figures \ref{fig:08smallnn_v
          \caption{Predicted vs. actual flow rate for the validation data set using the medium neural net.}
          \label{fig:08mednn_valid}
      \end{subfigure}
-     \hfill
      \begin{subfigure}[b]{0.48\textwidth}
          \centering
          \includegraphics[width=\textwidth]{images/08mednn_test.eps}
@@ -727,7 +796,6 @@ The performance of the neural networks are shown in Figures \ref{fig:08smallnn_v
          \caption{Predicted vs. actual flow rate for the validation data set using the large neural net.}
          \label{fig:08largenn_valid}
      \end{subfigure}
-     \hfill
      \begin{subfigure}[b]{0.48\textwidth}
          \centering
          \includegraphics[width=\textwidth]{images/08largenn_test.eps}
@@ -743,6 +811,8 @@ The performance of the neural networks are shown in Figures \ref{fig:08smallnn_v
 % LPV MODELS
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\noindent
+\textit{Linear Parameter-varying Models} \\
 Lastly, the linear parameter-varying model (LPV) is given by \cite{LPV}:
 \begin{equation}
     \begin{split}
@@ -755,6 +825,36 @@ Lastly, the linear parameter-varying model (LPV) is given by \cite{LPV}:
 \end{equation}
 where $n \geq 1$ represents the number of linear models used to capture the data set. Here, $W_n$ and $b_n$ are the weights and biases corresponding to the $n^{th}$ model, respectively. 
 
+\begin{table}[h]
+    \centering
+    {\setstretch{1.5}
+    \begin{tabular}{ c | c | c | c}
+                    &  Training data     &  Validation data    &    Test data      \\
+        \hline
+        MAE         &  91     &     70   &   xx    \\
+                    
+        RMSE        &  116     &    85   &   xx   \\ 
+                    
+        $R^2$       &  0.87   &    0.68  &   xx   \\
+    \end{tabular}}
+    \caption{Performance assessment for cluster 1 regression model.}
+    \label{tab:08med_nn}
+\end{table}
+\begin{table}[h]
+    \centering
+    {\setstretch{1.5}
+    \begin{tabular}{ c | c | c | c}
+                    &  Training data     &  Validation data    &    Test data      \\
+        \hline
+        MAE         &  xx     &    xx   &   xx   \\
+                    
+        RMSE        &  xx     &    xx   &   xx \\ 
+                    
+        $R^2$       &  xx     &    xx   &   xx \\
+    \end{tabular}}
+    \caption{Performance assessment for cluster 2 regression model.}
+    \label{tab:08large_nn}
+\end{table}
 
 \subsubsection{Selected Model Structure}
 Ultimately, a linear parameter-varying (LPV) model was selected to model this pipeline.  It is clear that the process is heavily non-linear due to the increase in accuracy when switching to a non-linear model structure; therefore, LPV models were selected due to their non-linear nature while still retaining the interpretability of linear models. To enhance credibility, any non-linear model can be approximated by a LPV model via the White's Theorem \cite{LPV}.

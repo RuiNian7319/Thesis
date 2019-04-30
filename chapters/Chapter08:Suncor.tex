@@ -1,14 +1,14 @@
-Pipelines are critical for safe and efficient transportation of fluids across long distances.  For example, pipelines are used by utility companies to transport clean water and natural gas to homes for heating and living purposes.  Furthermore, pipelines are also used in agriculture to transport irrigation water to hydrate crops.  Moreover, pipelines are used by energy companies for transporting energy-rich hydrocarbons to fuel the world's transportation and manufacturing needs. In the United States, over 70\% of petroleum products are shipped by pipeline.  In Canada, the number increases to 97\% \cite{pipeline_transport}.  The latest data in 2014 estimates that there are about 3,500,000 km of operational pipelines across 120 countries \cite{CIA_pipeline}. Due to the world's dependency on pipelines for transporting their basic needs, ensuring its reliability and efficiency has a global-scale impact.
+Pipelines are critical for safe and efficient transportation of fluids across long distances.  For example, pipelines are used by utility companies to transport clean water and natural gas to homes for heating and living purposes.  Furthermore, pipelines are also used in agriculture to transport irrigation water to hydrate crops.  Moreover, pipelines are used by energy companies for transporting energy-rich hydrocarbons to fuel the world's transportation and manufacturing needs. In the United States, over 70\% of petroleum products are shipped by pipeline.  In Canada, the number increases to 97\% \cite{pipeline_transport}.  Data in 2014 estimates that there are approximately 3,500,000 kms of operational pipelines across 120 countries \cite{CIA_pipeline}. Due to the world's dependency on pipelines for transporting their basic needs, ensuring its reliability and efficiency has a global-scale impact.
 
-Typical pipelines have hundreds of digital measurements per minute and are hard to analyze; however, machine learning methods benefit greatly from large amounts of data. Thus, an opportunity was discovered where machine learning methods will be applied to pipelines used to transport petroleum products. The objectives of this project were to leverage machine learning to identify anomalous pipeline behaviour, and to build a real time optimization tool to automate, normalize and enhance the pipeline operation.
+Typical pipelines have hundreds of digital measurements per minute and are hard to analyze; however, machine learning methods benefit greatly from large amounts of data. Thus, an opportunity was discovered where machine learning methods will be applied to pipelines used to transport petroleum products. The objectives of this project were to leverage machine learning to identify anomalous pipeline behaviour, and to build a real time optimization tool to automate, normalize and enhance pipeline operation.
 
-In this chapter, a time-series neural network classifier will first be introduced to detect anomalous activity within any pipeline equipment.  Then, a real time optimization tool based on a linear model optimized using mixed integer linear program will be introduced.  Due to confidentiality agreements, all data presented here-forth will be normalized, and all parties of this project will remain anomalous.
+In this chapter, a time-series neural network classifier will first be introduced to detect anomalous activity within any pipeline equipment. Then, a real time optimization tool based on a linear parameter-varying model will be introduced.  Due to confidentiality agreements, all data presented here-forth will be normalized, and all parties of this project will remain anomalous.
 
 \section{Process Introduction}
-Two separate pipelines, Line 11 and Line RM06A, were analyzed.  Line 11 is a simplistic pipeline; data from line 11 were used to build an anomaly detection tool.  Line RM06A was more complex; therefore, a real time optimization (RTO) tool was build for this line.
+Two separate pipelines, Line 11 and Line RM06A, were analyzed.  Line 11 is a simplistic pipeline with few operating variables. Due to the lack of operational flexibility, the data was only able to be leveraged for an anomaly detection tool.  Line RM06A was more complex and had many degrees of freedom. Due to the additional complexity, a real time optimization tool was built for this line.
 
 \subsection{Line 11}
-The schematic of line 11 is shown in Figure \ref{fig:08Line11}. For Line 11, the objective was to build an anomaly detection tool for unexpected shut downs of its pumps.  
+The schematic of Line 11 is shown in Figure \ref{fig:08Line11}. For Line 11, the objective was to build an anomaly detection tool to predict unexpected shut downs of its pumps.  
 
 \begin{figure}[h]
     \centering
@@ -19,7 +19,7 @@ The schematic of line 11 is shown in Figure \ref{fig:08Line11}. For Line 11, the
 
 
 \subsection{Line RM06A}
-A schematic of line RM06A is shown in Figure \ref{fig:08RM06A}.  Line RM06A is a complex pipeline spanning 151 km and carries two products, a lighter sweet product and a heavier sour product. The two products are batched (i.e., rotate between sending each product) and each product is sent for approximately eight hours before switching to the other product. The American Petroleum Institute (API) gravity for the lighter and heavier products are roughly 40 and 20, respectively. For the rest of this chapter, the lighter and heavier product will be referred to as \textit{sweet crude} and \textit{sour crude}, respectively. The pipeline is operated between 1500 bbl/h to 3050 bbl/h for the majority of the time. 
+A schematic of line RM06A is shown in Figure \ref{fig:08RM06A}.  Line RM06A is a complex pipeline spanning 151 km and carries two products, a lighter sweet product and a heavier sour product. The two products are batched (i.e., rotate between sending each product) and each product is sent for approximately eight hours before switching to the other product. The American Petroleum Institute (API) gravity for the lighter and heavier products are roughly 40 and 20, respectively. For the rest of this chapter, the lighter and heavier product will be referred to as \textit{sweet crude} and \textit{sour crude}, respectively. The pipeline is typically operated between 1500 bbl/h to 3050 bbl/h. 
 
 \begin{figure}[h]
     \centering
@@ -30,8 +30,6 @@ A schematic of line RM06A is shown in Figure \ref{fig:08RM06A}.  Line RM06A is a
 
 Equipment wise, Line RM06A boasts eight pumps spread across four pump stations. Two pumps are variable frequency drives (VFD), while the rest are on/off pumps. Additionally, there are four drag reducing agent (DRA) injection pumps situated across the second and third pump stations. Each pump station contains a sour crude and sweet crude DRA pump. The sour and sweet crude uses different types of DRA.  The DRA is injected based on the product present at the pump station. 
 
-
-
 \section{Anomaly Detection}
 \subsection{Data Pre-processing}
 \subsection{Data Set Creation}
@@ -40,7 +38,7 @@ Equipment wise, Line RM06A boasts eight pumps spread across four pump stations. 
 \subsection{Conceptual Software Design}
 
 \section{Real Time Optimization}
-Modern control systems typically consists of three layers: real time optimization (RTO), supervisory control and regulatory control.  From the top, real time optimization is evaluated the least frequently, and performs a steady state optimization of the process.  The outputs of RTO are the ideal set points for all equipment.  Next, the supervisory control layer performs dynamic optimization to identify the most efficient input trajectory to achieve the set points from RTO. Supervisory control is evaluated faster than RTO, but slower than regulatory control. Model predictive control (MPC) and economic model predictive control (EMPC) are typical supervisory control frameworks. Finally, the regulatory controllers actuate physical equipment to achieve the input trajectory given by the supervisory control layer.  Common regulatory controllers are proportional-integral-derivative (PID) controllers.
+Modern control systems typically consists of three layers: real time optimization (RTO), supervisory control and regulatory control.  From the top, real time optimization is evaluated the least frequently, and performs a steady state optimization of the process.  The outputs of RTO are the ideal set points for all equipment given an operating objective.  Next, the supervisory control layer performs dynamic optimization to identify the most efficient input trajectory to achieve the set points from RTO. Supervisory control is evaluated faster than RTO, but slower than regulatory control. Model predictive control (MPC) and economic model predictive control (EMPC) are typical supervisory control frameworks. Finally, the regulatory controllers actuate physical equipment to achieve the input trajectory given by the supervisory control layer.  Common regulatory controllers are proportional-integral-derivative (PID) controllers.
 
 The hierarchical structure of APC is shown in Figure \ref{fig:08APC}.
 
@@ -52,7 +50,7 @@ The hierarchical structure of APC is shown in Figure \ref{fig:08APC}.
 \end{figure}
 
 \subsection{Problem Description}
-Figure \ref{fig:08schedule} shows the communication framework of the pipeline operation. The goal of this pipeline is to meet the demands of the Commerce City refinery. To do so, a schedule with desired flow rates are sent to the operators from the scheduling team, and the operators are tasked to operate the pipeline at the given flow rate. Due to the complexity of this pipeline, different operators operate the pipeline differently even when the desired flow rate might be identical.  This difference introduces turbulence and unnecessary wear-and-tear onto the pipeline, increasing maintenance costs. 
+Figure \ref{fig:08schedule} shows the communication framework of the pipeline operation. The goal of this pipeline is to meet the demands of the Commerce City refinery. To do so, a schedule with desired flow rates are sent to the operators from the scheduling team, and the operators are tasked to operate the pipeline at the given flow rate. Due to the complexity of this pipeline, different operators operate the pipeline differently depending on their own experience.  This difference introduces turbulence and unnecessary wear-and-tear onto the pipeline, increasing maintenance costs. Moreover, some operators are less experienced and operate the pipeline sub-optimally.
 
 \begin{figure}[h]
     \centering
@@ -61,7 +59,7 @@ Figure \ref{fig:08schedule} shows the communication framework of the pipeline op
     \label{fig:08schedule}
 \end{figure}
 
-To overcome this problem, machine learning was used to firstly identify a model of the pipeline.  Then, a steady state optimization tool was built using mixed integer linear programming to give operators the \textbf{optimal} set-points for each equipment.  This system solves two problems: i) Introduces uniformity in operator behaviour for desired set-points. ii) Semi-automation of the pipeline, freeing up operators' time for other tasks.
+To overcome this problem, machine learning was used to identify a model of the pipeline.  Then, a steady state optimization tool was built using mixed integer linear programming to give operators the \textbf{optimal} set-points for each equipment.  This system solves two problems: i) Introduces uniformity in operator behaviour for desired set-points. ii) Semi-automation of the pipeline, freeing up operators' time for other tasks.
 
 The new communication framework for line RM06A is shown in Figure \ref{fig:08scheduleV2}.
 
@@ -72,14 +70,14 @@ The new communication framework for line RM06A is shown in Figure \ref{fig:08sch
     \label{fig:08scheduleV2}
 \end{figure}
 
-The rest of the section is as follows.  First, the data pre-processing step will be shown.  Then, the model identification phase will be introduced.  Following that, the optimization algorithm and all it's constraints for real-time optimization are presented.  Finally, the section is concluded with some conceptual software design regarding its implementation into a supervisory control and data acquisition (SCADA) system and the overall project impact will also be shown.
+The rest of the section is organized as follows.  First, the data pre-processing step will be shown.  Then, the model identification phase will be introduced.  Following that, the optimization algorithm and all it's constraints for real-time optimization are presented.  Finally, the section is concluded with some conceptual software design regarding its implementation into a supervisory control and data acquisition (SCADA) system and the overall project impact will also be shown.
 
 \subsection{Data Pre-processing}
-Two data sets were provided by Suncor.  The details are shown in Table \ref{tab:08data}. Model identification and optimization evaluations were conducted for both datasets; however, the steps are very similar.  Because the 2019 algorithm will go into live production, whereas the 2018 data was used primarily as a proof of concept, only the 2019 algorithm steps will be shown in detail.
+Two data sets were initially provided by Suncor.  The details are shown in Table \ref{tab:08data}. Model identification and optimization evaluations were conducted for both datasets; however, the steps are very similar.  Because the 2019 algorithm will go into live production whereas the 2018 data was used primarily as a proof of concept, only the 2019 algorithm steps will be shown in detail.
 
 \begin{table}[h]
     \centering
-    {\setstretch{1.5}
+    {\setstretch{1.2}
     \begin{tabular}{ c | c }
         Date of Collection     &      Data Dimension      \\
         \hline
@@ -99,7 +97,7 @@ The distribution of the remaining variables along the pipeline can be seen in Ta
 
 \begin{table}[h]
     \centering
-    {\setstretch{1.5}
+    {\setstretch{1.2}
     \begin{tabular}{ c | c | c | c | c | c | c}
              &  Cheyenne & CIG & Ault & Fort Lupton & Comm. City & Other      \\
         \hline
@@ -110,12 +108,12 @@ The distribution of the remaining variables along the pipeline can be seen in Ta
 \end{table}
 
 \subsubsection{Automated Data Pre-processing}
-Next, the data set is further filtered using the following methods:
+Next, the data set was automatically filtered using the following methods:
 
 \begin{itemize}
     \item \textbf{Missing data removal}: Remove \textit{rows} of data containing missing data.
-    \item \textbf{Data imbalance analysis}: Remove boolean variables that contain 97\% or more of a single class.  Heavily imbalanced variables cause model bias towards the majority class \cite{data_preprocessing}.
-    \item \textbf{Collinear analysis}: Identifies variables that are correlated over 90\%. Correlation, $r_{xy}$ is given in Equation \ref{eq:08correlation}. One variable is kept while the rest are removed to prevent one variable from being weighed many times in the final model \cite{data_preprocessing}.
+    \item \textbf{Data imbalance analysis}: Remove boolean variables that contain 97\% or more of a single class.  Heavily imbalanced variables create model biases towards the majority class \cite{data_preprocessing}.
+    \item \textbf{Collinear analysis}: Identify variables that are correlated over 90\%. Correlation, $r_{xy}$ is given in Equation \ref{eq:08correlation}. After corrlated variables are identified, one variable is kept while the rest are removed.  This is done to avoid redundant parameters \cite{data_preprocessing}.
     \begin{equation}
         r_{xy} = \frac{\sum(x_i - \bar{x})(y_i - \bar{y})}{\sqrt{\sum(x_i - \bar{x})^2\sum(y_i-\bar{y})^2}}
         \label{eq:08correlation}
@@ -123,13 +121,10 @@ Next, the data set is further filtered using the following methods:
     
 \end{itemize}
 
-This phase is known as \textit{automated} because no human interaction and/or expertise is required. After performing the above methods, the data set reduced from 124 to 65.  
-
-The distribution of the new data set is shown in Table \ref{tab:08Ph2Data}.
-
+After performing the above methods, the data set reduced from 124 to 65. The distribution of the new data set is shown in Table \ref{tab:08Ph2Data}.
 \begin{table}[h]
     \centering
-    {\setstretch{1.5}
+    {\setstretch{1.2}
     \begin{tabular}{ c | c | c | c | c | c | c}
              &  Cheyenne & CIG & Ault & Fort Lupton & Comm. City & Other      \\
         \hline
@@ -140,7 +135,7 @@ The distribution of the new data set is shown in Table \ref{tab:08Ph2Data}.
 \end{table}
 
 \subsubsection{Manual Data Pre-processing}
-Finally, the data set is then manually pre-processed to modify data from badly behaving sensors and irregular operating conditions.  In this phase, only the number of training examples where be reduced.
+The data set is then manually pre-processed to remove or modify data from badly behaving sensors and irregular operating conditions.  In this phase, only the number of training examples are reduced.
 
 For this pipeline, both sweet and sour crude are transported in a cyclical fashion due to the hydraulic dynamics of the pipeline. Otherwise, the sour crude is too heavy to be transported for sustainable periods. However, downstream demand for each product can disrupt this operating cycle.  From Figure \ref{fig:08API}, it can be seen that there were extended periods of time where only sweet or sour crude were being transported, and was caused by the lack of demand downstream.  Such scenarios deviate from normal operations and were removed from the data.
 
@@ -163,9 +158,9 @@ For this pipeline, both sweet and sour crude are transported in a cyclical fashi
         \label{fig:08API}
 \end{figure}
 
-Moreover, when a DRA set point is changed, there is a time delay for the flow rate to react because the new DRA concentration must be transported throughout the line before its effect can be fully realized.  DRA is catastrophically destroyed when passing through a pump; thus, DRA is only required to coat the pipeline between pump stations for its full effect to be exploited.  For CIG, it must coat the pipeline between CIG to Ault.  For Ault, the pipeline spanning between Ault and Fort Lupton must be coated.  Given the flow rate of the pipeline, it will take approximately ten hours to sufficiently coat the majority of the pipeline. Hence, data corresponding to transitional periods when DRA set points change are removed. At times, it may take longer; however, removing additional data will reduce the available data for identification of the machine learning models.  
+Moreover, there is a time delay for the flow rate to react to a DRA set point change because the new DRA concentration must be transported throughout the line before its effect can be fully realized.  DRA is assumed to be catastrophically destroyed when passing through a pump; thus, DRA is only required to coat the pipeline between pump stations for its full effect to be exploited.  For CIG, it must coat the pipeline between CIG to Ault.  For Ault, the pipeline spanning between Ault and Fort Lupton must be coated.  Given the flow rate of the pipeline, it will take approximately ten hours to sufficiently coat the majority of the pipeline. Hence, data corresponding to transitional periods are removed. At times, transitional times may take longer; however, removing additional data will reduce the available data for model identification.  
 
-Pre- and post-processed DRA parts per million (ppm) measurements are shown in Figure \ref{fig:08DRA}. DRA ppm is measured continuously for the control of the DRA injection pumps. However, the measurement is very difficult, unreliable and corrupted with noise. Because DRA set points are rarely changes, an exponentially weighted moving average (EWMA) was applied to the DRA ppm readings for increased measurement reliability.  The EWMA formula and bias correction are given in Equations \ref{eq:08EWMA} and \ref{eq:08Bias_Correction}, respectively: 
+Pre- and post-processed DRA parts per million (ppm) measurements are shown in Figure \ref{fig:08DRA}. DRA ppm is measured continuously for the control of the DRA injection pumps. However, the measurement is unreliable and corrupted with noise. Because DRA set points are rarely changed, an exponentially weighted moving average (EWMA) was applied to the DRA ppm readings for increased measurement reliability.  The EWMA formula and bias correction are given in Equations \ref{eq:08EWMA} and \ref{eq:08Bias_Correction}, respectively: 
 \begin{equation}
     v_t = \beta v_{t - 1} + (1 - \beta) \theta_t, \; v_0 = 0
     \label{eq:08EWMA}
@@ -176,6 +171,19 @@ Pre- and post-processed DRA parts per million (ppm) measurements are shown in Fi
 \end{equation}
 where $v_{t}$ is the exponentially weighted value at time $t$.  $\beta$ is the exponentially weighing factor.  Larger $\beta$ results in smoother results.  $\theta_t$ is the original value at time $t$. $V$ is a vector representing the exponentially weighted values before bias correction.
 
+The objective of the machine learning model was to predict the flow rate at Commerce City.  However, there is a natural time delay between the time an equipment status changed and the corresponding impact on downstream flow rate.  Because the pipeline is fully loaded and the product is incompressible, pressure changes upstream will be propagated downstream at close to the speed of sound \cite{fluid_mechanics}.  Table \ref{tab:08TimeToCC} shows the time required for pressure to propagate down the pipeline starting from each pump station.  The pump data for each pump station was shifted accordingly to account for this time delay.  
+\begin{table}[h]
+    \centering
+    {\setstretch{1.2}
+    \begin{tabular}{ p{6cm} | c | c | c | c}
+             &  Cheyenne & CIG & Ault & Fort Lupton \\
+        \hline
+        Time to Commerce City at speed of sound in liquids (1480 m/s) \cite{fluid_mechanics}
+        &  1.7 min  &  1.5 min  &  1.0 min  &  0.45 min  \\
+    \end{tabular}}
+    \caption{Time required for pressure changes at each pump station to be realized at Commerce City.}
+    \label{tab:08TimeToCC}
+\end{table}
 \begin{figure}
      \centering
      \begin{subfigure}[b]{0.9\textwidth}
@@ -206,19 +214,6 @@ where $v_{t}$ is the exponentially weighted value at time $t$.  $\beta$ is the e
         \label{fig:08DRA}
 \end{figure}
 
-Finally, the objective of the machine learning model was to predict the flow rate at Commerce City.  However, there is a natural time delay between the time an equipment status changed and the corresponding impact on downstream flow rate.  Because the pipeline is fully loaded and the product is incompressible, pressure changes upstream will be propagated downstream at close to the speed of sound \cite{fluid_mechanics}.  Table \ref{tab:08TimeToCC} shows the time required for pressure to propagate down the pipeline starting from each pump station.  The pump data for each pump station was shifted accordingly to account for this time delay, so predicted flow rates correspond to correct equipment configurations.  
-\begin{table}[h]
-    \centering
-    {\setstretch{1.5}
-    \begin{tabular}{ p{6cm} | c | c | c | c}
-             &  Cheyenne & CIG & Ault & Fort Lupton \\
-        \hline
-        Time to Commerce City at speed of sound in liquids (1480 m/s) \cite{fluid_mechanics}
-        &  1.7 min  &  1.5 min  &  1.0 min  &  0.45 min  \\
-    \end{tabular}}
-    \caption{Time required for pressure changes at each pump station to be realized at Commerce City.}
-    \label{tab:08TimeToCC}
-\end{table}
 A comprehensive list of the manual data pre-processing procedures is as follows:
 \begin{enumerate}
     \item Shift data to accommodate the time delay at Commerce City.
@@ -232,7 +227,7 @@ The final data set contained 65 variables and 97,470 data points.
 
 \subsection{Model Identification}
 \subsubsection{Feature Selection}
-For each pump station, there was a variety of sensors measuring the same process variables at different locations.  For example, VFD pumps have four readings each: On/off status, RPM, HZ, and current. Many variables relating to one equipment is redundant; thus, only one variable was selected when redundancy existed. Additionally, some sensors were behaving abnormally.
+For each pump station, there was a variety of sensors measuring the same process variables.  For example, VFD pumps have four readings each: On/off status, RPM, HZ, and current. Many variables relating to one equipment is redundant; thus, only one variable was selected when redundancy existed. Additionally, some sensors were behaving abnormally.
 
 In normal operations, the density fluctuates between 10 - 50 API, depending on the type of crude present in the pipeline.  After analysis, the Fort Lupton densitometer was behaving abnormally compared to other densitometer and is shown in Figure \ref{fig:08Density}.  After confirming with Suncor that the densitometer was behaving abnormally, the variable was removed.  
 \begin{figure}[h]
@@ -258,7 +253,7 @@ Table \ref{tab:08featselect} shows the features selected for each pump station. 
 \begin{table}[h]
     \centering
     {\tiny
-    {\setstretch{1.5}
+    {\setstretch{1.2}
     \begin{tabular}{ c | c | c | c | c}
         Cheyenne                       & CIG                      & Ault                        & Fort Lupton                    & Commerce City \\
         \hline
@@ -343,7 +338,7 @@ The operating conditions of each cluster is shown in Figure \ref{fig:08cluster_v
 The data set was split into three sections to validate and test the machine learning models: training, validation, and testing.  The partition and description of each section is described in Table \ref{tab:08datapart}. The training data set is used to identify the machine learning model(s).  Then, the model is validated on un-trained data via the validation data set (sometimes called development data).  The error of the model on the validation data set, $e_{validation}$, should be similar to the training data error, $e_{train}$, to ensure that the model did not overfit to the training data. Finally, the model will be tested on the testing data to explore the performance of the model in live production.
 \begin{table}[h]
     \centering
-    {\setstretch{1.5}
+    {\setstretch{1.2}
     \begin{tabular}{ c | c | p{9cm}}
                             & \% of Data        &  Description \\
         \hline
@@ -445,7 +440,7 @@ The model performance were assessed using the following three ways:
 Table \ref{tab:08performanceassessment} shows the advantages and disadvantages of each assessment metric.
 \begin{table}[h]
     \centering
-    {\setstretch{1.5}
+    {\setstretch{1.2}
     \begin{tabular}{ c | p{7cm} | p{7cm}}
          Method             & Advantages        &  Disadvantages \\
         \hline
@@ -464,9 +459,9 @@ Table \ref{tab:08performanceassessment} shows the advantages and disadvantages o
 % Least squares model
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Linear Modelling}
 \noindent
 \textit{Least Squares} \\
-\subsubsection{Linear Modelling}
 The least squares regression was the first regression method to be explored, and was selected as the benchmark due to its simplicity and linear nature. The model structure of least squares is given as:
 \begin{equation}
     \hat{y} = W^Tx + b
@@ -477,7 +472,7 @@ where $x$ is a vector of features and the superscript $T$ represents the transpo
 Hyper parameters of the linear regression are shown in Table \ref{tab:08LSHparameters}.
 \begin{table}[h]
     \centering
-    {\setstretch{1.5}
+    {\setstretch{1.2}
     \begin{tabular}{ c | c}
         Hyper Parameter                  &  Value       \\
         \hline
@@ -492,7 +487,7 @@ Hyper parameters of the linear regression are shown in Table \ref{tab:08LSHparam
 The performance assessment of the least squares model is shown in Table \ref{tab:08LSperformance}.
 \begin{table}[h]
     \centering
-    {\setstretch{1.5}
+    {\setstretch{1.2}
     \begin{tabular}{ c | c | c | c}
                              &  Training data    &  Validation data   &    Test data      \\
         \hline
@@ -528,7 +523,6 @@ The least squares model is given in Equation \ref{eq:08LS}.  Weights for $x_{11}
     + 0.49x_9 + 0.02x_{10} + 0.09x_{11} - 0.18x_{15} + 0.30x_{16} - 0.05x_{17} + 0.04x_{18}
     \label{eq:08LS_eq}
 \end{multline}
-
 From Equation \ref{eq:08LS}, it can be seen that turning on the booster pump at Fort Lupton results in a decrease in flow rate.  Theoretically, this is impossible and is most likely caused by noise in the data.  To increase the models ability to reflect reality, engineering knowledge was injected into the model via constraining $x_1 - x_{10}$ to be strictly positive.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -536,12 +530,13 @@ From Equation \ref{eq:08LS}, it can be seen that turning on the booster pump at 
 % Constrained LS
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \noindent
 \textit{Constrained Least Squares} \\
 The new constrained least squares uses the same hyper parameters as shown in Table \ref{tab:08LSHparameters}.  Performance assessment of the constrained least squares is shown in Table \ref{tab:08ConstLSPerformance}.
 \begin{table}[h]
     \centering
-    {\setstretch{1.5}
+    {\setstretch{1.2}
     \begin{tabular}{ c | c | c | c}
                              &  Training data    &  Validation data   &    Test data      \\
         \hline
@@ -603,7 +598,7 @@ To further increase the accuracy of the models, the following non-linear methods
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \noindent
 \textit{Polynomial Models} \\
-The first non-linear model The quadratic and square-root model structures given by Equations \ref{eq:08quad_model} and \ref{eq:08sqrt_model}, respectively:
+The quadratic and square-root model structures are given by Equations \ref{eq:08quad_model} and \ref{eq:08sqrt_model}, respectively:
 \begin{equation}
     \hat{y} = W_1^T X^2 + W^T_2 X + b
     \label{eq:08quad_model}
@@ -615,7 +610,7 @@ The first non-linear model The quadratic and square-root model structures given 
 where $W_1$ are the weights for the squared and square rooted variables for the quadratic and square-root models, respectively. Furthermore, $W_2$ are the weights for the original variables. The hyper parameters for both models are shown in Table \ref{tab:08poly_hp}.
 \begin{table}[h]
     \centering
-    {\setstretch{1.5}
+    {\setstretch{1.2}
     \begin{tabular}{ c | c}
         Hyper Parameter                  &  Value       \\
         \hline
@@ -631,7 +626,7 @@ where $W_1$ are the weights for the squared and square rooted variables for the 
 The performance assessment of the quadratic and square root models are shown in Table \ref{tab:08quad_performance} and \ref{tab:08sq_performance}, respectively. Compared to the constrained least squares, the MAE and RMSE went down by up to 10\% and 9\% when using the polynomial models, respectively.
 \begin{table}[h]
     \centering
-    {\setstretch{1.5}
+    {\setstretch{1.2}
     \begin{tabular}{ c | c | c | c}
                              &  Training data     &  Validation data    &    Test data      \\
         \hline
@@ -644,7 +639,7 @@ The performance assessment of the quadratic and square root models are shown in 
 \end{table}
 \begin{table}[h]
     \centering
-    {\setstretch{1.5}
+    {\setstretch{1.2}
     \begin{tabular}{ c | c | c | c}
                              &  Training data     &  Validation data    &    Test data      \\
         \hline
@@ -660,28 +655,28 @@ The polynomial model performances are shown in Figures \ref{fig:08quad_validatio
 
 \begin{figure}[h]
      \centering
-     \begin{subfigure}[b]{0.49\textwidth}
+     \begin{subfigure}[b]{0.45\textwidth}
          \centering
          \includegraphics[width=\textwidth]{images/08quad_validation.eps}
-         \caption{Predicted vs. actual flow rate for validation data set using the quadratic model.}
+         \caption{Predicted vs. actual flow rate for validation data using the quad. model.}
          \label{fig:08quad_validation}
      \end{subfigure}
-     \begin{subfigure}[b]{0.49\textwidth}
+     \begin{subfigure}[b]{0.45\textwidth}
          \centering
          \includegraphics[width=\textwidth]{images/08quad_test.eps}
-         \caption{Predicted vs. actual flow rate for the test data set using the quadratic model.}
+         \caption{Predicted vs. actual flow rate for the test data using the quadratic model.}
          \label{fig:08quad_test}
      \end{subfigure}
-     \begin{subfigure}[b]{0.49\textwidth}
+     \begin{subfigure}[b]{0.45\textwidth}
          \centering
          \includegraphics[width=\textwidth]{images/08sqrt_validation.eps}
-         \caption{Predicted vs. actual flow rate for the validation data set using the square root model.}
+         \caption{Predicted vs. actual flow rate for the validation data using the sqrt. model.}
          \label{fig:08sqrt_validation}
      \end{subfigure}
-     \begin{subfigure}[b]{0.49\textwidth}
+     \begin{subfigure}[b]{0.45\textwidth}
          \centering
          \includegraphics[width=\textwidth]{images/08sqrt_test.eps}
-         \caption{Predicted vs. actual flow rate for the test data set using the square root model.}
+         \caption{Predicted vs. actual flow rate for the test data using the sqrt. model.}
          \label{fig:08sqrt_test}
      \end{subfigure}
         \caption{Polynomial regression validation and test plots.}
@@ -695,12 +690,46 @@ The polynomial model performances are shown in Figures \ref{fig:08quad_validatio
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \noindent
 \textit{Neural Network Models} \\
-The neural network models
+Neural networks are highly non-linear models that explore the individual and interaction effects of each variable with all other variables. The general structure of a neural network is shown in Figure \ref{fig:08NN}.  Neural networks are comprised of an input layer, some hidden layer(s), and an output layer.  The input layer consists of the input data, while the hidden layer(s) and output layer consists of fitted parameters, $W$ and $b$. In Figure \ref{fig:08NN}, $x_m$ denotes the $m^{th}$ input variable.  The superscript and subscript of $a$ denotes the hidden layer number and the node number in the corresponding layer, respectively.  Subscript $m_1$ to $m_r$ denotes the number of nodes in hidden layers 1 to $r$, respectively.  Finally, superscript $o$ denotes the output layer.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/08NN.png}
+    \caption{Structure of a general neural network.}
+    \label{fig:08NN}
+\end{figure}
+
+The details within a hidden layer's node is shown in Figure \ref{fig:08NNNode}.  First, the outputs from the previous layer's nodes are inputted into the node and is multiplied by the weights of the current node.  The current node's bias is then added.  Afterwards, the output is sent to a rectified linear unit (ReLU) activation function given by:
+\begin{equation}
+    a^{[i]}_j=\begin{cases}
+        y, & \text{if $y\geq0$}.\\
+        0, & \text{otherwise}.
+    \end{cases}
+    \label{eq:08ReLU}
+\end{equation}
+where $i$ and $j$ denotes any hidden layer and any node number, respectively.  
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.3\textwidth]{images/08NNNode.png}
+    \caption{Inside a hidden layer's node.}
+    \label{fig:08NNNode}
+\end{figure}
+
+Mathematically, for one example $x$:
+\begin{center}
+    $z^{[1]}_j = W^{[1]}x + b^{[1]}$ \\
+    $a^{[1]}_j = ReLU(z^{[1]}_j)$ \\
+    $z^{[2]}_j = W^{[2]}a^{1}_j + b^{[2]}$ \\
+    $a^{[2]}_j = ReLU(z^{[2]}_j)$ \\
+    ... \\
+    $z^{[r]}_j = W^{[r]}a^{r - 1}_j + b^{[r]}$ \\
+    $a^{[r]}_j = ReLU(z^{[r]}_j)$ \\
+    $y = W^{[o]}a^{[r]}_j + b^{[o]}$ \\  
+\end{center}
 
 The hyper parameters for each neural network is given in Table \ref{tab:08NN_hp}.
 \begin{table}[h]
     \centering
-    {\setstretch{1.5}
+    {\setstretch{1.2}
     \begin{tabular}{ c | c | c | c}
         Hyper Parameter                            &  Small NN  &  Med. NN  & Large NN       \\
         \hline
@@ -715,10 +744,11 @@ The hyper parameters for each neural network is given in Table \ref{tab:08NN_hp}
     \caption{Hyper parameters for the feed-forward neural network.}
     \label{tab:08NN_hp}
 \end{table}
+
 Tables \ref{tab:08small_nn} to \ref{tab:08large_nn} show the performance assessment of the small, medium and large neural networks.
 \begin{table}[h]
     \centering
-    {\setstretch{1.5}
+    {\setstretch{1.2}
     \begin{tabular}{ c | c | c | c}
                     &  Training data     &  Validation data    &    Test data      \\
         \hline
@@ -731,9 +761,10 @@ Tables \ref{tab:08small_nn} to \ref{tab:08large_nn} show the performance assessm
     \caption{Performance assessment for the small neural network model.}
     \label{tab:08small_nn}
 \end{table}
+
 \begin{table}[h]
     \centering
-    {\setstretch{1.5}
+    {\setstretch{1.2}
     \begin{tabular}{ c | c | c | c}
                     &  Training data     &  Validation data    &    Test data      \\
         \hline
@@ -746,9 +777,10 @@ Tables \ref{tab:08small_nn} to \ref{tab:08large_nn} show the performance assessm
     \caption{Performance assessment for the medium neural network model.}
     \label{tab:08med_nn}
 \end{table}
+
 \begin{table}[h]
     \centering
-    {\setstretch{1.5}
+    {\setstretch{1.2}
     \begin{tabular}{ c | c | c | c}
                     &  Training data     &  Validation data    &    Test data      \\
         \hline
@@ -762,44 +794,37 @@ Tables \ref{tab:08small_nn} to \ref{tab:08large_nn} show the performance assessm
     \label{tab:08large_nn}
 \end{table}
 
-The performance figures of the neural nets are shown in Figures \ref{fig:08smallnn_valid} to \ref{fig:08largenn_test}.  
-
+The comparison of actual and predicted flow rates on the validation and test data for the neural nets are shown in Figures \ref{fig:08smallnn_valid} to \ref{fig:08largenn_test}.  
 \begin{figure}[h]
      \centering
      \begin{subfigure}[b]{0.48\textwidth}
-         \centering
          \includegraphics[width=\textwidth]{images/08smallnn_valid.eps}
-         \caption{Predicted vs. actual flow rate for validation data set using the small neural net.}
+         \caption{Predicted vs. actual flow rate for validation data using the small neural net.}
          \label{fig:08smallnn_valid}
      \end{subfigure}
      \begin{subfigure}[b]{0.48\textwidth}
-         \centering
          \includegraphics[width=\textwidth]{images/08smallnn_test.eps}
-         \caption{Predicted vs. actual flow rate for the test data set using the small neural net.}
+         \caption{Predicted vs. actual flow rate for the test data using the small neural net.}
          \label{fig:08smallnn_test}
      \end{subfigure}
      \begin{subfigure}[b]{0.48\textwidth}
-         \centering
          \includegraphics[width=\textwidth]{images/08mednn_valid.eps}
-         \caption{Predicted vs. actual flow rate for the validation data set using the medium neural net.}
+         \caption{Predicted vs. actual flow rate for the validation data using the med. neural net.}
          \label{fig:08mednn_valid}
      \end{subfigure}
      \begin{subfigure}[b]{0.48\textwidth}
-         \centering
          \includegraphics[width=\textwidth]{images/08mednn_test.eps}
-         \caption{Predicted vs. actual flow rate for the test data set using the medium neural net.}
+         \caption{Predicted vs. actual flow rate for the test data using the med. neural net.}
          \label{fig:08mednn_test}
      \end{subfigure}
      \begin{subfigure}[b]{0.48\textwidth}
-         \centering
          \includegraphics[width=\textwidth]{images/08largenn_valid.eps}
-         \caption{Predicted vs. actual flow rate for the validation data set using the large neural net.}
+         \caption{Predicted vs. actual flow rate for the validation data using the large neural net.}
          \label{fig:08largenn_valid}
      \end{subfigure}
      \begin{subfigure}[b]{0.48\textwidth}
-         \centering
          \includegraphics[width=\textwidth]{images/08largenn_test.eps}
-         \caption{Predicted vs. actual flow rate for the test data set using the large neural net.}
+         \caption{Predicted vs. actual flow rate for the test data using the large neural net.}
          \label{fig:08largenn_test}
      \end{subfigure}
         \caption{Feed-forward neural network validation and test plots.}
@@ -813,7 +838,7 @@ The performance figures of the neural nets are shown in Figures \ref{fig:08small
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \noindent
 \textit{Linear Parameter-varying Models} \\
-Lastly, the linear parameter-varying model (LPV) is given by \cite{LPV}:
+Lastly, the linear parameter-varying model (LPV) is given by:
 \begin{equation}
     \begin{split}
         \hat{y} = W_1^Tx + b_1 \\
@@ -823,38 +848,67 @@ Lastly, the linear parameter-varying model (LPV) is given by \cite{LPV}:
     \end{split}
     \label{eq:08LPV_structure}
 \end{equation}
-where $n \geq 1$ represents the number of linear models used to capture the data set. Here, $W_n$ and $b_n$ are the weights and biases corresponding to the $n^{th}$ model, respectively. 
+where $n \geq 1$ represents the number of linear models used to capture the data set. Here, $W_n$ and $b_n$ are the weights and biases corresponding to the $n^{th}$ model, respectively. For this study, two linear models were used to model the pipeline.  The models corresponded to the two clusters identified in Figure \ref{fig:08DBSCAN}.  Models 1 and 2 are identified from clusters 1 and 2, respectively.  During online implementation, the model will be selected based on the Euclidean distance between the features of the new data and the centroid of the two clusters.  However, if the distance exceeds 1.15 in both cases, the data will be labeled as anomalous.
+
+The performance assessment of the two LPV models are shown in Tables \ref{tab:08cluster1_reg} and \ref{tab:08cluster2_reg}. 
+\begin{table}[h]
+    \centering
+    {\setstretch{1.2}
+    \begin{tabular}{ c | c | c | c}
+                    &  Training data     &  Validation data    &    Test data      \\
+        \hline
+        MAE         &  90     &     90   &   96    \\
+                    
+        RMSE        &  115     &    116  &   120   \\ 
+                    
+        $R^2$       &  0.87   &    0.86  &   0.78   \\
+    \end{tabular}}
+    \caption{Performance assessment for cluster 1 regression model.}
+    \label{tab:08cluster1_reg}
+\end{table}
 
 \begin{table}[h]
     \centering
-    {\setstretch{1.5}
+    {\setstretch{1.2}
     \begin{tabular}{ c | c | c | c}
                     &  Training data     &  Validation data    &    Test data      \\
         \hline
-        MAE         &  91     &     70   &   xx    \\
+        MAE         &  66     &    67   &   85   \\
                     
-        RMSE        &  116     &    85   &   xx   \\ 
+        RMSE        &  91     &    92   &   110 \\ 
                     
-        $R^2$       &  0.87   &    0.68  &   xx   \\
-    \end{tabular}}
-    \caption{Performance assessment for cluster 1 regression model.}
-    \label{tab:08med_nn}
-\end{table}
-\begin{table}[h]
-    \centering
-    {\setstretch{1.5}
-    \begin{tabular}{ c | c | c | c}
-                    &  Training data     &  Validation data    &    Test data      \\
-        \hline
-        MAE         &  xx     &    xx   &   xx   \\
-                    
-        RMSE        &  xx     &    xx   &   xx \\ 
-                    
-        $R^2$       &  xx     &    xx   &   xx \\
+        $R^2$       &  0.90     &    0.89   &   0.57 \\
     \end{tabular}}
     \caption{Performance assessment for cluster 2 regression model.}
-    \label{tab:08large_nn}
+    \label{tab:08cluster2_reg}
 \end{table}
+
+The comparison of actual and predicted flow rates on the validation and test data for the LPV models are shown in Figures \ref{fig:08cluster1_valid} to \ref{fig:08cluster2_test}. 
+\begin{figure}[h]
+    \centering
+     \begin{subfigure}[b]{0.48\textwidth}
+         \includegraphics[width=\textwidth]{images/08cluster1_valid.eps}
+         \caption{Predicted vs. actual flow rate for validation data using model 1.}
+         \label{fig:08cluster1_valid}
+     \end{subfigure}
+     \begin{subfigure}[b]{0.48\textwidth}
+         \includegraphics[width=\textwidth]{images/08cluster1_test.eps}
+         \caption{Predicted vs. actual flow rate for the test data using model 1.}
+         \label{fig:08cluster1_test}
+     \end{subfigure}
+     \begin{subfigure}[b]{0.48\textwidth}
+         \includegraphics[width=\textwidth]{images/08cluster2_valid.eps}
+         \caption{Predicted vs. actual flow rate for the validation data using model 2.}
+         \label{fig:08cluster2_valid}
+     \end{subfigure}
+     \begin{subfigure}[b]{0.48\textwidth}
+         \includegraphics[width=\textwidth]{images/08cluster2_test.eps}
+         \caption{Predicted vs. actual flow rate for the test data using model 2.}
+         \label{fig:08cluster2_test}
+     \end{subfigure}
+        \caption{Linear parameter-varying models' validation and test plots.}
+        \label{fig:08PolynomialPlots}
+\end{figure}
 
 \subsubsection{Selected Model Structure}
 Ultimately, a linear parameter-varying (LPV) model was selected to model this pipeline.  It is clear that the process is heavily non-linear due to the increase in accuracy when switching to a non-linear model structure; therefore, LPV models were selected due to their non-linear nature while still retaining the interpretability of linear models. To enhance credibility, any non-linear model can be approximated by a LPV model via the White's Theorem \cite{LPV}.

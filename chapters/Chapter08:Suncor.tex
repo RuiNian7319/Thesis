@@ -733,7 +733,7 @@ Mathematically, for one example $x$:
     $y = W^{[o]}a^{[r]}_j + b^{[o]}$ \\  
 \end{center}
 
-The hyper parameters for each neural network is given in Table \ref{tab:08NN_hp}. In all cases, the training and validation data set performance was significantly better using the neural networks.  However on the test data set, the performance was only slightly better.  This may be caused by the test data being slightly different than the training data.  Due to the complexity of neural networks, they perform exceptionally well on data
+The hyper parameters for each neural network is given in Table \ref{tab:08NN_hp}. $\lambda$ was increased as the neural network got more complex to reduce overfitting.  The ReLU activation function was used for computational efficiency and avoiding the exploding/vanishing gradient problem \cite{ReLU}.
 \begin{table}[h]
     \centering
     {\setstretch{1.2}
@@ -752,7 +752,8 @@ The hyper parameters for each neural network is given in Table \ref{tab:08NN_hp}
     \label{tab:08NN_hp}
 \end{table}
 
-Tables \ref{tab:08small_nn} to \ref{tab:08large_nn} show the performance assessment of the small, medium and large neural networks.
+Tables \ref{tab:08small_nn} to \ref{tab:08large_nn} show the performance assessment of the small, medium and large neural networks.  In all cases, the training and validation data set performance was significantly better using the neural networks.  However on the test data set, the performance was only slightly better.  This may be caused by the test data being slightly different than the training data.  Due to the complexity of neural networks, they perform exceptionally well on data they are trained for, but perform poorly on unseen data. To close the gap in performance, a higher $\lambda$ could be used.  Moreover, smaller neural networks could also be used to reduce model complexity.
+
 \begin{table}[h]
     \centering
     {\setstretch{1.2}
@@ -802,7 +803,8 @@ Tables \ref{tab:08small_nn} to \ref{tab:08large_nn} show the performance assessm
 \end{table}
 
 The comparison of actual and predicted flow rates on the validation and test data for the neural nets are shown in Figures \ref{fig:08smallnn_valid} to \ref{fig:08largenn_test}.  
-\begin{figure}[h]
+
+\begin{figure}[p]
      \centering
      \begin{subfigure}[b]{0.48\textwidth}
          \includegraphics[width=\textwidth]{images/08smallnn_valid.eps}
@@ -845,7 +847,7 @@ The comparison of actual and predicted flow rates on the validation and test dat
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \noindent
 \textit{Linear Parameter-varying Models} \\
-Lastly, the linear parameter-varying model (LPV) is given by:
+Lastly, the linear parameter-varying model (LPV) was explored to model this pipeline. It is clear that the process is heavily non-linear due to the increase in accuracy when switching to a non-linear model structure. LPV models were selected due to their non-linear nature while still retaining the interpretability of linear models. Any non-linear model can be approximated by a set of linear model via the White's Theorem \cite{LPV}. The LPV model is given by:
 \begin{equation}
     \begin{split}
         \hat{y} = W_1^Tx + b_1 \\
@@ -857,7 +859,7 @@ Lastly, the linear parameter-varying model (LPV) is given by:
 \end{equation}
 where $n \geq 1$ represents the number of linear models used to capture the data set. Here, $W_n$ and $b_n$ are the weights and biases corresponding to the $n^{th}$ model, respectively. For this study, two linear models were used to model the pipeline.  The models corresponded to the two clusters identified in Figure \ref{fig:08DBSCAN}.  Models 1 and 2 are identified from clusters 1 and 2, respectively.  During online implementation, the model will be selected based on the Euclidean distance between the features of the new data and the centroid of the two clusters.  However, if the distance exceeds 1.15 in both cases, the data will be labeled as anomalous.
 
-The performance assessment of the two LPV models are shown in Tables \ref{tab:08cluster1_reg} and \ref{tab:08cluster2_reg}. 
+The performance assessment of the two LPV models are shown in Tables \ref{tab:08cluster1_reg} and \ref{tab:08cluster2_reg}. Overall, the LPV models are able to further reduce modelling error. Model 1 was only used to predict high flow rate scenarios. Nevertheless, its MAE and RMSE were almost identical to the constrained least squares model used to predict for all data.  Moreover, RMSE and MAE for model 2 were 7\% lower compared to the constrained least squares. 
 \begin{table}[h]
     \centering
     {\setstretch{1.2}
@@ -916,9 +918,6 @@ The comparison of actual and predicted flow rates on the validation and test dat
         \caption{Linear parameter-varying models' validation and test plots.}
         \label{fig:08PolynomialPlots}
 \end{figure}
-
-\subsubsection{Selected Model Structure}
-Ultimately, a linear parameter-varying (LPV) model was selected to model this pipeline.  It is clear that the process is heavily non-linear due to the increase in accuracy when switching to a non-linear model structure; therefore, LPV models were selected due to their non-linear nature while still retaining the interpretability of linear models. To enhance credibility, any non-linear model can be approximated by a LPV model via the White's Theorem \cite{LPV}.
 
 \subsubsection{Adaptive Machine Learning}
 \paragraph{Online Learning vs. Incremental Learning}

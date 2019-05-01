@@ -292,10 +292,10 @@ To avoid this problem, the min-max normalization is applied to each variable and
     x^{norm} = \frac{x - x^{min}}{x^{max} - x^{min}}
     \label{eq:08normalization}
 \end{equation}
-where $x^{norm}$ is the normalized values.  Here, $x^{min}$ and $x^{max}$ are the minimum and maximum values of each variable, respectively.  By applying this normalization, all data are bounded between $x_i \in [0, 1]$, and the elongation issue of the cost function can be resolved.
+where $x^{norm}$ is the normalized values.  Here, $x^{min}$ and $x^{max}$ are the minimum and maximum values of each variable, respectively.  By applying this normalization, all data will be bounded between $x_i \in [0, 1]$ and the elongation issue of the cost function will be resolved.
 
 \subsubsection{Exploratory Data Analysis}
-Exploratory data analysis was then conducted to gain insights into the data set.  First, the distribution of the flow rate was explored and shown in Figure \ref{fig:08flowrate_dist}.  Here, it can be seen that the flow rate follows a bi-modal distribution meaning that there are two different operating strategies: a high demand strategy and a low demand strategy.
+Exploratory data analysis was then conducted to gain insights into the data set.  First, the distribution of the flow rate was explored and shown in Figure \ref{fig:08flowrate_dist}.  It can be seen that the flow rate follows a bi-modal distribution corresponding to two different operating strategies: a high demand strategy and a low demand strategy.
 
 \begin{figure}[h]
     \centering
@@ -304,21 +304,22 @@ Exploratory data analysis was then conducted to gain insights into the data set.
     \label{fig:08flowrate_dist}
 \end{figure}
 
-To segregate the two Gaussian distributions, DBSCAN was used.  DBSCAN is a density-based algorithm for discovering clusters in large spatial data \cite{DBSCAN}. It contains two hyper parameters, $\epsilon$ and $min-points$.  The steps of DBSCAN is as follows:
+To segregate the two Gaussian distributions, DBSCAN was used.  DBSCAN is a density-based algorithm for discovering clusters in large spatial data \cite{DBSCAN}. DBSCAN also scales much better to big data compared to affinity propagation or Gaussian mixture models due to the latter being iterative methods.
+DBSCAN contains two hyper parameters, $\epsilon$ and $min \; points$.  The steps of DBSCAN is as follows:
 \begin{enumerate}
     \item Normalize the data using Equation \ref{eq:08normalization} so each variable is weighted similarily.
-    \item Create an $n-$dimensional sphere of radius $\epsilon$ around an initial data points.  Euclidean distance was used for the distance metric and is given by:
+    \item Create an $n-$dimensional sphere of radius $\epsilon$ around an initial data point.  Euclidean distance was used for the distance metric and is given by:
     \begin{equation}
         distance = \sqrt{(x_1^{(1)} - x_1^{(2)})^2 + (x_2^{(1)} - x_2^{(2)})^2 + ... + (x_m^{(1)} - x_m^{(2)})^2}
     \end{equation}
-    where superscripts $1$ and $2$ are the first and second data points.
-    \item If there are more than $min-points$ in this sphere, then all points within this sphere belong to the same cluster.
+    where superscripts $1$ and $2$ denotes the first and second data points.
+    \item If there are more than $min \; points$ in this sphere, then all points within this sphere belong to the same cluster.
     \item Expand the cluster by recursively applying the above criteria to the edge points of the cluster.
-    \item If the cluster can no longer be expanded, apply step 1 to a new data point currently not belonging to a cluster.
-    \item If there are less than $min-points$ in this sphere, then the data point is ignored and we proceed to the next data point.
+    \item If the cluster can no longer be expanded, apply steps 2 - 4 to a new data point currently not belonging to a cluster.
+    \item If there are less than $min \; points$ in this sphere, then the data point is ignored and we proceed to the next data point.
     \item Outlier data points are ones that fail to belong to any cluster.
 \end{enumerate}
-The resultant segregation created by DBSCAN is shown in Figure \ref{fig:08DBSCAN}. The hyper parameters for $\epsilon$ and $min-points$ are 1.13 and 10,000, respectively.  The first cluster (black) contained 56,738 data points while the second cluster (green) contained 36,779 data points.  The remaining 3953 data points (blue) were identified as outliers.
+The resultant segregation created by DBSCAN using hyper parameters 1.13 and 10,000 for $\epsilon$ and $min \; points$ is shown in Figure \ref{fig:08DBSCAN}. The first cluster (black) contained 56,738 data points while the second cluster (green) contained 36,779 data points.  The remaining 3953 data points (blue) were identified as outliers.
 \begin{figure}[h]
     \centering
     \includegraphics[scale=0.8]{images/08DBSCAN.eps}
@@ -326,7 +327,7 @@ The resultant segregation created by DBSCAN is shown in Figure \ref{fig:08DBSCAN
     \label{fig:08DBSCAN}
 \end{figure}
 
-The operating conditions of each cluster is shown in Figure \ref{fig:08cluster_variables}. The main differences are the flow rate, DRA usage, and pump usage.  Cluster 1 had 32\% higher average flow rate.  Cluster 1 also used substantially more DRA compared to cluster 1, where almost no DRA was used. Furthermore, the Cheyenne booster pump, Ault booster pump 1, Fort Lupton boooster pump, and Fort Lupton VFD were only used in cluster 1.  Ault booster pump 2 was only used in cluster 2.
+The average operating conditions of each cluster is shown in Figure \ref{fig:08cluster_variables}. The main differences are the flow rate, DRA usage, and pump usage.  Cluster 1 had 32\% higher average flow rate.  Cluster 1 also used substantially more DRA compared to cluster 1, where almost no DRA was used. Furthermore, the Cheyenne booster pump, Ault booster pump 1, Fort Lupton boooster pump, and Fort Lupton VFD were only used in cluster 1.  Ault booster pump 2 was only used in cluster 2.
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{images/08AvgChar.png}
@@ -335,7 +336,7 @@ The operating conditions of each cluster is shown in Figure \ref{fig:08cluster_v
 \end{figure}
 
 \subsubsection{Data Partitioning}
-The data set was split into three sections to validate and test the machine learning models: training, validation, and testing.  The partition and description of each section is described in Table \ref{tab:08datapart}. The training data set is used to identify the machine learning model(s).  Then, the model is validated on un-trained data via the validation data set (sometimes called development data).  The error of the model on the validation data set, $e_{validation}$, should be similar to the training data error, $e_{train}$, to ensure that the model did not overfit to the training data. Finally, the model will be tested on the testing data to explore the performance of the model in live production.
+The data set was split into three sections for machine learning: training, validation, and testing.  The partition and description of each section is described in Table \ref{tab:08datapart}. The training data set was used to identify the machine learning model(s).  Then, the model was validated on unseen data via the validation data set (sometimes called development data).  The error of the model on the validation data set, $e_{validation}$, should be similar to the training data error, $e_{train}$, to ensure that the model did not overfit to the training data. Finally, the model will be tested on the testing data to explore the performance of the model in live production.  Testing data will always be the last 5\% of the data in the data set.
 \begin{table}[h]
     \centering
     {\setstretch{1.2}
@@ -357,14 +358,14 @@ The data set was split into three sections to validate and test the machine lear
 
 \subsubsection{Cost Function}
 
-For all predictive models, the mean squared error (MSE) cost function is used and is given by:
+The mean squared error (MSE) cost function was used for all predictive models and is given by:
 \begin{equation}
     J(W) = \frac{1}{n}\sum\limits^n_{i=1}(\hat{y}_i - y_i)^2
     \label{eq:08MSE}
 \end{equation}
 where $n$ is the number of samples in the current optimization step.  $\hat{y}_i$ and $y_i$ are the $i^{th}$ predicted and actual labels, respectively. Here, $J$ is the loss. The MSE cost function was selected due to its convex nature \cite{deeplearning_course}.
 
-To ensure adequate performance on the validation and testing data, the model must avoid overfitting to the training data.  One common way to reduce model complexity is by removing or reducing individual variables' impact on the model.  This study used a ridge regularization to reduce model complexity:
+To ensure adequate performance on the validation and testing data, the model must avoid overfitting to the training data.  This was done by reducing the model complexity through removing or reducing individual variables' impact on the model.  This study used a ridge regularization to reduce model complexity:
 \begin{equation}
     J(W) = \frac{1}{n}\sum\limits^n_{i=1}(\hat{y}_i - y_i)^2 + \lambda \sum\limits^n_{j=1} W_j^2
     \label{eq:08MSE_wR}
@@ -378,7 +379,7 @@ The adaptive momentum (ADAM) gradient descent optimizer was used to update the w
     \theta_j^{m+1} \leftarrow \theta_j^{m} - \alpha \frac{\partial J}{\partial \theta_j}
     \label{eq:08GradientDescent}
 \end{equation}
-where $\theta_j$ is the $j^{th}$ weight of the model.  $m$ represents the $m^{th}$ update of gradient descent and $\alpha$ is the learning rate.  ADAM improves upon Equation \ref{eq:08GradientDescent} by computing an adaptive learning rate for each parameter. To do so, the exponentially decaying average of the past gradients and squared gradients of the weights and biases are computed and stored using Equations \ref{eq:08momentW} to \ref{eq:08squared_momentb}.
+where $\theta_j$ is the $j^{th}$ weight of the model.  Here, $m$ represents the $m^{th}$ update of gradient descent and $\alpha$ is the learning rate.  ADAM improves upon Equation \ref{eq:08GradientDescent} by computing an adaptive learning rate for each parameter. To do so, the exponentially decaying average of the past gradients and squared gradients of the weights and biases are computed and stored using Equations \ref{eq:08momentW} to \ref{eq:08squared_momentb}.
 \begin{equation}
     V_{dW} = \beta_1 V_{dW} + (1 - \beta_1)dW
     \label{eq:08momentW}
@@ -408,7 +409,7 @@ where $V$ and $S$ are the estimates of the gradient and squared gradients, respe
 \begin{equation}
     S_{db}^{corrected} = \frac{S_{db}}{1 - \beta_2^t}
 \end{equation}
-Combining the above equations, the weights and biases are updated using ADAM by:
+Combining the above equations, the weights and biases are updated by:
 \begin{equation}
     W_j \leftarrow W_j - \alpha \frac{V_{dW}^{corrected}}{S_{dW}^{corrected} + \epsilon}
 \end{equation}
@@ -417,7 +418,7 @@ Combining the above equations, the weights and biases are updated using ADAM by:
 \end{equation}
 where $\epsilon$ is a small scalar to avoid division by zero. The authors proposed values of 0.9, 0.999 and $10^{-8}$ for $\beta_1$, $\beta_2$, and $\epsilon$, respectively.
 
-Due to the size of the data, batch gradient descent where all data are used to compute the gradient at each step is computationally infeasible.  Thus, mini-batch gradient descent was used where smaller batches of data were sampled from the original data set to perform parameter updates at each step.
+Due to the size of the data, batch gradient descent where all data are used to compute the gradient at each step is computationally infeasible.  Thus, mini-batch gradient descent was used where smaller batches of data were sampled from the original data set to perform stochastic updates at each step.
 \subsubsection{Performance Assessment}
 The model performance were assessed using the following three ways:
 \begin{enumerate}
@@ -444,11 +445,11 @@ Table \ref{tab:08performanceassessment} shows the advantages and disadvantages o
     \begin{tabular}{ c | p{7cm} | p{7cm}}
          Method             & Advantages        &  Disadvantages \\
         \hline
-        RMSE                &  Useful for identifying large errors                            &  Smaller errors are more muted        \\
+        RMSE                &  Useful for identifying large errors                            &  Smaller errors are muted        \\
         
         MAE                 &  Easy to interpret as all errors have the same weight           &  Inferior to RMSE when large errors are undesirable \\
         
-        $R^2$               &  Easy to understand, $0 \leq R^2 \leq 1$                                         &  Valid only for linear relationships       \\             
+        $R^2$               &  Easy to understand, $-infty \leq R^2 \leq 1$                                         &  Valid only for linear relationships       \\             
     \end{tabular}}
     \caption{Constrained least squares validation and test plots.}
     \label{tab:08performanceassessment}

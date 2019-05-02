@@ -752,54 +752,19 @@ The hyper parameters for each neural network is given in Table \ref{tab:08NN_hp}
     \label{tab:08NN_hp}
 \end{table}
 
-Tables \ref{tab:08small_nn} to \ref{tab:08large_nn} show the performance assessment of the small, medium and large neural networks.  In all cases, the training and validation data set performance was significantly better using the neural networks.  However on the test data set, the performance was only slightly better.  This may be caused by the test data being slightly different than the training data.  Due to the complexity of neural networks, they perform exceptionally well on data they are trained for, but perform poorly on unseen data. To close the gap in performance, a higher $\lambda$ could be used.  Moreover, smaller neural networks could also be used to reduce model complexity.
+Table \ref{tab:nn} shows the performance assessment of the small, medium and large neural networks.  In all cases, the training and validation data set performance was significantly better using the neural networks.  However on the test data set, the performance was only slightly better.  This may be caused by the test data being slightly different than the training data.  Due to the complexity of neural networks, they perform exceptionally well on data they are trained for, but perform poorly on unseen data. To close the gap in performance, a higher $\lambda$ could be used.  Moreover, smaller neural networks could also be used to reduce model complexity.
 
 \begin{table}[h]
-    \centering
-    {\setstretch{1.2}
-    \begin{tabular}{ c | c | c | c}
-                    &  Training data     &  Validation data    &    Test data      \\
-        \hline
-        MAE         &  48      &    50    &    87    \\
-                    
-        RMSE        &  66      &    69    &   117 \\ 
-                    
-        $R^2$       &  0.97    &   0.91   &   0.77  \\
-    \end{tabular}}
-    \caption{Performance assessment for the small neural network model.}
-    \label{tab:08small_nn}
-\end{table}
-
-\begin{table}[h]
-    \centering
-    {\setstretch{1.2}
-    \begin{tabular}{ c | c | c | c}
-                    &  Training data     &  Validation data    &    Test data      \\
-        \hline
-        MAE         &  42     &     45   &   87    \\
-                    
-        RMSE        &  58     &     61   &   107   \\ 
-                    
-        $R^2$       &  0.98   &    0.90  &  0.83   \\
-    \end{tabular}}
-    \caption{Performance assessment for the medium neural network model.}
-    \label{tab:08med_nn}
-\end{table}
-
-\begin{table}[h]
-    \centering
-    {\setstretch{1.2}
-    \begin{tabular}{ c | c | c | c}
-                    &  Training data     &  Validation data    &    Test data      \\
-        \hline
-        MAE         &  38     &    37   &    91   \\
-                    
-        RMSE        &  57     &    56   &   118 \\ 
-                    
-        $R^2$       &  0.99  &    0.94  &   0.77 \\
-    \end{tabular}}
-    \caption{Performance assessment for the large neural network model.}
-    \label{tab:08large_nn}
+\centering
+{\setstretch{1.2}
+\begin{tabular}{c|l|l|l|l|l|l|l|l|l|}
+\multicolumn{1}{l|}{} & \multicolumn{3}{c|}{Training Data}                                               & \multicolumn{3}{c|}{Validation Data}                                             & \multicolumn{3}{c|}{Test Data}                                                   \\ \cline{2-10} 
+\multicolumn{1}{l|}{} & \multicolumn{1}{c|}{Sm.} & \multicolumn{1}{c|}{Med.} & \multicolumn{1}{c|}{Lar.} & \multicolumn{1}{c|}{Sm.} & \multicolumn{1}{c|}{Med.} & \multicolumn{1}{c|}{Lar.} & \multicolumn{1}{c|}{Sm.} & \multicolumn{1}{c|}{Med.} & \multicolumn{1}{c|}{Lar.} \\ \hline
+MAE                   & 48                       & 42                        & 38                        & 50                       & 45                        & 37                        & 87                       & 87                        & 91                        \\
+RMSE                  & 66                       & 58                        & 57                        & 69                       & 61                        & 56                        & 117                      & 107                       & 118                       \\
+$R^2$                 & 0.97                     & 0.98                      & 0.99                      & 0.91                     & 0.90                      & 0.94                      & 0.77                     & 0.83                      & 0.77                     
+\end{tabular}}
+\label{tab:08nn}
 \end{table}
 
 The comparison of actual and predicted flow rates on the validation and test data for the neural nets are shown in Figures \ref{fig:08smallnn_valid} to \ref{fig:08largenn_test}.  
@@ -847,6 +812,7 @@ The comparison of actual and predicted flow rates on the validation and test dat
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \noindent
 \textit{Linear Parameter-varying Models} \\
+
 Lastly, the linear parameter-varying model (LPV) was explored to model this pipeline. It is clear that the process is heavily non-linear due to the increase in accuracy when switching to a non-linear model structure. LPV models were selected due to their non-linear nature while still retaining the interpretability of linear models. Any non-linear model can be approximated by a set of linear model via the White's Theorem \cite{LPV}. The LPV model is given by:
 \begin{equation}
     \begin{split}
@@ -918,6 +884,8 @@ The comparison of actual and predicted flow rates on the validation and test dat
         \caption{Linear parameter-varying models' validation and test plots.}
         \label{fig:08PolynomialPlots}
 \end{figure}
+
+Ultimately, the LPV model was selected to model the pipeline.  The LPV model has the interpretability of linear models, while having the predictive capabilities of non-linear models.  Furthermore, the LPV model identifies a separate set of parameters for the two distributions, making the optimization algorithm more representative of live operations.  For example, because no DRA was used for cluster 2, the optimization algorithm will have explicit constraints to not use DRA as well. A similar example would be using only Ault booster 1 for cluster 2, while only using Ault booster 2 for cluster 1.  The advantages of these constraints are twofold: i) More realistic to live operations.  ii) Avoid model extrapolations (since no DRA data was used to identify model 2, the optimizer should not be able to use it for optimization).
 
 \subsubsection{Adaptive Machine Learning}
 \paragraph{Online Learning vs. Incremental Learning}

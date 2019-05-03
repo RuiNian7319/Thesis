@@ -629,32 +629,19 @@ where $W_1$ are the weights for the squared and square rooted variables for the 
     \label{tab:08poly_hp}
 \end{table}
 
-The performance assessment of the quadratic and square root models are shown in Table \ref{tab:08quad_performance} and \ref{tab:08sq_performance}, respectively. Compared to constrained least squares, MAE and RMSE reduced by up to 10\% and 9\% when using the polynomial models, respectively.  Performance of the square root model was about 3.5\% better than the quadratic model.
+The performance assessment of the quadratic and square root models are shown in Table \ref{tab:08quad_sqrt_performance}. Compared to constrained least squares, MAE and RMSE reduced by up to 10\% and 9\% when using the polynomial models, respectively.  Performance of the square root model was about 3.5\% better than the quadratic model.
 \begin{table}[h]
     \centering
     {\setstretch{1.2}
-    \begin{tabular}{ c | c | c | c}
-                             &  Training data     &  Validation data    &    Test data      \\
-        \hline
-        MAE                  &  92      &    92     &  89    \\
-        RMSE                 &  121     &   121     &  120   \\ 
-        $R^2$                &  0.92    &   0.92    &  0.76  \\
+    \begin{tabular}{c|c|c|c|c|c|c|}
+      & \multicolumn{2}{c|}{Training data} & \multicolumn{2}{c|}{Validation data} & \multicolumn{2}{c|}{Test data} \\ \cline{2-7} 
+      & Quad             & Sqrt            & \multicolumn{1}{c|}{Quad}   & Sqrt   & Quad           & Sqrt          \\ \hline
+    MAE   & 92               & 89              & 92                          & 89     & 89             & 91            \\
+    RMSE  & 121              & 118             & \multicolumn{1}{c|}{121}    & 117    & 120            & 115           \\
+    $R^2$ & 0.92             & 0.93            & \multicolumn{1}{c|}{0.92}   & 0.93   & 0.76           & 0.15         
     \end{tabular}}
-    \caption{Performance assessment for the quadratic model.}
-    \label{tab:08quad_performance}
-\end{table}
-\begin{table}[h]
-    \centering
-    {\setstretch{1.2}
-    \begin{tabular}{ c | c | c | c}
-                             &  Training data     &  Validation data    &    Test data      \\
-        \hline
-        MAE                  &  89      &  89     &  91   \\
-        RMSE                 &   118    &  117    &  115  \\ 
-        $R^2$                &    0.93  &   0.93  &  0.81 \\
-    \end{tabular}}
-    \caption{Performance assessment for the square root model.}
-    \label{tab:08sq_performance}
+    \caption{Performance assessment for the quad. and sqrt. model.}
+    \label{tab:08quad_sqrt_performance}
 \end{table}
 
 The polynomial models' fit compared to the actual data are shown in Figures \ref{fig:08quad_validation} to \ref{fig:08sqrt_test}.  
@@ -757,7 +744,7 @@ Table \ref{tab:nn} shows the performance assessment of the small, medium and lar
 \begin{table}[h]
 \centering
 {\setstretch{1.2}
-\begin{tabular}{c|l|l|l|l|l|l|l|l|l|}
+\begin{tabular}{c|c|c|c|c|c|c|c|c|c|}
 \multicolumn{1}{l|}{} & \multicolumn{3}{c|}{Training Data}                                               & \multicolumn{3}{c|}{Validation Data}                                             & \multicolumn{3}{c|}{Test Data}                                                   \\ \cline{2-10} 
 \multicolumn{1}{l|}{} & \multicolumn{1}{c|}{Sm.} & \multicolumn{1}{c|}{Med.} & \multicolumn{1}{c|}{Lar.} & \multicolumn{1}{c|}{Sm.} & \multicolumn{1}{c|}{Med.} & \multicolumn{1}{c|}{Lar.} & \multicolumn{1}{c|}{Sm.} & \multicolumn{1}{c|}{Med.} & \multicolumn{1}{c|}{Lar.} \\ \hline
 MAE                   & 48                       & 42                        & 38                        & 50                       & 45                        & 37                        & 87                       & 87                        & 91                        \\
@@ -812,7 +799,6 @@ The comparison of actual and predicted flow rates on the validation and test dat
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \noindent
 \textit{Linear Parameter-varying Models} \\
-
 Lastly, the linear parameter-varying model (LPV) was explored to model this pipeline. It is clear that the process is heavily non-linear due to the increase in accuracy when switching to a non-linear model structure. LPV models were selected due to their non-linear nature while still retaining the interpretability of linear models. Any non-linear model can be approximated by a set of linear model via the White's Theorem \cite{LPV}. The LPV model is given by:
 \begin{equation}
     \begin{split}
@@ -825,37 +811,20 @@ Lastly, the linear parameter-varying model (LPV) was explored to model this pipe
 \end{equation}
 where $n \geq 1$ represents the number of linear models used to capture the data set. Here, $W_n$ and $b_n$ are the weights and biases corresponding to the $n^{th}$ model, respectively. For this study, two linear models were used to model the pipeline.  The models corresponded to the two clusters identified in Figure \ref{fig:08DBSCAN}.  Models 1 and 2 are identified from clusters 1 and 2, respectively.  During online implementation, the model will be selected based on the Euclidean distance between the features of the new data and the centroid of the two clusters.  However, if the distance exceeds 1.15 in both cases, the data will be labeled as anomalous.
 
-The performance assessment of the two LPV models are shown in Tables \ref{tab:08cluster1_reg} and \ref{tab:08cluster2_reg}. Overall, the LPV models are able to further reduce modelling error. Model 1 was only used to predict high flow rate scenarios. Nevertheless, its MAE and RMSE were almost identical to the constrained least squares model used to predict for all data.  Moreover, RMSE and MAE for model 2 were 7\% lower compared to the constrained least squares. 
-\begin{table}[h]
-    \centering
-    {\setstretch{1.2}
-    \begin{tabular}{ c | c | c | c}
-                    &  Training data     &  Validation data    &    Test data      \\
-        \hline
-        MAE         &  90     &     90   &   96    \\
-                    
-        RMSE        &  115     &    116  &   120   \\ 
-                    
-        $R^2$       &  0.87   &    0.86  &   0.78   \\
-    \end{tabular}}
-    \caption{Performance assessment for cluster 1 regression model.}
-    \label{tab:08cluster1_reg}
-\end{table}
+The performance assessment of the two LPV models are shown in Table \ref{tab:08cluster1_cluster2_reg}. Overall, the LPV models are able to further reduce modelling error. Model 1 was only used to predict high flow rate scenarios. Nevertheless, its MAE and RMSE were almost identical to the constrained least squares model used to predict for all data.  Moreover, RMSE and MAE for model 2 were 7\% lower compared to the constrained least squares. 
 
 \begin{table}[h]
     \centering
     {\setstretch{1.2}
-    \begin{tabular}{ c | c | c | c}
-                    &  Training data     &  Validation data    &    Test data      \\
-        \hline
-        MAE         &  66     &    67   &   85   \\
-                    
-        RMSE        &  91     &    92   &   110 \\ 
-                    
-        $R^2$       &  0.90     &    0.89   &   0.57 \\
+    \begin{tabular}{c|c|c|c|c|c|c|}
+      & \multicolumn{2}{c|}{Training data} & \multicolumn{2}{c|}{Validation data} & \multicolumn{2}{c|}{Test data} \\ \cline{2-7} 
+      & Cl. 1            & Cl. 2           & Cl. 1             & Cl. 2            & Cl. 1          & Cl. 2         \\ \hline
+    MAE   & 90               & 66              & 90                & 67               & 96             & 85            \\
+    RMSE  & 115              & 91              & 116               & 92               & 120            & 110           \\
+    $R^2$ & 0.87             & 0.90            & 0.86              & 0.89             & 0.78           & 0.57         
     \end{tabular}}
-    \caption{Performance assessment for cluster 2 regression model.}
-    \label{tab:08cluster2_reg}
+    \caption{Performance assessment for clusters 1 and 2 regression models.}
+    \label{tab:08cluster1_cluster2_reg}
 \end{table}
 
 The comparison of actual and predicted flow rates on the validation and test data for the LPV models are shown in Figures \ref{fig:08cluster1_valid} to \ref{fig:08cluster2_test}. 

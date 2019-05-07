@@ -257,19 +257,19 @@ Table \ref{tab:08featselect} shows the features selected for each pump station. 
     \begin{tabular}{ c | c | c | c | c}
         Cheyenne                       & CIG                      & Ault                        & Fort Lupton                    & Commerce City \\
         \hline
-        $x_5$: Boos. Pump Status       &  $x_1$: Sweet DRA (ppm)  &  $x_3$: Sweet DRA (ppm)     &  $x_{8}$: Boos. Pump Status   &  $x_{18}$: Inlet Temp. (°C) \\
+        $u_5$: Boos. Pump Status       &  $u_1$: Sweet DRA (ppm)  &  $u_3$: Sweet DRA (ppm)     &  $u_{8}$: Boos. Pump Status   &  $x_{8}$: Inlet Temp. (°C) \\
         
-        $x_9$: VFD Current (Amp)       &  $x_2$: Sour DRA (ppm)   &  $x_4$: Sour DRA (ppm)      & $x_{10}$: VFD Current (Amp)      & \\
+        $u_9$: VFD Current (Amp)       &  $u_2$: Sour DRA (ppm)   &  $u_4$: Sour DRA (ppm)      & $u_{10}$: VFD Current (Amp)      & \\
         
-        $x_{14}$: Inlet Temp. (°C)     &  $x_{15}$: Inlet Temp. (°C) &  $x_6$: Small Pump Status &  $x_{17}$: Inlet Temp. (°C)  & \\
+        $x_{4}$: Inlet Temp. (°C)     &  $x_{5}$: Inlet Temp. (°C) &  $u_6$: Small Pump Status &  $x_{7}$: Inlet Temp. (°C)  & \\
         
-        $x_{11}$: API                   &  $x_{12}$: API          &  $x_7$: Large Pump Status   &             
+        $x_{1}$: API                   &  $x_{2}$: API          &  $u_7$: Large Pump Status   &             
         & \\
         
-                                       &                          &  $x_{16}$: Inlet Temp. (°C)  &             
+                                       &                          &  $x_{6}$: Inlet Temp. (°C)  &             
         & \\
         
-                                       &                          &  $x_{13}$: API               &       
+                                       &                          &  $x_{3}$: API               &       
         & \\
         
     \end{tabular}}}
@@ -465,10 +465,10 @@ Table \ref{tab:08performanceassessment} shows the advantages and disadvantages o
 \textit{Least Squares} \\
 The least squares regression was the first regression method to be explored, and was selected as the benchmark due to its simplicity and linear nature. The model structure of least squares is given as:
 \begin{equation}
-    \hat{y} = W^Tx + b
+    \hat{y} = W_1^Tx + W_2^Tu + b
     \label{eq:08LS}
 \end{equation}
-where $x$ is a vector of features and superscript $T$ denotes the transpose operation.
+where $x \in R^8$ is a vector of states, $u \in R^{10}$ is a vector of inputs and superscript $T$ denotes the transpose operation.
 
 Hyper parameters of the linear regression are shown in Table \ref{tab:08LSHparameters}.
 \begin{table}[h]
@@ -521,10 +521,10 @@ The model performance on the validation and test data sets are shown in Figures 
         \label{fig:08LSPlots}
 \end{figure}
 
-The least squares model is given in Equation \ref{eq:08LS}.  Weights for $x_{11} - x_{14}$ were very small and were omitted.
+The least squares model is given in Equation \ref{eq:08LS}.  Weights for $x_{1} - x_{4}$ were very small and were omitted.
 \begin{multline}
-    \hat{y} = 0.10x_1 + 0.15x_2 + 0.13x_3 + 0.04x_4 + 0.04x_5 + 0.09x_6 + 0.12x_7 - 0.01x_8 \\
-    + 0.49x_9 + 0.02x_{10} + 0.09x_{11} - 0.18x_{15} + 0.30x_{16} - 0.05x_{17} + 0.04x_{18}
+    \hat{y} = 0.10u_1 + 0.15u_2 + 0.13u_3 + 0.04u_4 + 0.04u_5 + 0.09u_6 + 0.12u_7 - 0.01u_8 \\
+    + 0.49u_9 + 0.02u_{10} + 0.09x_{1} - 0.18x_{5} + 0.30x_{6} - 0.05x_{7} + 0.04x_{8}
     \label{eq:08LS_eq}
 \end{multline}
 
@@ -739,7 +739,7 @@ The hyper parameters for each neural network is given in Table \ref{tab:08NN_hp}
     \label{tab:08NN_hp}
 \end{table}
 
-Table \ref{tab:nn} shows the performance assessment of the small, medium and large neural networks.  In all cases, the training and validation data set performance was significantly better using the neural networks.  However on the test data set, the performance was only slightly better.  This may be caused by the test data being slightly different than the training data.  Due to the complexity of neural networks, they perform exceptionally well on data they are trained for, but perform poorly on unseen data. To close the gap in performance, a higher $\lambda$ could be used.  Moreover, smaller neural networks could also be used to reduce model complexity.
+Table \ref{tab:08nn} shows the performance assessment of the small, medium and large neural networks.  In all cases, the training and validation data set performance was significantly better using the neural networks.  However on the test data set, the performance was only slightly better.  This may be caused by the test data being slightly different than the training data.  Due to the complexity of neural networks, they perform exceptionally well on data they are trained for, but perform poorly on unseen data. To close the gap in performance, a higher $\lambda$ could be used.  Moreover, smaller neural networks could also be used to reduce model complexity.
 
 \begin{table}[h]
 \centering
@@ -809,7 +809,7 @@ Lastly, the linear parameter-varying model (LPV) was explored to model this pipe
     \end{split}
     \label{eq:08LPV_structure}
 \end{equation}
-where $n \geq 1$ represents the number of linear models used to capture the data set. Here, $W_n$ and $b_n$ are the weights and biases corresponding to the $n^{th}$ model, respectively. For this study, two linear models were used to model the pipeline.  The models corresponded to the two clusters identified in Figure \ref{fig:08DBSCAN}.  Models 1 and 2 are identified from clusters 1 and 2, respectively.  During online implementation, the model will be selected based on the Euclidean distance between the features of the new data and the centroid of the two clusters.  However, if the distance exceeds 1.15 in both cases, the data will be labeled as anomalous.
+where $n \geq 1$ represents the number of linear models used to capture the data set. Here, $W_n$ and $b_n$ are the weights and biases corresponding to the $n^{th}$ model, respectively. For this study, two linear models were used to model the pipeline.  The models corresponded to the two clusters identified in Figure \ref{fig:08DBSCAN}.  Models 1 and 2 are identified from clusters 1 and 2, respectively.  The hyperparameters for models 1 and 2 are identical to the previous linear models, and are shown in Table \ref{tab:08LSHparameters}. During online implementation, the model will be selected based on the Euclidean distance between the features of the new data and the centroid of the two clusters.  However, if the distance exceeds 1.15 in both cases, the data will be labeled as anomalous.
 
 The performance assessment of the two LPV models are shown in Table \ref{tab:08cluster1_cluster2_reg}. Overall, the LPV models are able to further reduce modelling error. Model 1 was only used to predict high flow rate scenarios. Nevertheless, its MAE and RMSE were almost identical to the constrained least squares model used to predict for all data.  Moreover, RMSE and MAE for model 2 were 7\% lower compared to the constrained least squares. 
 
@@ -856,6 +856,64 @@ The comparison of actual and predicted flow rates on the validation and test dat
 
 Ultimately, the LPV model was selected to model the pipeline.  The LPV model has the interpretability of linear models, while having the predictive capabilities of non-linear models.  Furthermore, the LPV model identifies a separate set of parameters for the two distributions, making the optimization algorithm more representative of live operations.  For example, because no DRA was used for cluster 2, the optimization algorithm will have explicit constraints to not use DRA as well. A similar example would be using only Ault booster 1 for cluster 2, while only using Ault booster 2 for cluster 1.  The advantages of these constraints are twofold: i) More realistic to live operations.  ii) Avoid model extrapolations (since no DRA data was used to identify model 2, the optimizer should not be able to use it for optimization).
 
+\subsubsection{Time-series Modelling}
+All previous models are static (i.e., $x_t \times u_t \rightarrow y_{ss}$); however, temporal correlations exist within the time-series pipeline data and could be exploited to improve model accuracy.  Moreover, $y_t$ is measured at each time and can be used to further improve model accuracy. The time-series model will have the following structure:
+\begin{equation}
+    y_{t+1} = f(x_{t}, x_{t - 1}, ..., x_{t-p}, u_{t}, u_{t - 1}, ..., u_{t - q}, y_{r})
+\end{equation}
+Here, subscripts $p$ and $q$ denote the number of previous states and inputs to be considered in the model, respectively.  Subscript $r = max(p, q)$. Least squares will be used to identify the time-series model with data augmented as $[x_t, u_t | x_{t - 1}, u_{t - 1} | ... ]$.  After exploring a variety of $p$'s and $q$'s, the final hyper parameters used for the time series model is shown in Table \ref{tab:08ts_parameters}.
+\begin{table}[h]
+    \centering
+    {\setstretch{1.2}
+    \begin{tabular}{ c | c}
+        Hyper Parameter                  &  Value       \\
+        \hline
+        Epochs                           &  1000      \\
+        Minibatch size                   &  8192     \\
+        Learning rate, $\alpha$          &  0.001    \\
+        Regularization, $\lambda$        &  0.001    \\
+        $\#$ of previous states, $p$     &  2  \\
+        $\#$ of previous inputs, $q$     &  2  \\
+    \end{tabular}}
+    \caption{Hyper parameters for the time-series least squares model.}
+    \label{tab:08ts_parameters}
+\end{table}
+
+The performance metrics of the time-series model is shown in Table \ref{tab:08ts_performance}.  Compared to the previous models, it can be seen that the error metrics went down tremendously and $R^2$ increased significantly.
+
+\begin{table}[h]
+    \centering
+    {\setstretch{1.2}
+    \begin{tabular}{ c | c | c | c}
+                             &  Training data    &  Validation data   &    Test data      \\
+        \hline
+        MAE                  &      22           &        17          &   25    \\
+        RMSE                 &      41           &        34          &   65    \\ 
+        $R^2$                &      0.99         &        0.99        &   0.86  \\
+    \end{tabular}}
+    \caption{Performance assessment for the time-series least squares model.}
+    \label{tab:08ts_performance}
+\end{table}
+
+The comparison of actual and predicted flow rates on the validation and test data for the time-series least square model are shown in Figure \ref{fig:08ts_ls}. 
+\begin{figure}[h]
+    \centering
+     \begin{subfigure}[b]{0.48\textwidth}
+         \includegraphics[width=\textwidth]{images/08ts_validation.eps}
+         \caption{Validation data.}
+         \label{fig:08ts_valid}
+     \end{subfigure}
+     \begin{subfigure}[b]{0.48\textwidth}
+         \includegraphics[width=\textwidth]{images/08ts_test.eps}
+         \caption{Test data.}
+         \label{fig:08ts_test}
+     \end{subfigure}
+        \caption{Predicted vs. actual flow rate using the time-series model.}
+        \label{fig:08ts_ls}
+\end{figure}
+
+
+\subsubsection{Model Applicability Range}
 \subsubsection{Adaptive Machine Learning}
 \paragraph{Online Learning vs. Incremental Learning}
 \paragraph{ART: Adaptive Resonance Theory}

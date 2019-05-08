@@ -945,8 +945,8 @@ In addition to the state ranges provided above, the recommended set points are a
         \hline
         Cheyenne VFD (Amps)                     &      100 - 340          \\
         Fort Lupton VFD (Amps)                  &      60 - 145           \\ 
-        CIG \& Ault Sweet DRA (ppm)             &      15 - 40            \\
-        CIG \& Ault Sour DRA (ppm)              &      15 - 40            \\
+        CIG \& Ault Sweet DRA (ppm)             &      20 - 40            \\
+        CIG \& Ault Sour DRA (ppm)              &      20 - 40            \\
     \end{tabular}}
     \caption{Applicable inputs of the machine learning models.}
     \label{tab:08InputConst}
@@ -983,19 +983,81 @@ MILP was used to perform steady state optimization on the linear model because t
     \begin{tabular}{ c | c }
         Binary                       &  Continuous           \\
         \hline
-        3$\times$ On/off Cheyenne Pump  &  Cheyenne \& Fort Lupton VFD            \\
-        On/off Fort Lupton Pump         &  2$\times$ Sweet \& 2$\times$ Sour DRA  \\
+        On/off Cheyenne Pump               &  Cheyenne \& Fort Lupton VFD            \\
+        2$\times$ On/off Ault Pump         &  2$\times$ Sweet \& 2$\times$ Sour DRA  \\
+        On/off Fort Lupton Pump
     \end{tabular}}
     \caption{Binary and continuous decision variables.}
     \label{tab:08binary_cont}
 \end{table}
 
 \noindent
-\textit{Constraints}
-The constraints comprised of equality and in-equality constraints.  
+\textit{Constraints} \\
+The constraints are the machine learning model, equality, and in-equality constraints.  The equality and in-equality constraints are shown in Table \ref{tab:08eq_neq_constraints}. From the data provided, the Cheyenne pump was on 95\% of the time, and at least one Ault on/off pump was always on. Therefore, constraints were incorporated to reflect this.  Additionally, constraints were used to ensure proper DRA was injected into the pipeline for the different crudes.  There were also pressure constraints on the outlet pressure of the pumps to ensure safe operations.  Before a recommendation is made to the operators, the set points are used to predict for the outlet pressures at each pump to ensure they do not exceed the maximum allowable working pressure (MAWP). Finally, the flow rate is given a range to ensure optimization feasibility. Specifying exact flow rates lead to infeasible solutions because there may not exist a combination to get an \textit{exact} flow rate.
+
+\begin{table}[h]
+    \centering
+    {\setstretch{1.5}
+    \begin{tabular}{c|c}
+         Equality Constraints              & In-equality Constraints \\
+         \hline
+         On/off Cheyenne Pump = On         & $\text{Lower bound} \leq \text{Flow rate} \leq \text{Upper bound}$ \\
+         
+         Ault Pump 1 and/or 2 = On          & $P_{Outlet}^{Chey} \leq 1480 \text{ psi}$       \\
+         
+         $API^{CIG} \geq 30: DRA_{Sweet}^{CIG}$ = On & $P_{Outlet}^{Ault} \leq 1613 \text{ psi}$ \\
+         
+         $API^{CIG} \leq 30: DRA_{Sour}^{CIG}$ = On  & $P_{Outlet}^{FL} \leq 1613 \text{ psi}$  \\
+         
+         $API^{Ault} \geq 30: DRA_{Sweet}^{Ault}$ = On & $20 \text{ ppm} \leq DRA \leq 40 \text{ ppm}$                 \\
+         
+         $API^{Ault} \leq 30: DRA_{Sour}^{Ault}$  = On  & $100 \text{ Amps} \leq VFD^{Chey} \leq 340 \text{ Amps}$   \\
+         
+         Cheyenne On/off = 28 Amps  & $60 \text{ Amps} \leq VFD^{FL} \leq 145 \text{ Amps}$  \\
+         Ault 1 Pump = 190 Amps & \\
+         Ault 2 Pump = 278 Amps & \\
+         Fort Lupton Pump = 117 & \\
+    \end{tabular}}   
+    \caption{List of equality and inequality constraints}
+    \label{tab:08eq_neq_constraints}
+\end{table}
+
+Add pressure constraint models here.
 
 \noindent
-\textit{Objective Function, Costs and Decision Variables}
+\textit{Objective Function, Costs and Decision Variables} \\
+The objective is to operate the pipeline at the desired flow rate with the minimum possible operating cost.  The optimization is given by:
+
+\begin{mini*}|s|
+    {J} {= \left[ \alpha_i \sum_i \mu_i \cdot DRA_i + \beta \sum_j \nu_j \cdot I_jV_j \right]}
+    {}{}
+    \addConstraint{y = f(x, u)}                
+    \addConstraint{\nu_{Ault1} + \nu_{Ault2} \geq 1} 
+    \addConstraint{\nu_{Chey} = 1} 
+    \addConstraint{20 \leq DRA_i \leq 40, \; i \in I} 
+    \addConstraint{\gamma_j^{min} \leq I_j \leq \gamma_j^{max}, \; j \in J}{}
+\end{mini*}
+where $\alpha$ denotes the cost of DRA per ppm, $\beta$ denotes the cost of one kWh, $mu$ denotes the on/off status of the DRA pumps, and $\nu$ denotes the on/off status of the pumps. $DRA_i$ is the DRA ppm set point of the $i^{th}$ DRA injection pump. Moreover, $V_j$ and $I_j$ are the voltage and drawn amperes corresponding to the $j^{th}$ pump. Here, $\gamma_j$ are the upper and lower bounds of the VFDs' currents and are provided in Table \ref{tab:08eq_neq_constraints}. For on/off pumps, $\gamma_j$ is fixed.
+
+The voltages of the pumps are provided in Table \ref{tab:08Voltages}.
+\begin{table}[h]
+    \centering
+    {\setstretch{1.2}
+    \begin{tabular}{c|c}
+        Pump          &  Voltage \\
+        \hline
+        $VFD^{Chey}$    &  4160    \\
+        $VFD^{FL}$      &  4160    \\
+        On/off $Pump^{Chey}$    & 480   \\
+        On/off $Pump^{Ault1}$   & 4000  \\
+        On/off $Pump^{Ault2}$   & 4000  \\
+        On/off $Pump^{FL}$      & 480   \\
+    \end{tabular}}
+    \caption{Voltages for the pumps.}
+    \label{tab:08Voltages}
+\end{table}
+
+add cost curves and conversion from amp to pressure?
 
 Optimization, constraints are pressures.  Current converted to pressure set points for VFDs and DRA ppm converted to cost as well.
 \subsection{Conceptual Software Design}

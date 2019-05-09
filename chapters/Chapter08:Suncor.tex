@@ -1022,7 +1022,50 @@ The constraints are the machine learning model, equality, and in-equality constr
     \label{tab:08eq_neq_constraints}
 \end{table}
 
-Add pressure constraint models here.
+Pressure models were built to ensure MAWP was not exceeded when the recommended set points are implemented. In the end, three linear regression pressure models were identified; each at the outlet of a pump station (Cheyenne, Ault, Fort Lupton) where pressure is expected to be the highest. The inputs to the pressure models were all upstream of the pump station is located and is given in Table \ref{tab:08pressure_inputs}.
+
+\begin{table}[]
+    \centering
+    {\setstretch{1.2}
+    \begin{tabular}{p{4cm} | p{4cm} | p{4cn}}
+         Cheyenne & Ault & Fort Lupton \\
+         \hline
+         
+         Pipeline inlet pressure & Pipeline inlet pressure & Pipeline inlet pressure \\
+         
+         Cheyenne VFD & Cheyenne VFD & Cheyenne VFD \\
+         
+         Cheyenne on/off pump & Cheyenne on/off pump & Cheyenne on/off pump \\
+         
+         Cheyenne temperature & Ault on/off pump 1 & CIG DRA ppm \\
+         
+         & Ault on/off pump 2 & Ault on/off pump 1 \\
+         
+         & CIG DRA ppm & Ault on/off pump 2 \\
+         
+         & Cheyenne temperature & Ault DRA ppm \\
+         
+         & Ault temperature & Fort Lupton VFD \\
+         & & Fort Lupton on/off pump \\
+         & & Cheyenne temperature \\
+         & & Ault temperature \\
+         & & FL temperature \\
+    \end{tabular}}
+    \caption{Inputs to the pressure constraint models.}
+    \label{tab:08pressure_inputs}
+\end{table}
+
+The performance assessment of the Cheyenne, Ault, and Fort Lupton pressure constraint models are shown in Table \ref{tab:08pres_const_performance}.
+
+\begin{table}[]
+    \centering
+    \begin{tabular}{c|c}
+         &  \\
+         & 
+    \end{tabular}
+    \caption{Performance assessment of the Cheyenne, Ault, and Fort Lupton pressure constraint models}
+    \label{tab:08pres_const_performance}
+\end{table}
 
 \noindent
 \textit{Objective Function, Costs and Decision Variables} \\
@@ -1039,7 +1082,7 @@ The objective is to operate the pipeline at the desired flow rate with the minim
 \end{mini*}
 where $\alpha$ denotes the cost of DRA per ppm, $\beta$ denotes the cost of one kWh, $mu$ denotes the on/off status of the DRA pumps, and $\nu$ denotes the on/off status of the pumps. $DRA_i$ is the DRA ppm set point of the $i^{th}$ DRA injection pump. Moreover, $V_j$ and $I_j$ are the voltage and drawn amperes corresponding to the $j^{th}$ pump. Here, $\gamma_j$ are the upper and lower bounds of the VFDs' currents and are provided in Table \ref{tab:08eq_neq_constraints}. For on/off pumps, $\gamma_j$ is fixed.
 
-The voltages of the pumps are provided in Table \ref{tab:08Voltages}.
+The voltages of the pumps are provided in Table \ref{tab:08Voltages}.  The power cost per kWh for the pipeline was \$0.09 USD.
 \begin{table}[h]
     \centering
     {\setstretch{1.2}
@@ -1056,6 +1099,25 @@ The voltages of the pumps are provided in Table \ref{tab:08Voltages}.
     \caption{Voltages for the pumps.}
     \label{tab:08Voltages}
 \end{table}
+
+The cost to increase DRA ppm is dependent on the flow rate of the pipeline. Higher flow rates require more DRA to be injected; hence a higher cost.  The cost curves for DRA is shown in Figures \ref{fig:08DRA_Cost}.  Given a flow rate, the cost to increase the DRA ppm is given by Equations \ref{eq:08sweet_dra} and \ref{eq:08sour_dra} for the sweet and sour DRA, respectively.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/08DRA_Cost.png}
+    \caption{Cost of DRA as a function of flow rate.}
+    \label{fig:08DRA_Cost}
+\end{figure}
+
+\begin{equation}
+    \$ / ppm = 0.00071Q + 0.01630
+    \label{eq:08sweet_dra}
+\end{equation}
+\begin{equation}
+    \$ / ppm = 0.00176Q + 0.00226
+    \label{eq:08sour_dra}
+\end{equation}
+where Q denotes the volumetric flow rate in barrels per hour.
 
 add cost curves and conversion from amp to pressure?
 

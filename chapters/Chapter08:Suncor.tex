@@ -1075,25 +1075,25 @@ The performance of the pressure constraint models on the validation data is show
 
 \begin{figure}
     \centering
-    \begin{subfigure}[b]{0.32\textwidth}
+    \begin{subfigure}[b]{0.325\textwidth}
          \centering
          \includegraphics[width=\textwidth]{images/08Chey_Pconst.eps}
          \caption{Cheyenne}
          \label{fig:08Chey_Pconst}
     \end{subfigure}
-    \begin{subfigure}[b]{0.32\textwidth}
+    \begin{subfigure}[b]{0.325\textwidth}
          \centering
          \includegraphics[width=\textwidth]{images/08Ault_Pconst.eps}
          \caption{Ault}
          \label{fig:08Ault_Pconst}
     \end{subfigure}
-    \begin{subfigure}[b]{0.32\textwidth}
+    \begin{subfigure}[b]{0.325\textwidth}
          \centering
          \includegraphics[width=\textwidth]{images/08FL_Pconst.eps}
          \caption{Fort Lupton}
          \label{fig:08FL_Pconst}
     \end{subfigure}
-    \caption{}
+    \caption{Pressure constraint model performance on validation data.}
     \label{fig:08Pconst}
 \end{figure}
 
@@ -1140,17 +1140,32 @@ The cost to increase DRA ppm is dependent on the flow rate of the pipeline. High
 \end{figure}
 
 \begin{equation}
-    \$ / ppm = 0.00071Q + 0.01630
+    \$ / ppm_{sweet} = 0.00071Q + 0.01630
     \label{eq:08sweet_dra}
 \end{equation}
 \begin{equation}
-    \$ / ppm = 0.00176Q + 0.00226
+    \$ / ppm_{sour} = 0.00176Q + 0.00226
     \label{eq:08sour_dra}
 \end{equation}
 where Q denotes the volumetric flow rate in barrels per hour.
 
-add cost curves and conversion from amp to pressure?
-
-Optimization, constraints are pressures.  Current converted to pressure set points for VFDs and DRA ppm converted to cost as well.
 \subsection{Conceptual Software Design}
+The conceptual software design for the optimization product is shown in Figure \ref{fig:08concept_software}. First, the users populate the costs corresponding to each equipment.  The pump costs are on a \$ per kWh basis, and the DRA cost is based on \$ per ppm. Operating costs can also be incorporated by multiplying the costs by a fixed factor (e.g. 1.1 $\cdot$ \$/kWh). Currently, DRA costs are automatically calculated based on Equations \ref{eq:08sweet_dra} and \ref{eq:08sour_dra}. Next, the user specifies the maximum steady state operating pressure (MSSOP) for the pipeline, and enter the desired flow rate.  Finally, the "OPTIMIZE" button is pressed and all the boxes outlined in green will be populated with the optimal steady state.  When a steady state is no longer deemed optimal, the outline will become red.  An example of such a scenario would be when the batch switches from sweet to sour.  During maintenance activities, the user can click the "ADVANCED..." button, specify special constraints and eliminate equipment from the optimization. For example, if the Cheyenne VFD is under maintenance, $\nu_{Chey VFD}$ can be switched to 0 to prevent the optimization from using it.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/08conceptual_software.pdf}
+    \caption{Conceptual software design for the optimization tool.}
+    \label{fig:08concept_software}
+\end{figure}
+
+A flow diagram of the inner workings of the product is shown in Figure \ref{fig:08Product_Flow}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/08Product_Flow.png}
+    \caption{Internal flow diagram of the product.}
+    \label{fig:08concept_software}
+\end{figure}
+
 \subsection{Cost Savings and Impact on Society}

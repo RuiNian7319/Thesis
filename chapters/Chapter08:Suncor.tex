@@ -1027,7 +1027,7 @@ Pressure models were built to ensure MAWP was not exceeded when the recommended 
 \begin{table}[]
     \centering
     {\setstretch{1.2}
-    \begin{tabular}{p{4cm} | p{4cm} | p{4cn}}
+    \begin{tabular}{p{5cm} | p{5cm} | p{5cm}}
          Cheyenne & Ault & Fort Lupton \\
          \hline
          
@@ -1055,17 +1055,47 @@ Pressure models were built to ensure MAWP was not exceeded when the recommended 
     \label{tab:08pressure_inputs}
 \end{table}
 
-The performance assessment of the Cheyenne, Ault, and Fort Lupton pressure constraint models are shown in Table \ref{tab:08pres_const_performance}.
+The performance assessment of the Cheyenne, Ault, and Fort Lupton pressure constraint models are shown in Table \ref{tab:08pres_const_performance}. The Cheyenne pressure prediction is very accurate; however the accuracy decreases as we traverse down the pipeline.  The primary reason is because an accurate inlet pressure is required to predict for the outlet pressure.  But the inlet pressure beyond Cheyenne is unknown because the set points are not actuated in the pipeline yet. Furthermore, predicting the outlet pressure at Ault is especially difficult because a mechanism exists to limit the pressure to 1377 psi.  The mechanism's data is not captured, and causes the regression curve to be hard constrained at an upper bound. Consequently, this causes many inputs to result in the same output, and hinders learning.
 
-\begin{table}[]
+\begin{table}[h]
     \centering
-    \begin{tabular}{c|c}
-         &  \\
-         & 
-    \end{tabular}
+    {\setstretch{1.2}
+    \begin{tabular}{c|c|c|c|c|c|c|}
+    \multicolumn{1}{l|}{} & \multicolumn{3}{c|}{Training Data} & \multicolumn{3}{c|}{Validation Data} \\ \cline{2-7} 
+    \multicolumn{1}{l|}{} & Cheyenne   & Ault   & Fort Lupton  & Cheyenne    & Ault   & Fort Lupton   \\ \hline
+    MAE                   & 75         & 179    & 25           & 72          & 179    & 27            \\
+    RMSE                  & 101        & 217    & 32           & 96          & 217    & 35            \\
+    $R^2$                 & 0.88       & 0.5    & 0.47         & 0.89        & 0.49   & 0.46         
+    \end{tabular}}
     \caption{Performance assessment of the Cheyenne, Ault, and Fort Lupton pressure constraint models}
     \label{tab:08pres_const_performance}
 \end{table}
+
+The performance of the pressure constraint models on the validation data is shown in Figures \ref{fig:08Chey_Pconst} to \ref{fig:08FL_Pconst}.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{0.32\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/08Chey_Pconst.eps}
+         \caption{Cheyenne}
+         \label{fig:08Chey_Pconst}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.32\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/08Ault_Pconst.eps}
+         \caption{Ault}
+         \label{fig:08Ault_Pconst}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.32\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/08FL_Pconst.eps}
+         \caption{Fort Lupton}
+         \label{fig:08FL_Pconst}
+    \end{subfigure}
+    \caption{}
+    \label{fig:08Pconst}
+\end{figure}
 
 \noindent
 \textit{Objective Function, Costs and Decision Variables} \\

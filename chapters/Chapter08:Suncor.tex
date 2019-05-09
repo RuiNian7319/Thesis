@@ -1150,7 +1150,7 @@ The cost to increase DRA ppm is dependent on the flow rate of the pipeline. High
 where Q denotes the volumetric flow rate in barrels per hour.
 
 \subsection{Conceptual Software Design}
-The conceptual software design for the optimization product is shown in Figure \ref{fig:08concept_software}. First, the users populate the costs corresponding to each equipment.  The pump costs are on a \$ per kWh basis, and the DRA cost is based on \$ per ppm. Operating costs can also be incorporated by multiplying the costs by a fixed factor (e.g. 1.1 $\cdot$ \$/kWh). Currently, DRA costs are automatically calculated based on Equations \ref{eq:08sweet_dra} and \ref{eq:08sour_dra}. Next, the user specifies the maximum steady state operating pressure (MSSOP) for the pipeline, and enter the desired flow rate.  Finally, the "OPTIMIZE" button is pressed and all the boxes outlined in green will be populated with the optimal steady state.  When a steady state is no longer deemed optimal, the outline will become red.  An example of such a scenario would be when the batch switches from sweet to sour.  During maintenance activities, the user can click the "ADVANCED..." button, specify special constraints and eliminate equipment from the optimization. For example, if the Cheyenne VFD is under maintenance, $\nu_{Chey VFD}$ can be switched to 0 to prevent the optimization from using it.
+The conceptual software design for the optimization tool is shown in Figure \ref{fig:08concept_software}. From the right, the users would first populate the costs corresponding to each equipment.  The pump costs are on a \$/kWh basis, and the DRA cost is based on \$/ppm. Operating costs can also be incorporated by multiplying the costs by a fixed factor (e.g. 1.1 $\cdot$ \$/kWh). Currently, DRA costs are calculated automatically based on the historical data using Equations \ref{eq:08sweet_dra} and \ref{eq:08sour_dra}. Next, the user would specify the maximum steady state operating pressure (MSSOP) for the pipeline, and enter the desired flow rate.  Finally, the "OPTIMIZE" button would be pressed and all the boxes outlined in green will be populated with the optimal set point values.  When a set point is no longer deemed optimal, the outline turns red.  An example of such a scenario would be when the batch switches at the CIG or Ault stations.  During maintenance activities, the user can click the "ADVANCED..." button to specify special constraints and eliminate the optimization from using certain equipment. For example, if the Cheyenne VFD is under maintenance, $\nu_{Chey VFD}$ can be constrained to 0, preventing the optimization from using it.
 
 \begin{figure}[h]
     \centering
@@ -1159,13 +1159,13 @@ The conceptual software design for the optimization product is shown in Figure \
     \label{fig:08concept_software}
 \end{figure}
 
-A flow diagram of the inner workings of the product is shown in Figure \ref{fig:08Product_Flow}.
+A flow diagram of the tool's internal structure is shown in Figure \ref{fig:08Product_Flow}. Starting from the left, the operator would provide the constraints (equipment maintenance, MSSOP, etc.), desired flow rate, and operating costs to the optimization tool.  Likewise, the optimization tool also receives live temperature and density readings from the SCADA system.  Given the densities at CIG and Ault, the proper VFD pumps are turned on.  From the flow rate and DRA pump status, DRA costs are computed from Equations \ref{eq:08sweet_dra} and \ref{eq:08sour_dra}.  Next, the costs, densities, and temperatures are all fed into the machine learning model and the MILP is ran to find the optimal set points to reach the desired flow rate. The set points are then sent to the pressure constraint models to validate that no outlet pressure constraints are violated.  If none are violated, the optimal set points are recommended to the operators. To ensure implementability, the VFD amperes are first converted to pressure set points.
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{images/08Product_Flow.png}
     \caption{Internal flow diagram of the product.}
-    \label{fig:08concept_software}
+    \label{fig:08Product_Flow}
 \end{figure}
 
 \subsection{Cost Savings and Impact on Society}

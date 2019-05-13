@@ -1169,15 +1169,40 @@ A flow diagram of the tool's internal structure is shown in Figure \ref{fig:08Pr
 \end{figure}
 
 \subsection{Cost Savings and Impact on Society}
-The operations cost for running the pipeline using the optimization tool was compared to historical values to identify the potential cost savings.  The data set ranging from January 2018 - May 2018 was used for this comparison due to the stability of operations.  In the 2019 data, the pipeline was plagued with unexpected shut downs and maintenances. Both the actual and optimal costs are calculated using the same formulation to ensure a fair comparison.  
+Operating costs for running the pipeline using the optimization tool was compared to historical values to identify the potential cost savings.  In 2019, the pipeline was plagued with unexpected shut downs and maintenances. Thus, the data set ranging from January 2018 - May 2018 was used for this comparison due to the stability of operations. Both the actual and optimal costs are calculated using the same formulation to ensure a fair comparison.  
 
-First, the DRA cost was calculated by:
+First, the total monthly DRA cost was calculated by:
 \begin{equation}
     Cost_{DRA} = \sum\limits^{43,200}_{i=1} \frac{1}{60} \left(f_{sweet}(Q, ppm) + f_{sour}(Q, ppm)\right)
     \label{eq:08dra_cost}
 \end{equation}
+where the functions represent Equations \ref{eq:08sweet_dra} and \ref{eq:08sour_dra} for computing the DRA cost per hour. Here, $i$ denotes the $i^{th}$ minute in a particular month. The costs are divided by 60 to obtain the per minute costs and are summed over 43,200 entries representing the total minutes in a 30 day month. Likewise, the monthly power costs are calculated by:
+\begin{equation}
+    Cost_{power} = \frac{p}{1000} \sum\limits^{1,800}_{i=1} \sum\limits^{6}_{j=1} I_j \cdot V_j
+    \label{eq:08power_cost}
+\end{equation}
+where $i$ denotes the $i^{th}$ hour in a particular month and $j$ denote the $j^{th}$ pump. $p$ denotes the power cost in kWh. Additionally, $I_j$ and $V_j$ denotes the current and voltage for the $j^{th}$ pump.
 
+The optimal and actual DRA, power and total costs are shown in Table \ref{tab:08opt_vs_act_costs}.  It can be seen that the total savings range between 29\% - 39\%.  The average DRA and power savings were 19.5\% and 45\%, respectively.  The power savings were much more significant because the models were able to exploit the most efficient pumps.  Additionally, the effectiveness of the pumps (i.e., flow rate as a function of current) were assumed to be constant; this may not be the case in actual production because pumps' efficiency changes with accordance to the pump curve \cite{fluid_mechanics}.  Likewise, DRA effectiveness was also assumed to be constant; however, preliminary data analysis showed a exponential decay relationship between flow rate and increased DRA.
+
+\begin{table}[h]
+    \centering
+    {\setstretch{1.2}
+\begin{tabular}{cc|c|c|c|c|c}
+                                                 &            & January & February & March & April & May \\ \hline
+\multicolumn{1}{c|}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Actual}}}    & DRA cost   & 102.2 & 114.2 &    106.2 & 84.8 & 140.3 \\
+\multicolumn{1}{c|}{}                            & Power cost & 128.8 & 124.3 & 106.4 & 116.9 & 122.4 \\
+\multicolumn{1}{c|}{}                            & Total cost & 231.0 & 238.5 & 212.6 & 201.7 & 262.7 \\ \hline
+\multicolumn{1}{c|}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Optimal}}}     & DRA cost   & 84.9 & 80.6 &    90.9 & 84.9 & 99.7 \\
+\multicolumn{1}{c|}{}                            & Power cost & 57.3 & 64.2 & 62.0 & 59.1 & 87.0 \\
+\multicolumn{1}{c|}{}                            & Total cost & 142.2 & 144.8 & 152.9 & 144.0 & 186.7 \\ \hline
+\multicolumn{1}{c|}{\multirow{2}{*}{\rotatebox[origin=c]{90}{Diff.}}} & Dollars    & \textbf{88.8} & \textbf{93.7} & \textbf{59.6} & \textbf{57.6} & \textbf{76.0} \\
+\multicolumn{1}{c|}{}                            & \% change        & \textbf{38} & \textbf{39} & \textbf{28} & \textbf{29} & \textbf{29}    
+\end{tabular}}
+    \caption{Optimal vs. actual costs (\$USD 000's) for January - May 2018.}
+    \label{tab:08opt_vs_act_costs}
+\end{table}
 
 Length of this pipeline, applied to all of Canada, (Suncor is also a very efficient operator).  Total savings? (minus x days for turn arounds).
 NPV?
-Look at evrything
+Look at everything

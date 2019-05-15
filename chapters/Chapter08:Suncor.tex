@@ -913,7 +913,7 @@ The comparison of actual and predicted flow rates on the validation and test dat
 
 
 \subsubsection{Model Applicability Range}
-Extrapolation while using data-driven models introduce risks to operations. Thus, Table \ref{tab:08StateConst} shows the ranges of states where the model is most effective. The ranges were identified from the historical data. Usage of the models beyond the normal range may be ineffective.
+Extrapolation while using data-driven models introduce risks to operations. Thus, Tables \ref{tab:08StateConst} and \ref{tab:08InputConst} show the ranges of states and inputs where the model is most effective. The ranges were identified from $\mu - 2\sigma \leq x, u \leq \mu + 2\sigma$ to ensure the range captures 95.5\% of the data while omitting outliers. Usage of the models beyond the normal range may be ineffective.
 
 \begin{table}[h]
     \centering
@@ -921,15 +921,15 @@ Extrapolation while using data-driven models introduce risks to operations. Thus
     \begin{tabular}{ p{5cm} | c }
         Variables                         &  Valid Range           \\
         \hline
-        Flow Rate (bbl/h)                       &      1500 - 3050       \\
+        Flow Rate (bbl/h)                       &      1765 - 3000       \\
         Cheyenne Density (API)                  &      22 - 47           \\ 
-        CIG Density (API)                       &      15 - 47           \\
-        Ault Density (API)                      &      15 - 50           \\
+        CIG Density (API)                       &      15 - 45           \\
+        Ault Density (API)                      &      15 - 45           \\
         Cheyenne Temp (°C)                      &      35 - 50           \\
         CIG Temp (°C)                           &      41 - 51           \\
         Ault Temp (°C)                          &      43 - 54           \\
-        Fort Lupton Temp (°C)                   &      46 - 60           \\
-        Commerce City Temp  (°C)                &      48 - 60           \\
+        Fort Lupton Temp (°C)                   &      48 - 60           \\
+        Commerce City Temp  (°C)                &      40 - 58           \\
     \end{tabular}}
     \caption{Applicable states of the machine learning models.}
     \label{tab:08StateConst}
@@ -943,8 +943,8 @@ In addition to the state ranges provided above, the recommended set points are a
     \begin{tabular}{ p{6cm} | c }
         Variables                               &  Valid Range            \\
         \hline
-        Cheyenne VFD (Amps)                     &      100 - 340          \\
-        Fort Lupton VFD (Amps)                  &      60 - 145           \\ 
+        Cheyenne VFD (Amps)                     &      105 - 322          \\
+        Fort Lupton VFD (Amps)                  &      78 - 134           \\ 
         CIG \& Ault Sweet DRA (ppm)             &      20 - 40            \\
         CIG \& Ault Sour DRA (ppm)              &      20 - 40            \\
     \end{tabular}}
@@ -1011,9 +1011,9 @@ The constraints are the machine learning model, equality, and in-equality constr
          
          $API^{Ault} \geq 30: DRA_{Sweet}^{Ault}$ = On & $20 \text{ ppm} \leq DRA \leq 40 \text{ ppm}$                 \\
          
-         $API^{Ault} \leq 30: DRA_{Sour}^{Ault}$  = On  & $100 \text{ Amps} \leq VFD^{Chey} \leq 340 \text{ Amps}$   \\
+         $API^{Ault} \leq 30: DRA_{Sour}^{Ault}$  = On  & $105 \text{ Amps} \leq VFD^{Chey} \leq 322 \text{ Amps}$   \\
          
-         Cheyenne On/off = 28 Amps  & $60 \text{ Amps} \leq VFD^{FL} \leq 145 \text{ Amps}$  \\
+         Cheyenne On/off = 28 Amps  & $78 \text{ Amps} \leq VFD^{FL} \leq 134 \text{ Amps}$  \\
          Ault 1 Pump = 190 Amps & \\
          Ault 2 Pump = 278 Amps & \\
          Fort Lupton Pump = 117 & \\
@@ -1183,7 +1183,7 @@ where the functions represent Equations \ref{eq:08sweet_dra} and \ref{eq:08sour_
 \end{equation}
 where $i$ denotes the $i^{th}$ hour in a particular month and $j$ denote the $j^{th}$ pump. $p$ denotes the power cost in kWh. Additionally, $I_j$ and $V_j$ denotes the current and voltage for the $j^{th}$ pump.
 
-The actual and optimal costs for DRA and power are shown in Table \ref{tab:08opt_vs_act_costs}.  It can be seen that the total savings range between -3.7\% - 17.6\%.  The savings were realized by using less DRA while running the pumps harder. For this initial study, interaction effects between pumps and DRA were not explicitly considered. Additionally, the effectiveness of the pumps (i.e., flow rate as a function of current) were assumed to be constant; this may not be the case in actual production because pumps' efficiency changes with accordance to the pump curve \cite{fluid_mechanics}. Likewise, DRA effectiveness was also assumed to be constant; however, preliminary data analysis showed a exponential decay relationship between flow rate and increased DRA.  A loss was incurred in April because Suncor used only 10 - 15 ppm of DRA for a large part of the month. In the optimization, minimum DRA was constrained at 20 ppm.
+The actual and optimal costs for DRA and power are shown in Table \ref{tab:08opt_vs_act_costs}.  It can be seen that the total savings range between -3.7\% - 17.6\%.  The savings were realized by using less DRA while running the pumps harder. For this initial study, interaction effects between pumps and DRA were not explicitly considered. Additionally, the effectiveness of the pumps (i.e., flow rate as a function of current) were assumed to be constant; this may not be the case in actual production because pumps' efficiency changes with accordance to the pump curve \cite{fluid_mechanics}. Likewise, DRA effectiveness was also assumed to be constant; however, preliminary data analysis showed a exponential decay relationship between flow rate and increased DRA.  Additionally, the system was assumed to transition to the desired set point immediately after the set points are inputted for the optimal costs. The average flow rate change between time steps was 8 bbl/h and pressure is propagated down the pipeline at 1480 m/s.  Thus, the error for this assumption is not large. A loss was incurred in April because Suncor used only 10 - 15 ppm of DRA for a large part of the month. In the optimization, minimum DRA was constrained at 20 ppm.
 
 \begin{table}[h]
     \centering
@@ -1224,7 +1224,7 @@ where $P_1$ and $P_2$ are the pressures at the starting and ending pump stations
         \label{fig:my_label}
 \end{figure}
 
-The average cost savings per barrel for January - May 2018 are shown in Table \ref{tab:08Cost_per_barrel}. Here, 
+A detailed analysis of the cost savings for January - May 2018 are shown in Table \ref{tab:08Cost_per_barrel}. It can be seen that savings per barrel is more significant at higher flow rates.  
 
 \begin{table}[h]
     \centering
@@ -1232,15 +1232,16 @@ The average cost savings per barrel for January - May 2018 are shown in Table \r
     \begin{tabular}{c|c|c|c|c|c}
                        & January & February & March & April & May  \\ \hline
         Ave. flow rate (bbl/h) & 2195    & 2400     & 2256  & 2248  & 2575 \\
-        Saving / bbl (\$)      & 5.6     & 12.9     & 5.7   & 2.3   & 7.8 
+        Saving / bbl per hour (\$)      & 5.6     & 12.9     & 5.7   & \textcolor{red}{(2.3)} & 7.8\\
+        Saving / bbl / hour / km (\$) & 0.037 & 0.085 & 0.038 & \textcolor{red}{(0.015)} & 0.052 \\
     \end{tabular}}
     \caption{Cost savings per barrel of crude shipped.}
     \label{tab:08Cost_per_barrel}
 \end{table}
 
+Ultimately, expected operating cost savings were estimated to be between 7\% to 9\%.  Average saving per barrel was \$5.95, increasing as the flow rate increased. Moreover, savings for transporting one barrel of crude one km was \$0.04 USD.  The total expected savings per year for Line RM06A was estimated to be \$105,600 USD.  However, the results are only realized if the pipeline is operating within the ranges provided in Tables \ref{tab:08StateConst} and \ref{tab:08InputConst}.
 
-\subsubsection{Benefit on Society}
+\subsubsection{Benefits for Society}
+On the financial side, this optimization tool has shown to reduce operating costs of transporting one bbl/h/km by \$0.04 USD for an industry leading energy company. Cost savings can be even more significant for lower tier, in-experienced companies. In Canada alone, 175,000 barrels of crude is produced per hour and transported at an average velocity of 9.5 km/h \cite{canada_crude_facts}.  Assuming a \$0.04 USD savings per barrel/km results in an annual saving of \$583M USD (\$784M CAD).  Expanding to North America, where approximately 742,000 barrels of crude is produced per hour, the savings jump up to \$2.5B USD (\$3.4B CAD) \cite{NA_crude_facts}. Moreover, the savings here does not include inter-refinery and inter-market pipelines; only produced crude were included.  The savings can be reinvested into greener products, resulting in significant reduction of green house gases (GHG). In 2018, the social cost of carbon was valued at \$46 USD per metric ton \cite{cost_of_carbon}; \$2.5B results in a 54.3M metric ton of reduced GHG.
 
-Length of this pipeline, applied to all of Canada, (Suncor is also a very efficient operator).  Total savings? (minus x days for turn arounds).
-NPV?
-Look at everything
+On the operational level, this tool standardizes operation of complex pipelines. Given a set of inputs, $I = \{Q, Costs, x\}$, the output of the optimization tool each time will be identical due to the linear model. Thus, operators on different shifts and with different experience levels will operate very similarly if this tool is used.  Additionally, this normalization reduces variance in operations which reduces depreciation of process equipment. Furthermore, the free cash flow can be reinvested to obtain higher throughputs, which in turn will increase revenue and increase tax dollars.  Finally, the tool will also increase operational safety, which may result in the Alberta Energy Regulator (AER) allowing higher throughputs on pipelines currently operating under capacity.

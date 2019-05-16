@@ -1,6 +1,6 @@
 Pipelines are critical for safe and efficient transportation of fluids across long distances.  For example, pipelines are used by utility companies to transport clean water and natural gas to homes for heating and living purposes.  Furthermore, pipelines are used in agriculture to transport irrigation water to hydrate crops.  Moreover, pipelines are used by energy companies for transporting energy-rich hydrocarbons to fuel the world's transportation and manufacturing needs. In the United States, over 70\% of petroleum products are shipped by pipeline.  In Canada, the number increases to 97\% \cite{pipeline_transport}.  Data in 2014 estimates that there are approximately 3,500,000 kms of operational pipelines across 120 countries \cite{CIA_pipeline}. Due to the world's dependency on pipelines for transporting their basic needs, ensuring its reliability and efficiency has a global-scale impact.
 
-Typical pipelines have hundreds of digital measurements per minute and are hard to analyze; however, machine learning methods benefit greatly from large amounts of data. Thus, an opportunity was discovered where machine learning methods will be applied to pipelines used to transport petroleum products. The objectives of this project were to leverage machine learning to identify anomalous pipeline behaviour, and to build a real time optimization tool to automate, normalize and enhance pipeline operation.
+Typical pipelines have hundreds of digital measurements per minute and are hard to analyze; however, machine learning methods benefit greatly from large amounts of data. Thus, an opportunity was discovered where machine learning methods can be applied to pipelines used to transport petroleum products. The objectives of this project were to leverage machine learning to identify anomalous pipeline behaviour, and to build a real time optimization tool to automate, normalize and enhance pipeline operation.
 
 In this chapter, a time-series neural network classifier will first be introduced to detect anomalous activity within any pipeline equipment. Then, a real time optimization tool based on a linear parameter-varying model will be introduced.  Due to confidentiality agreements, all data presented here-forth will be normalized, and all parties of this project will remain anomalous.
 
@@ -19,7 +19,7 @@ The schematic of Line 11 is shown in Figure \ref{fig:08Line11}. For Line 11, the
 
 
 \subsection{Line RM06A}
-A schematic of line RM06A is shown in Figure \ref{fig:08RM06A}.  Line RM06A is a complex pipeline spanning 151 km and carries two products, a lighter sweet product and a heavier sour product. The two products are batched (i.e., rotate between sending each product) and each product is sent for approximately eight hours before switching to the other product. The American Petroleum Institute (API) gravity for the lighter and heavier products are roughly 40 and 20, respectively. For the rest of this chapter, the lighter and heavier product will be referred to as \textit{sweet crude} and \textit{sour crude}, respectively. The pipeline is typically operated between 1500 bbl/h to 3050 bbl/h. 
+A schematic of line RM06A is shown in Figure \ref{fig:08RM06A}.  Line RM06A is a complex pipeline spanning 151 kms and carries two products, a lighter sweet product and a heavier sour product. The two products are batched (i.e., rotate between sending each product) and each product is sent for approximately eight hours before switching to the other product. The American Petroleum Institute (API) gravity for the lighter and heavier products are roughly 40 and 20, respectively. For the rest of this chapter, the lighter and heavier product will be referred to as \textit{sweet crude} and \textit{sour crude}, respectively. The pipeline is typically operated between 1500 bbl/h to 3050 bbl/h. 
 
 \begin{figure}[h]
     \centering
@@ -40,7 +40,7 @@ Equipment wise, Line RM06A boasts eight pumps spread across four pump stations. 
 \section{Real Time Optimization}
 Modern control systems typically consists of three layers: real time optimization (RTO), supervisory control and regulatory control.  From the top, real time optimization is evaluated the least frequently, and performs a steady state optimization of the process.  The outputs of RTO are the ideal set points for all equipment given an operating objective.  Next, the supervisory control layer performs dynamic optimization to identify the most efficient input trajectory to achieve the set points from RTO. Supervisory control is evaluated faster than RTO, but slower than regulatory control. Model predictive control (MPC) and economic model predictive control (EMPC) are typical supervisory control frameworks. Finally, the regulatory controllers actuate physical equipment to achieve the input trajectory given by the supervisory control layer.  Common regulatory controllers are proportional-integral-derivative (PID) controllers.
 
-The hierarchical structure of APC is shown in Figure \ref{fig:08APC}.
+The hierarchical structure of a typical advanced process control system is shown in Figure \ref{fig:08APC}.
 
 \begin{figure}[h]
     \centering
@@ -50,7 +50,7 @@ The hierarchical structure of APC is shown in Figure \ref{fig:08APC}.
 \end{figure}
 
 \subsection{Problem Description}
-Figure \ref{fig:08schedule} shows the communication framework of the pipeline operation. The goal of this pipeline is to meet the demands of the Commerce City refinery. To do so, a schedule with desired flow rates are sent to the operators from the scheduling team, and the operators are tasked to operate the pipeline at the given flow rate. Due to the complexity of this pipeline, different operators operate the pipeline differently depending on their own experience.  This difference introduces turbulence and unnecessary wear-and-tear onto the pipeline, increasing maintenance costs. Moreover, some operators are less experienced and operate the pipeline sub-optimally.
+Figure \ref{fig:08schedule} shows the communication framework for operating a pipeline. The goal of RM06A is to meet the demands of the Commerce City refinery. To do so, a schedule with desired flow rates are sent to the operators from the scheduling team, and the operators are tasked to operate the pipeline at the given flow rate. Due to the complexity of this pipeline, different operators operate the pipeline differently depending on their own experience.  This difference introduces turbulence and unnecessary wear-and-tear onto the pipeline, increasing maintenance costs. Moreover, some operators are less experienced and operate the pipeline sub-optimally.
 
 \begin{figure}[h]
     \centering
@@ -61,7 +61,7 @@ Figure \ref{fig:08schedule} shows the communication framework of the pipeline op
 
 To overcome this problem, machine learning was used to identify a model of the pipeline.  Then, a steady state optimization tool was built using mixed integer linear programming to give operators the \textbf{optimal} set-points for each equipment.  This system solves two problems: i) Introduces uniformity in operator behaviour for desired set-points. ii) Semi-automation of the pipeline, freeing up operators' time for other tasks.
 
-The new communication framework for line RM06A is shown in Figure \ref{fig:08scheduleV2}.
+The new communication framework for line RM06A is shown in Figure \ref{fig:08scheduleV2}. Here, the desired flow rate is sent to the operator and optimization tool.  The tool will then identify the most effective set points to achieve the desired set point and recommend them to the operators.  The tool is fully capable of automating the pipeline in open loop; however, initial performance skepticism must be mediated before doing so.
 
 \begin{figure}[h]
     \centering
@@ -70,7 +70,7 @@ The new communication framework for line RM06A is shown in Figure \ref{fig:08sch
     \label{fig:08scheduleV2}
 \end{figure}
 
-The rest of the section is organized as follows.  First, the data pre-processing step will be shown.  Then, the model identification phase will be introduced.  Following that, the optimization algorithm and all it's constraints for real-time optimization are presented.  Finally, the section is concluded with some conceptual software design regarding its implementation into a supervisory control and data acquisition (SCADA) system and the overall project impact will also be shown.
+The rest of the section is organized as follows.  First, the data pre-processing step will be shown.  Then, the model identification phase will be introduced.  Following that, the optimization algorithm and constraints for real-time optimization are presented.  Finally, the section is concluded with some conceptual software design regarding its implementation into a supervisory control and data acquisition (SCADA) system and the overall project impact will also be shown.
 
 \subsection{Data Pre-processing}
 Two data sets were initially provided by Suncor.  The details are shown in Table \ref{tab:08data}. Model identification and optimization evaluations were conducted for both datasets; however, the steps are very similar.  Because the 2019 algorithm will go into live production whereas the 2018 data was used primarily as a proof of concept, only the 2019 algorithm steps will be shown in detail.
@@ -93,8 +93,7 @@ Data pre-processing can be broken down into three phases: Filtering by subject m
 \subsubsection{Filtering by Subject Matter Experts}
 The first phase of data pre-processing was conducted by the subject matter experts at Suncor.  The original data set contained all data corresponding to the pipeline.  Variables such as alarm limits, fire detector status, monitor on/off status, etc., have low predictive power and were removed.  After this phase, the number of variables reduced from 738 to 124.  
 
-The distribution of the remaining variables along the pipeline can be seen in Table \ref{tab:08Ph1Data}.
-
+The distribution of the remaining variables along the pipeline is shown in Table \ref{tab:08Ph1Data}.
 \begin{table}[h]
     \centering
     {\setstretch{1.2}
@@ -111,9 +110,9 @@ The distribution of the remaining variables along the pipeline can be seen in Ta
 Next, the data set was automatically filtered using the following methods:
 
 \begin{itemize}
-    \item \textbf{Missing data removal}: Remove \textit{rows} of data containing missing data.
+    \item \textbf{Missing data removal}: Remove \textit{rows} of data containing missing values.
     \item \textbf{Data imbalance analysis}: Remove boolean variables that contain 97\% or more of a single class.  Heavily imbalanced variables create model biases towards the majority class \cite{data_preprocessing}.
-    \item \textbf{Collinear analysis}: Identify variables that are correlated over 90\%. Correlation, $r_{xy}$ is given in Equation \ref{eq:08correlation}. After corrlated variables are identified, one variable is kept while the rest are removed.  This is done to avoid redundant parameters \cite{data_preprocessing}.
+    \item \textbf{Collinear analysis}: Identify variables that are correlated over 90\%. Correlation, $r_{xy}$ is given in Equation \ref{eq:08correlation}. After correlated variables are identified, one variable is kept while the rest are removed to avoid redundant parameters \cite{data_preprocessing}.
     \begin{equation}
         r_{xy} = \frac{\sum(x_i - \bar{x})(y_i - \bar{y})}{\sqrt{\sum(x_i - \bar{x})^2\sum(y_i-\bar{y})^2}}
         \label{eq:08correlation}
@@ -135,7 +134,7 @@ After performing the above methods, the data set reduced from 124 to 65. The dis
 \end{table}
 
 \subsubsection{Manual Data Pre-processing}
-The data set is then manually pre-processed to remove or modify data from badly behaving sensors and irregular operating conditions.  In this phase, only the number of training examples are reduced.
+The data set is then manually pre-processed to remove or modify rows due to badly behaving sensors or irregular operating conditions.  In this phase, only the number of training examples are reduced.
 
 For this pipeline, both sweet and sour crude are transported in a cyclical fashion due to the hydraulic dynamics of the pipeline. Otherwise, the sour crude is too heavy to be transported for sustainable periods. However, downstream demand for each product can disrupt this operating cycle.  From Figure \ref{fig:08API}, it can be seen that there were extended periods of time where only sweet or sour crude were being transported, and was caused by the lack of demand downstream.  Such scenarios deviate from normal operations and were removed from the data.
 
@@ -158,7 +157,7 @@ For this pipeline, both sweet and sour crude are transported in a cyclical fashi
         \label{fig:08API}
 \end{figure}
 
-Moreover, there is a time delay for the flow rate to react to a DRA set point change because the new DRA concentration must be transported throughout the line before its effect can be fully realized.  DRA is assumed to be catastrophically destroyed when passing through a pump; thus, DRA is only required to coat the pipeline between pump stations for its full effect to be exploited.  For CIG, it must coat the pipeline between CIG to Ault.  For Ault, the pipeline spanning between Ault and Fort Lupton must be coated.  Given the flow rate of the pipeline, it will take approximately ten hours to sufficiently coat the majority of the pipeline. Hence, data corresponding to transitional periods are removed. At times, transitional times may take longer; however, removing additional data will reduce the available data for model identification.  
+Moreover, there is a time delay for the flow rate to react to a DRA set point change because the new DRA concentration must be permeated throughout the line before its effect can be fully realized.  DRA was assumed to be catastrophically destroyed when passing through a pump; thus, DRA is only required to coat the pipeline between pump stations for its full effect to be exploited.  For CIG, it must coat the pipeline between CIG to Ault.  For Ault, the pipeline spanning between Ault and Fort Lupton must be coated.  Given the flow rate of the pipeline, it will take approximately ten hours to sufficiently coat the majority of the pipeline. Hence, data corresponding to transitional periods are removed. At times, transitional times may take longer; however, removing additional data will reduce the available data for model identification.  
 
 Pre- and post-processed DRA parts per million (ppm) measurements are shown in Figure \ref{fig:08DRA}. DRA ppm is measured continuously for the control of the DRA injection pumps. However, the measurement is unreliable and corrupted with noise. Because DRA set points are rarely changed, an exponentially weighted moving average (EWMA) was applied to the DRA ppm readings for increased measurement reliability.  The EWMA formula and bias correction are given in Equations \ref{eq:08EWMA} and \ref{eq:08Bias_Correction}, respectively: 
 \begin{equation}
@@ -229,7 +228,7 @@ The final data set contained 65 variables and 97,470 data points.
 \subsubsection{Feature Selection}
 For each pump station, there was a variety of sensors measuring the same process variables.  For example, VFD pumps have four readings each: On/off status, RPM, HZ, and current. Many variables relating to one equipment is redundant; thus, only one variable was selected when redundancy existed. Additionally, some sensors were behaving abnormally.
 
-In normal operations, the density fluctuates between 10 - 50 API, depending on the type of crude present in the pipeline.  After analysis, the Fort Lupton densitometer was behaving abnormally compared to other densitometer and is shown in Figure \ref{fig:08Density}.  After confirming with Suncor that the densitometer was behaving abnormally, the variable was removed.  
+In normal operations, the density fluctuates between 10 - 50 API, depending on the crude present in the pipeline.  After analysis, the Fort Lupton densitometer was behaving abnormally compared to other densitometer and is shown in Figure \ref{fig:08Density}.  After confirming with Suncor that the densitometer was behaving abnormally, the variable was removed.  
 \begin{figure}[h]
      \centering
      \begin{subfigure}[b]{0.48\textwidth}
@@ -287,12 +286,12 @@ Figure \ref{fig:08featscale} shows the contour of a normalized and non-normalize
     \label{fig:08featscale}
 \end{figure}
 
-To avoid this problem, the min-max normalization is applied to each variable and is given by:
+The min-max normalization was applied to each variable to avoid this problem and is given by:
 \begin{equation}
     x^{norm} = \frac{x - x^{min}}{x^{max} - x^{min}}
     \label{eq:08normalization}
 \end{equation}
-where $x^{norm}$ is the normalized values.  Here, $x^{min}$ and $x^{max}$ are the minimum and maximum values of each variable, respectively.  By applying this normalization, all data will be bounded between $x_i \in [0, 1]$ and the elongation issue of the cost function will be resolved.
+where $x^{norm}$ is the normalized values.  Here, $x^{min}$ and $x^{max}$ are the minimum and maximum values of each variable, respectively.  By applying this normalization, all data will be bounded between $x_i \in [0, 1]$ and the elongation issue of the cost function was resolved.
 
 \subsubsection{Exploratory Data Analysis}
 Exploratory data analysis was then conducted to gain insights into the data set.  First, the distribution of the flow rate was explored and shown in Figure \ref{fig:08flowrate_dist}.  It can be seen that the flow rate follows a bi-modal distribution corresponding to two different operating strategies: a high demand strategy and a low demand strategy.
@@ -327,7 +326,7 @@ The resultant segregation created by DBSCAN using hyper parameters 1.13 and 10,0
     \label{fig:08DBSCAN}
 \end{figure}
 
-The average operating conditions of each cluster is shown in Figure \ref{fig:08cluster_variables}. The main differences are the flow rate, DRA usage, and pump usage.  Cluster 1 had 32\% higher average flow rate.  Cluster 1 also used substantially more DRA compared to cluster 1, where almost no DRA was used. Furthermore, the Cheyenne booster pump, Ault booster pump 1, Fort Lupton boooster pump, and Fort Lupton VFD were only used in cluster 1.  Ault booster pump 2 was only used in cluster 2.
+Average operating conditions of each cluster is shown in Figure \ref{fig:08cluster_variables}. The main differences are the flow rate, DRA usage, and pump usage.  Cluster 1 had 32\% higher average flow rate.  Cluster 1 also used substantially more DRA compared to cluster 2, where almost no DRA was used. Furthermore, the Cheyenne booster pump, Ault booster pump 1, Fort Lupton boooster pump, and Fort Lupton VFD were only used in cluster 1.  Ault booster pump 2 was only used in cluster 2.
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{images/08AvgChar.png}
@@ -336,7 +335,7 @@ The average operating conditions of each cluster is shown in Figure \ref{fig:08c
 \end{figure}
 
 \subsubsection{Data Partitioning}
-The data set was split into three sections for machine learning: training, validation, and testing.  The partition and description of each section is described in Table \ref{tab:08datapart}. The training data set was used to identify the machine learning model(s).  Then, the model was validated on unseen data via the validation data set (sometimes called development data).  The error of the model on the validation data set, $e_{validation}$, should be similar to the training data error, $e_{train}$, to ensure that the model did not overfit to the training data. Finally, the model will be tested on the testing data to explore the performance of the model in live production.  Testing data will always be the last 5\% of the data in the data set.
+The data set was split into three sections for machine learning: training, validation, and testing.  The partition and description of each section is shown in Table \ref{tab:08datapart}. The training data set was used to identify the machine learning model(s).  Then, the model was validated on unseen data via the validation data set (sometimes called development data).  The error of the model on the validation data set, $e_{validation}$, was evaluated and compared to the training data error, $e_{train}$.  If the difference is large, the model was rebuilt using different data pre-processing techniques and features. This step was repeated until $e_{train} \approx e_{validation}$ to ensure that the model did not overfit to the training data. Finally, the model was tested on the testing data to explore the performance of the model in live production.  Testing data was always the last 5\% of the data set.
 \begin{table}[h]
     \centering
     {\setstretch{1.2}
@@ -365,12 +364,12 @@ The mean squared error (MSE) cost function was used for all predictive models an
 \end{equation}
 where $n$ is the number of samples in the current optimization step.  $\hat{y}_i$ and $y_i$ are the $i^{th}$ predicted and actual labels, respectively. Here, $J$ is the loss. The MSE cost function was selected due to its convex nature \cite{deeplearning_course}.
 
-To ensure adequate performance on the validation and testing data, the model must avoid overfitting to the training data.  This was done by reducing the model complexity through removing or reducing individual variables' impact on the model.  This study used a ridge regularization to reduce model complexity:
+To ensure adequate performance on the validation and testing data, the model must avoid overfitting to the training data.  This was conducted by reducing the model complexity through removing or reducing individual variables' impact on the model.  This study used a ridge regularization to reduce model complexity:
 \begin{equation}
     J(W) = \frac{1}{n}\sum\limits^n_{i=1}(\hat{y}_i - y_i)^2 + \lambda \sum\limits^n_{j=1} W_j^2
     \label{eq:08MSE_wR}
 \end{equation}
-where $\lambda$ is the regularization penalty.  Here, as $\lambda \rightarrow \infty$, $W \rightarrow 0$.  That is, the larger $\lambda$ is, the stronger the weights are penalized. 
+where $\lambda$ is the regularization penalty.  Here, as $\lambda \rightarrow \infty$, $W \rightarrow 0$.  That is, the larger $\lambda$ is, the stronger large weights are penalized. 
 
 \subsubsection{Model Optimization}
 
@@ -486,7 +485,7 @@ Hyper parameters of the linear regression are shown in Table \ref{tab:08LSHparam
     \label{tab:08LSHparameters}
 \end{table}
 
-The performance assessment of the least squares model is shown in Table \ref{tab:08LSperformance}. Error on the test data was 5.8\% higher compared to the training and validation data.
+The performance assessment of the least squares model is shown in Table \ref{tab:08LSperformance}. The overall performance of the linear model was good. Error on the test data was 5.8\% higher compared to the training and validation data.
 \begin{table}[h]
     \centering
     {\setstretch{1.2}

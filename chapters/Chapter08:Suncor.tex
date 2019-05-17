@@ -644,9 +644,8 @@ The performance assessment of the quadratic and square root models are shown in 
     \label{tab:08quad_sqrt_performance}
 \end{table}
 
-The polynomial models' performance on the validation and test data are shown in Figures \ref{fig:08quad_validation} to \ref{fig:08sqrt_test}.  
+The polynomial models' performance on the validation and test data are shown in Figures \ref{fig:08quad_validation} to \ref{fig:08sqrt_test}.  Overall, the model performances increased by introducing non-linearities. To further increase accuracy, heavily non-linear neural network models were explored.
 
-\newpage
 \begin{figure}[h]
      \centering
      \begin{subfigure}[b]{0.45\textwidth}
@@ -760,35 +759,35 @@ The comparison of actual and predicted flow rates on the validation and test dat
      \centering
      \begin{subfigure}[b]{0.48\textwidth}
          \includegraphics[width=\textwidth]{images/08smallnn_valid.eps}
-         \caption{Predicted vs. actual flow rate for validation data using the small neural net.}
+         \caption{Validation data for the small neural net.}
          \label{fig:08smallnn_valid}
      \end{subfigure}
      \begin{subfigure}[b]{0.48\textwidth}
          \includegraphics[width=\textwidth]{images/08smallnn_test.eps}
-         \caption{Predicted vs. actual flow rate for the test data using the small neural net.}
+         \caption{Test data for the small neural net.}
          \label{fig:08smallnn_test}
      \end{subfigure}
      \begin{subfigure}[b]{0.48\textwidth}
          \includegraphics[width=\textwidth]{images/08mednn_valid.eps}
-         \caption{Predicted vs. actual flow rate for the validation data using the med. neural net.}
+         \caption{Validation data for the med. neural net.}
          \label{fig:08mednn_valid}
      \end{subfigure}
      \begin{subfigure}[b]{0.48\textwidth}
          \includegraphics[width=\textwidth]{images/08mednn_test.eps}
-         \caption{Predicted vs. actual flow rate for the test data using the med. neural net.}
+         \caption{Test data for the med. neural net.}
          \label{fig:08mednn_test}
      \end{subfigure}
      \begin{subfigure}[b]{0.48\textwidth}
          \includegraphics[width=\textwidth]{images/08largenn_valid.eps}
-         \caption{Predicted vs. actual flow rate for the validation data using the large neural net.}
+         \caption{Validation data for the large neural net.}
          \label{fig:08largenn_valid}
      \end{subfigure}
      \begin{subfigure}[b]{0.48\textwidth}
          \includegraphics[width=\textwidth]{images/08largenn_test.eps}
-         \caption{Predicted vs. actual flow rate for the test data using the large neural net.}
+         \caption{Test data for the large neural net.}
          \label{fig:08largenn_test}
      \end{subfigure}
-        \caption{Feed-forward neural network validation and test plots.}
+        \caption{Predicted vs. actual flow rates for the feed-forward neural networks.}
         \label{fig:08PolynomialPlots}
 \end{figure}
 
@@ -799,7 +798,7 @@ The comparison of actual and predicted flow rates on the validation and test dat
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \noindent
 \textit{Linear Parameter-varying Models} \\
-Lastly, the linear parameter-varying model (LPV) was explored to model the pipeline. It is clear that the process is non-linear due to the increase in accuracy when switching to a non-linear model structure. LPV models were selected due to their non-linear nature while still retaining the interpretability of linear models. Furthermore, any non-linear model can be approximated by a set of linear models \cite{LPV}. The LPV model is given by:
+Lastly, the linear parameter-varying model (LPV) was explored to model the pipeline. It is clear that the process is non-linear due to the large increase in accuracy when switching to a non-linear model structure. LPV models were selected due to their non-linear nature while still retaining the interpretability of linear models. Furthermore, any non-linear model can be approximated by a set of linear models \cite{LPV}. The LPV model is given by:
 \begin{equation}
     \begin{split}
         \hat{y} = W_{1, 1}^Tx + W_{1, 2}^Tu + b_1 \\
@@ -827,37 +826,37 @@ The performance assessment of the two LPV models are shown in Table \ref{tab:08c
     \label{tab:08cluster1_cluster2_reg}
 \end{table}
 
-The comparison of actual and predicted flow rates on the validation and test data for the LPV models are shown in Figures \ref{fig:08cluster1_valid} to \ref{fig:08cluster2_test}. In Figures \ref{cluster2_valid} and \ref{cluster2_test}, it can be seen that model 2 performs poorly on the data.  This might be caused by some unobserved variables that are only applicable for low flow rate operations.
+The comparison of actual and predicted flow rates on the validation and test data for the LPV models are shown in Figures \ref{fig:08cluster1_valid} to \ref{fig:08cluster2_test}. In Figures \ref{fig:08cluster2_valid} and \ref{fig:08cluster2_test}, it can be seen that model 2 performs poorly on the data.  This might be caused by some unobserved variables that were only used during low flow rate operations.
 \begin{figure}[h]
     \centering
      \begin{subfigure}[b]{0.48\textwidth}
          \includegraphics[width=\textwidth]{images/08cluster1_valid.eps}
-         \caption{Predicted vs. actual flow rate for validation data using model 1.}
+         \caption{Validation data using model 1.}
          \label{fig:08cluster1_valid}
      \end{subfigure}
      \begin{subfigure}[b]{0.48\textwidth}
          \includegraphics[width=\textwidth]{images/08cluster1_test.eps}
-         \caption{Predicted vs. actual flow rate for the test data using model 1.}
+         \caption{Test data using model 1.}
          \label{fig:08cluster1_test}
      \end{subfigure}
      \begin{subfigure}[b]{0.48\textwidth}
          \includegraphics[width=\textwidth]{images/08cluster2_valid.eps}
-         \caption{Predicted vs. actual flow rate for the validation data using model 2.}
+         \caption{Validation data using model 2.}
          \label{fig:08cluster2_valid}
      \end{subfigure}
      \begin{subfigure}[b]{0.48\textwidth}
          \includegraphics[width=\textwidth]{images/08cluster2_test.eps}
-         \caption{Predicted vs. actual flow rate for the test data using model 2.}
+         \caption{Test data using model 2.}
          \label{fig:08cluster2_test}
      \end{subfigure}
-        \caption{Linear parameter-varying models' validation and test plots.}
+        \caption{Predicted vs. actual flow rate for the linear parameter-varying models.}
         \label{fig:08PolynomialPlots}
 \end{figure}
 
 Ultimately, the LPV model structure was selected to model the pipeline.  The LPV model has the interpretability of linear models, while having the predictive capabilities of non-linear models.  Furthermore, the LPV model identifies a separate set of parameters for the two distributions, making the optimization algorithm more representative of live operations.  For example, because no DRA was used for lower flow rates, the optimization algorithm will have explicit constraints on model 2 to not use DRA as well. A similar example would be using only Ault booster 1 for cluster 2, while using Ault booster 2 for cluster 1.  The advantages of these constraints are twofold: i) More realistic to live operations.  ii) Avoid model extrapolations (since no DRA data was used to identify model 2, the optimizer should not be able to use it for optimization).
 
 \subsubsection{Time-series Modelling}
-All previous models are static (i.e., $y_{ss} = f(x, u)$) and are used for the real time optimization layer in Figure \ref{fig:08APC}. To completely automate the pipeline operations, a dynamic model was identified for the application of supervisory control. In dynamic modelling, temporal correlations within the time-series data are exploited to improve model accuracy.  Moreover, $y_t$ is measured at each time and can be used to further improve model accuracy. The time-series model will have the following structure:
+All previous models are static (i.e., $y_{ss} = f(x, u)$) and are used for the real time optimization layer in Figure \ref{fig:08APC}. To completely automate the pipeline, a dynamic model was identified for the application of supervisory control. In dynamic modelling, temporal correlations within the time-series data are exploited to improve model accuracy.  Moreover, $y_t$ is measured at each time and can be used to further improve model accuracy. The time-series model will have the following structure:
 \begin{equation}
     y_{t+1} = f(x_{t}, x_{t - 1}, ..., x_{t-p}, u_{t}, u_{t - 1}, ..., u_{t - q}, y_{r})
 \end{equation}
@@ -894,7 +893,7 @@ The performance metrics of the time-series model is shown in Table \ref{tab:08ts
     \label{tab:08ts_performance}
 \end{table}
 
-The comparison of actual and predicted flow rates on the validation and test data for the time-series least square model are shown in Figure \ref{fig:08ts_ls}. 
+The comparison of actual and predicted flow rates on the validation and test data for the time-series least square model are shown in Figure \ref{fig:08ts_ls}.   Here, it can be seen that the test data was much more noisy.  Nevertheless, the model was still able to predict at a high level of accuracy.
 \begin{figure}[h]
     \centering
      \begin{subfigure}[b]{0.48\textwidth}
@@ -913,7 +912,7 @@ The comparison of actual and predicted flow rates on the validation and test dat
 
 
 \subsubsection{Model Applicability Range}
-Extrapolation while using data-driven models introduce risks to operations. Thus, Tables \ref{tab:08StateConst} and \ref{tab:08InputConst} show the ranges of states and inputs where the model is most effective. The ranges were identified from $\mu - 2\sigma \leq x, u \leq \mu + 2\sigma$ to ensure the range captures 95.5\% of the data while omitting outliers. Usage of the models beyond the normal range may be ineffective.
+Extrapolation while using data-driven models introduce risks to operations. Thus, Table \ref{tab:08StateConst} show the range of states where the model is most effective. The ranges were identified from $\mu - 2\sigma \leq x, u \leq \mu + 2\sigma$ to ensure the range captures 95.5\% of the data while omitting outliers. Usage of the models beyond the normal range may be ineffective.
 
 \begin{table}[h]
     \centering
@@ -965,7 +964,7 @@ In addition to the state ranges provided above, the recommended set points are a
 \end{figure}
 
 \subsection{Mixed Integer Linear Programming}
-The information flow of the optimization algorithm is shown in Figure \ref{fig:08Optimization_flow}.  First, a desired flow will be inputted by the operators depending on the demand from Commerce City.  Then, the machine learning model along with equality and in-equality constraints will be provided to the mixed integer linear program (MILP).  Given the objective function, decision variables, and the current costs, the MILP will finally output the optimal set points.
+The information flow of the optimization algorithm is shown in Figure \ref{fig:08Optimization_flow}.  First, a desired flow will be inputted by the operators depending on the demand from Commerce City.  Then, the machine learning model along with equality and in-equality constraints will be provided to the mixed integer linear program (MILP).  Given the objective function, decision variables, and the current costs of operation, the MILP will output the optimal set points.
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{images/08Optimization_flow.png}
@@ -975,7 +974,7 @@ The information flow of the optimization algorithm is shown in Figure \ref{fig:0
 
 \noindent
 \textit{Mixed Integer Linear Program} \\
-MILP was used to perform steady state optimization on the linear model because the decision variables included binary and continuous variables.  In total, there was 10 decision variables; 4 binary and 6 continuous.  The binary and continuous variables are shown in Table \ref{tab:08binary_cont}.
+MILP was used to perform steady state optimization on the linear model because the decision variables included binary and continuous variables.  In total, there were 10 decision variables; 4 binary and 6 continuous.  The binary and continuous variables are shown in Table \ref{tab:08binary_cont}.
 
 \begin{table}[h]
     \centering
@@ -993,7 +992,7 @@ MILP was used to perform steady state optimization on the linear model because t
 
 \noindent
 \textit{Constraints} \\
-The constraints are the machine learning model, equality, and in-equality constraints.  The equality and in-equality constraints are shown in Table \ref{tab:08eq_neq_constraints}. From the data provided, the Cheyenne pump was on 95\% of the time, and at least one Ault on/off pump was always on. Therefore, constraints were incorporated to reflect this.  Additionally, constraints were used to ensure proper DRA was injected into the pipeline for the different crudes.  There were also pressure constraints on the outlet pressure of the pumps to ensure safe operations.  Before a recommendation is made to the operators, the set points are used to predict for the outlet pressures at each pump to ensure they do not exceed the maximum allowable working pressure (MAWP). Finally, the flow rate is given a range to ensure optimization feasibility. Specifying exact flow rates lead to infeasible solutions because there may not exist a combination to get an \textit{exact} flow rate.
+The constraints consists of the machine learning model, equality, and in-equality constraints.  The equality and in-equality constraints are shown in Table \ref{tab:08eq_neq_constraints}. From the data provided, the Cheyenne pump was on 95\% of the time, and at least one Ault on/off pump was always on. Therefore, constraints were incorporated to reflect this.  Additionally, constraints were used to ensure proper DRA was injected into the pipeline for the different crudes.  There were also pressure constraints on the outlet pressure of the pumps to ensure safe operations.  Before a recommendation is made to the operators, the recommended set points were used to predict for the outlet pressures at each pump to ensure they do not exceed the maximum allowable working pressure (MAWP). Finally, the final flow rate is given a range to ensure optimization feasibility. Specifying exact flow rates lead to infeasible solutions because there may not exist a combination to get an \textit{exact} flow rate.
 
 \begin{table}[h]
     \centering
@@ -1016,7 +1015,7 @@ The constraints are the machine learning model, equality, and in-equality constr
          Cheyenne On/off = 28 Amps  & $78 \text{ Amps} \leq VFD^{FL} \leq 134 \text{ Amps}$  \\
          Ault 1 Pump = 190 Amps & \\
          Ault 2 Pump = 278 Amps & \\
-         Fort Lupton Pump = 117 & \\
+         Fort Lupton Pump = 117 Amps & \\
     \end{tabular}}   
     \caption{List of equality and inequality constraints}
     \label{tab:08eq_neq_constraints}
@@ -1110,7 +1109,7 @@ The objective is to operate the pipeline at the desired flow rate with the minim
     \addConstraint{20 \leq DRA_i \leq 40, \; i \in I} 
     \addConstraint{\gamma_j^{min} \leq I_j \leq \gamma_j^{max}, \; j \in J}{}
 \end{mini*}
-where $\alpha$ denotes the cost of DRA per ppm, $\beta$ denotes the cost of one kWh, $mu$ denotes the on/off status of the DRA pumps, and $\nu$ denotes the on/off status of the pumps. $DRA_i$ is the DRA ppm set point of the $i^{th}$ DRA injection pump. Moreover, $V_j$ and $I_j$ are the voltage and drawn amperes corresponding to the $j^{th}$ pump. Here, $\gamma_j$ are the upper and lower bounds of the VFDs' currents and are provided in Table \ref{tab:08eq_neq_constraints}. For on/off pumps, $\gamma_j$ is fixed.
+where $\alpha$ denotes the cost of DRA per ppm, $\beta$ denotes the cost of one kWh, $mu$ denotes the on/off status of the DRA pumps, and $\nu$ denotes the on/off status of the pumps. $DRA_i$ is the DRA ppm set point of the $i^{th}$ DRA injection pump. Moreover, $V_j$ and $I_j$ are the voltage and amperes corresponding to the $j^{th}$ pump. Here, $\gamma_j$ are the upper and lower bounds of the VFDs' currents and are provided in Table \ref{tab:08eq_neq_constraints}. For on/off pumps, $\gamma_j$ is fixed.
 
 The voltages of the pumps are provided in Table \ref{tab:08Voltages}.  The power cost per kWh for the pipeline was \$0.09 USD.
 \begin{table}[h]
@@ -1183,7 +1182,7 @@ where the functions represent Equations \ref{eq:08sweet_dra} and \ref{eq:08sour_
 \end{equation}
 where $i$ denotes the $i^{th}$ hour in a particular month and $j$ denote the $j^{th}$ pump. $p$ denotes the power cost in kWh. Additionally, $I_j$ and $V_j$ denotes the current and voltage for the $j^{th}$ pump.
 
-The actual and optimal costs for DRA and power are shown in Table \ref{tab:08opt_vs_act_costs}.  It can be seen that the total savings range between -3.7\% - 17.6\%.  The savings were realized by using less DRA while running the pumps harder. For this initial study, interaction effects between pumps and DRA were not explicitly considered. Additionally, the effectiveness of the pumps (i.e., flow rate as a function of current) were assumed to be constant; this may not be the case in actual production because pumps' efficiency changes with accordance to the pump curve \cite{fluid_mechanics}. Likewise, DRA effectiveness was also assumed to be constant; however, preliminary data analysis showed a exponential decay relationship between flow rate and increased DRA.  Additionally, the system was assumed to transition to the desired set point immediately after the set points are inputted for the optimal costs. The average flow rate change between time steps was 8 bbl/h and pressure is propagated down the pipeline at 1480 m/s.  Thus, the error for this assumption is not large. A loss was incurred in April because Suncor used only 10 - 15 ppm of DRA for a large part of the month. In the optimization, minimum DRA was constrained at 20 ppm.
+The actual and optimal costs for DRA and power are shown in Table \ref{tab:08opt_vs_act_costs}.  It can be seen that the total savings range between -3.7\% to 17.6\%.  The savings were realized by using less DRA while running the pumps harder. For this initial study, interaction effects between pumps and DRA were not explicitly considered. Additionally, the effectiveness of the pumps (i.e., flow rate as a function of current) were assumed to be constant; this may not be the case in actual production because pumps' efficiency changes with accordance to the pump curve \cite{fluid_mechanics}. Likewise, DRA effectiveness was also assumed to be constant; however, preliminary data analysis showed a exponential decay relationship between flow rate and increased DRA.  Additionally, the system was assumed to transition to the desired set point immediately after the set points are inputted for the optimal costs. The average flow rate change between time steps was 8 bbl/h and pressure is propagated down the pipeline at 1480 m/s.  Thus, the error for this assumption is not large. A loss was incurred in April because Suncor used only 10 - 15 ppm of DRA for a large part of the month. In the optimization, minimum DRA was constrained to 20 ppm.
 
 \begin{table}[h]
     \centering
@@ -1244,4 +1243,7 @@ Ultimately, expected operating cost savings were estimated to be between 7\% to 
 \subsubsection{Benefits for Society}
 On the financial side, this optimization tool has shown to reduce operating costs of transporting one bbl/h/km by \$0.04 USD for an industry leading energy company. Cost savings can be even more significant for lower tier, in-experienced companies. In Canada alone, 175,000 barrels of crude is produced per hour and transported at an average velocity of 9.5 km/h \cite{canada_crude_facts}.  Assuming a \$0.04 USD savings per barrel/km results in an annual saving of \$583M USD (\$784M CAD).  Expanding to North America, where approximately 742,000 barrels of crude is produced per hour, the savings jump up to \$2.5B USD (\$3.4B CAD) \cite{NA_crude_facts}. Moreover, the savings here does not include inter-refinery and inter-market pipelines; only produced crude were included.  The savings can be reinvested into greener products, resulting in significant reduction of green house gases (GHG). In 2018, the social cost of carbon was valued at \$46 USD per metric ton \cite{cost_of_carbon}; \$2.5B results in a 54.3M metric ton of reduced GHG.
 
-On the operational level, this tool standardizes operation of complex pipelines. Given a set of inputs, $I = \{Q, Costs, x\}$, the output of the optimization tool each time will be identical due to the linear model. Thus, operators on different shifts and with different experience levels will operate very similarly if this tool is used.  Additionally, this normalization reduces variance in operations which reduces depreciation of process equipment. Furthermore, the free cash flow can be reinvested to obtain higher throughputs, which in turn will increase revenue and increase tax dollars.  Finally, the tool will also increase operational safety, which may result in the Alberta Energy Regulator (AER) allowing higher throughputs on pipelines currently operating under capacity.
+On the operational level, this tool standardizes operation of complex pipelines. Given a set of inputs, $I = \{Q, Costs, x\}$, the output of the optimization tool will be identical each time due to the linear model. Thus, operators on different shifts and with different experience levels will operate very similarly if this tool is used.  Additionally, this normalization reduces variance in operations which reduces depreciation of process equipment. Furthermore, the free cash flow can be reinvested to obtain higher throughputs, which in turn will increase revenue and increase tax dollars.  Finally, the tool will also increase operational safety, which may result in the Alberta Energy Regulator (AER) allowing higher throughputs on pipelines currently operating under capacity.
+
+\section{Pipeline Project Conclusion}
+An adaptive optimization tool based on linear parameter-varying (LPV) models was presented in this study. The model adaptation is also robust to outliers through the importance sampling incremental supervised learning approach.  Objectively, the project aims to: 1) Introduce standardization in operations to reduce turbulence in the pipeline, while increasing efficiency of less experienced operators. 2) Open-loop automation of the pipeline; reducing repetitive and painful tasks for the operators while freeing up their time for more attention demanding tasks.  First, exploratory data analytics was performed and identified that the flow rate followed a bi-modal distribution.  The data was clustered into the two operating conditions where cluster 1 averaged 2500 bbl/h and cluster 2 averaged 1900 bbl/h.  Then, a LPV model consisting of two models was built; one model for each cluster.  

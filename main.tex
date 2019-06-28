@@ -38,6 +38,10 @@
 % Color text
 \usepackage{xcolor}
 
+% For appendix
+\usepackage[toc]{appendix}
+
+
 \begin{document}
 
 %%%%%%%%%%%%%%%%%%%%%%% Begin Title Page %%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -90,17 +94,17 @@
 
 \chapter*{Nomenclature}
 
-% \chapter{Introduction}
-% \input{chapters/Chapter01:Introduction.tex}
+\chapter{Introduction}
+\input{chapters/Chapter01:Introduction.tex}
 
-% \chapter{Markov Decision Processes}
-% \input{chapters/Chapter02:MDP.tex}
+\chapter{Machine Learning for Predictive Applications}
+\input{chapters/Chapter02:MachineLearningforPrediction.tex}
 
-% \chapter{Reinforcement Learning}
-% \input{chapters/Chapter03:ReinforcementLearning.tex}
+\chapter{Machine Learning for Control Applications}
+\input{chapters/Chapter03:MachineLearningforControl.tex}
 
-% \chapter{Model Predictive Control}
-% \input{chapters/Chapter04:ModelPredictiveControl.tex}
+\chapter{Machine Learning for Process Monitoring}
+\input{chapters/Chapter04:MachineLearningforMonitoring.tex}
 
 % \chapter{Comparison of RL and MPC}
 % \input{chapters/Chapter05:ComparisonofRLandMPC.tex}
@@ -111,18 +115,24 @@
 % \chapter{Imperial Oil: Distillation Flooding Fault-Tolerant Control using RL}
 % \input{chapters/Chapter07:ImperialOilProject.tex}
 
-\chapter{Anomaly Detection and Cost Optimization of a Pipeline}
-\input{chapters/Chapter08:Suncor.tex}
+% \chapter{Anomaly Detection and Cost Optimization of a Pipeline}
+% \input{chapters/Chapter08:Suncor.tex}
 
-\chapter{RL Accelerated Economic MPC}
-\input{chapters/Chapter09:RLandEMPC.tex}
+% \chapter{RL Accelerated Economic MPC}
+% \input{chapters/Chapter09:RLandEMPC.tex}
 
-\chapter{Automated Tuning using RL}
-\input{chapters/Chapter10:RLTuning.tex}
+% \chapter{Automated Tuning using RL}
+% \input{chapters/Chapter10:RLTuning.tex}
 
 \chapter{Concluding Remarks}
 \input{chapters/Chapter11:Conclusion.tex}
 
 \printbibliography
+
+\appendix
+\chapter{testing}
+
+\chapter{testing 32}
+
 
 \end{document}

@@ -1,5 +1,5 @@
 \documentclass[12pt]{report}
-\setcounter{tocdepth}{3}
+\setcounter{tocdepth}{2}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \graphicspath{ {images/} }
@@ -51,7 +51,7 @@
         \vspace*{1.1cm}
         
         \LARGE
-        Adaptive Automation: A Study of Online Learning Optimal Control and Optimization Methods for Industrial Processes \\
+        Adaptive Control: A Study of Online Learning Optimal Control and Optimization Methods for Industrial Processes \\
         
         \vspace{1cm}
         
@@ -63,18 +63,23 @@
         
         \vspace{3cm}
         
+        {\normalsize
         A thesis submitted in partial fulfillment of the requirements for the degree of \\
-        \vspace{1cm}
-        Master of Science in Computer Process Control \\
+        \vspace{1cm}}
+        Master of Science \\
+        {\normalsize in} \\ 
+        Computer Process Control \\
         
-        \vspace{3.5cm}
+        \vspace{3cm}
         
+        {\normalsize
         Department of Chemical and Materials Engineering \\
-        University of Alberta \\
+        University of Alberta \\}
         
         \vspace{1cm}
         
-        \textcopyright \hspace{1mm} Rui Nian, 2019 \\
+        {\normalsize
+        \textcopyright \hspace{1mm} Rui Nian, 2019 \\}
         
 
     \end{center}
@@ -84,17 +89,35 @@
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% Begin Main Document %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\pagenumbering{roman}
+\setcounter{page}{2}
 \chapter*{Abstract}
+
+\chapter*{Preface}
 
 \tableofcontents
 \listoffigures
 \listoftables
 
 \chapter*{Acknowledgements}
+All the material presented in this thesis certainly could not have been achieved without the countless hours of undivided attention and focused guidance from my professors, colleagues, family and the online machine learning community. First of all, I would like to thank Dr. Fadi Ibrahim, who was my supervisor during my first co-op work term, for being the catalyst which ultimately led me down the graduate studies path and introducing me to Dr. Biao Huang and Dr. Jinfeng Liu. Without Dr. Ibrahim, I certainly would never have considered graduate school and would never have had the opportunity to learn as much as I have in the past two years.  
+
+Next, I would like to gratefully thank both Dr. Jinfeng Liu and Dr. Biao Huang for the opportunity of pursuing my graduate studies here at the University of Alberta.  None of this work could have ever been possible without your continued trust, guidance, and never-ending support.
+
+And of course I cannot forget about my research groups for all the continued guidance and patience, accompanying me along my two year journey.  They are Ranjith Chiplunkar, Su Liu, Benjamin Nelson, Xunyuan Yin, Soumya Sahoo, Song Bo, An Zhang, and all other lab members who I did not get a chance to work with directly, but were definitely there to provide me with incredible feedback.  Without Ranjith's mathematical expertise, I would never have been able to understand many derivations and other highly theoretical topics.  Su helped me tremendously by providing initial recommendations to kick-start my first industrial project.  For coding help or theory regarding model predictive control, there was nobody better than Ben, who was always open to helping in any task. The waste water treatment plant project would have been impossible without Xunyuan and An's initial input and help on the model and other performance related topics.  And finally, Song was always available when I had very simple questions or simply wanted to chat!  Everyone was definitely a critical piece for my overall success.  
+
+Another critical part that made my experience as a graduate student much more complete was the chance to work directly with large industrial sponsors through NTwist and Mitacs.  Here, I would like to express my thanks to Chowdary Meenavilli, NTwist, and Mitacs.  Because of them, I had the opportunity to work directly on real industrial issues and formulating innovative new ways to solve them.
+
+Additionally, I would like to extend a warm appreciation to Professor John Cocchio and Dr. Lisa White, and Dr. Xunyuan Yin for allowing me to be the teaching assistant for ENGG404 and Ch E 358, respectively.  Being a teaching assistant allowed me to see the other side of the table; the hardships and difficulty in teaching courses fairly and effectively.
+
+But not all collaborators helped me in the technical aspect.  Some of my most critical collaborators supported me emotionally and provided for my social needs.  These individuals are, of course, my mom and dad, Ling Yan Gai, Hong Hui Nian.  My grandpa, Dou Shu Gai, my younger brother, Sunny Nian, and my girlfriend, Vivian Tran.  Without them, my mental aptitude would not have been resilient enough to allow me to push towards my limits.
+
+And finally, to the unsung heroes of the machine learning community.  I would like to express my sincerest gratitude for spending so much time in crafting \textit{excellent} free, and easy to understand content so aspiring machine learning practitioners can learn the basics without running into a wall of technical jargon.  These materials posted online truly serve as a gateway to a new, untapped world. A special thanks goes out to Dr. Andrew Ng and his team for starting Coursera, an economically-smart and value-heavy online course platform. In the future, I will take the community's guidance and pass it forward to the next generation of upcoming machine learning engineers and data scientists.
 
 \chapter*{Nomenclature}
 
 \chapter{Introduction}
+\pagenumbering{arabic}
 \input{chapters/Chapter01:Introduction.tex}
 
 \chapter{Machine Learning for Predictive Applications}
@@ -111,14 +134,17 @@
 
 \printbibliography
 
-\appendix
-\chapter{Optimal Control and Alarm Management of a Waste Water Treatment Process}
-\input{chapters/AppendixA:WWTP.tex}
+% \appendix
+% % Might include in body
+% \chapter{Optimal Control and Alarm Management of a Waste Water Treatment Process}
+% \input{chapters/AppendixA:WWTP.tex}
 
-\chapter{Distillation Tower Fault Prevention using Reinforcement Learning}
-\input{chapters/AppendixB:ImperialOilProject.tex}
+% % Might include in body
+% \chapter{Distillation Tower Fault Prevention using Reinforcement Learning}
+% \input{chapters/AppendixB:ImperialOilProject.tex}
 
-\chapter{Process Monitoring and Optimization of an Industrial Pipeline}
-\input{chapters/AppendixC:Suncor.tex}
+% % Only one for sure in appendix
+% \chapter{Process Monitoring and Optimization of an Industrial Pipeline}
+% \input{chapters/AppendixC:Suncor.tex}
 
 \end{document}

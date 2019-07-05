@@ -84,7 +84,14 @@ G_t = R_{t+1} + \gamma R_{t+2} + ... = \sum\limits^{\infty}_{k = 0} \gamma^k R_{
 \end{eqnarray}
 where $G_t$ is the total discounted return along the sequence.  Here, the discount factor, $\gamma$, captures the uncertainty of future rewards and keeps $G_t$ bounded for non-terminating tasks. $R_t$ is the reward received at time $t$. The objective of the agent is to find the optimal control policy $\pi^*$, that maximizes $G_t$. Optimal solutions for MDPs work well for discrete tasks when transition times are constant and dynamics of the system are disregarded. However, such systems are rare in the process industry.  
 
-Controllers resulting in oscillations, large overshoot, or severe inverse response lead to faster equipment deterioration and are detrimental to process safety \cite{process_control_ref13}. In non-linear systems, transition time is often determined by the magnitude of change in the set-point. Controllers typically require more time to track higher magnitude changes compared to ones of lower magnitude.  One could design a controller that evaluates seldomly to guarantee successful transitions, though such excessively conservative designs may lead to economic disadvantages.
+Fig. \ref{fig:inv_overshoot_pid} shows different cases of poorly designed controllers in the process industry. Controllers resulting in oscillations, large overshoot, or severe inverse response lead to faster equipment deterioration and are detrimental to process safety \cite{process_control_ref13}. In non-linear systems, transition time is often determined by the magnitude of change in the set-point. Controllers typically require more time to track higher magnitude changes compared to ones of lower magnitude.  One could design a controller that evaluates seldomly to guarantee successful transitions, though such excessively conservative designs may lead to economic disadvantages.
+
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics[width=9.5cm]{images/ftc/inv_overshoot_pid.png}
+        \caption{\label{fig:inv_overshoot_pid} Symptoms of poorly designed controllers.}
+    \end{center}
+\end{figure}
 
 \subsection{Semi Markov Decision Process}
 System dynamics and transition times are vital to successful process control; therefore, continuous control problems with unknown transition times are formalized using the semi-Markov decision process (SMDP). In SMDPs, the dynamics of the transition period are captured using the reward \cite{continuous_rl_ref14}:
@@ -429,18 +436,18 @@ Table \ref{tab:case_studies} shows the four case studies that were explored.  Th
 	\end{center}
 \end{table}
 
-The case study simulation results are shown in Figs. \ref{fig:case_study1}, \ref{fig:case_study2}, \ref{fig:case_study3}, and \ref{fig:case_study4}. Measurement noises, $\varepsilon_i$, were sampled from $\varepsilon_i \thicksim N(0, 2)$. In case 1, the operator changed the set-point from $100\%$ to $90\%$ for $X_D$ at $t = 300$; however, the reflux valve became stuck. The FDS immediately detected the fault and activated the FTC which guided the system to the desired set-point successfully within 100 time steps. The FTC was then able to reject a disturbance at $t = 1400$ and continued to operate at the desired set-point. Without the FTCS, the system would have been stuck at $X_D = 76$.  Additionally, the system is robust to large process uncertainty (as shown in the noisy measurements). Likewise, Fig. \ref{fig:case_study2} shows a similar scenario for $X_B$ where the steam valve became stuck.  Here, the FTCS was trained for faults in $X_B$ using the \textit{same} algorithm and hyper parameters.
+The case study simulation results are shown in Figs. \ref{fig:case_study1}, \ref{fig:case_study2}, \ref{fig:case_study3}, and \ref{fig:case_study4}. Measurement noises, $\varepsilon_i$, were sampled from $\varepsilon_i \thicksim N(0, 2)$. In case 1, the operator changed the set-point from $100\%$ to $90\%$ for $X_D$ at $t = 300$; however, the reflux valve became stuck. The FDS immediately detected the fault and activated the FTC which guided the system to the desired set-point successfully within 100 time steps. The FTC was then able to reject a disturbance at $t = 1400$ and continued to operate at the desired set-point. Without the FTCS, the system would have been stuck at $X_D = 76$.  Additionally, the system is robust to large process uncertainty (as shown in the noisy measurements). Likewise, Fig. \ref{fig:case_study2} shows a similar scenario for $X_B$ where the steam valve became stuck.  By training the FTCS for faults in $X_B$, the system can be easily re-stabilized using the \textit{same} algorithm and hyper parameters.
 
 \begin{figure}[h]
     \begin{center}
         \includegraphics[width=9.5cm]{images/ftc/Case1_Plot.eps}
-        \caption{\label{fig:case_study1} Mediating a fault in $X_D$ (Case 1).}
+        \caption{\label{fig:case_study1} Mediating a fault in the reflux valve (Case 1).}
     \end{center}
 \end{figure}
 \begin{figure}[h]
     \begin{center}
         \includegraphics[width=9.5cm]{images/ftc/Case2_Plot.eps}
-        \caption{\label{fig:case_study2} Mediating a fault in $X_B$ (Case 2).}
+        \caption{\label{fig:case_study2} Mediating a fault in steam valve (Case 2).}
     \end{center}
 \end{figure}
 
@@ -453,10 +460,7 @@ In case 3, both $X_D$ and $X_B$ are considered at different degrees, with $X_D$ 
     \end{center}
 \end{figure}
 
-Case 4 was used to explore adaptability of the FTCS. A pre-trained control agent for regulating $X_D$ to 100 was re-tasked to regulate $X_B$ to 0.  In Fig. \ref{fig:case_study4}, a fault occurred at $t = 300$ in the  
-
-
-Here, the control agent was able to completely adapt to the new operating objective by solely experiencing the new reward function. Adaptation speed can also be controlled by tuning learning rate $\alpha$.  
+Case 4 was used to explore adaptability of the FTCS. A pre-trained control agent for regulating $X_D$ to 100 was re-tasked to regulate $X_B$ to 0.  In Fig. \ref{fig:case_study4}, a fault occurred at $t = 300$ in the reflux valve. Originally, the control agent was tasked with using the steam valve to regulate $X_D$ back to 100; however, the operating objective changed to regulating $X_B$ to 0. Here, the control agent was able to completely adapt to the new operating objective in 90,000 training steps by solely experiencing the new reward function. Adaptation speed can also be controlled by tuning learning rate $\alpha$.  
 
 \begin{figure}[h]
     \begin{center}
@@ -485,12 +489,17 @@ Fig. \ref{fig:training_time} shows the control agent's performance for mediating
     \end{center}
 \end{figure}
 
-\subsection{Stability, Convergence and Comp. Complexity}
+\subsection{A Comparison of Optimal Control}
+
+\subsection{Stability and Convergence}
 The stability of RL is guaranteed assuming a Lipschitz continuous model and confining exploration to within the region of attraction, given a bounded input \cite{stability_rl_ref21}.  In this study, the system is globally asymptotically stable with the region of attraction spanning the entire state space and is therefore stable. For convergence, given learning rates $0 \leq \alpha_n < 1$, bounded rewards $|r_n| \leq \mathcal{R}$ and:
 \begin{equation}
     \sum\limits^{\infty}_{i = 1}\alpha_i(x, u) = \infty, \; \;  \sum\limits^{\infty}_{i = 1}\alpha_i^2(x, u) < \infty, \forall x, u,
 \end{equation}
-the tabular $Q$-learning values, $Q_n(x, u) \rightarrow Q^*(x, u)$ as $n \rightarrow \infty, \forall x, u$ with probability 1 --- the optimal result given such stochastic conditions \cite{convergence_rl_ref20}.  Assuming \textit{tabula rasa}, the computational complexity to reach the goal state for the first time during training is $O(p^3)$ \cite{complexity_rl_ref19}. Online evaluation complexity is approximately $O(mlog(p) + qlog(q))$ compared to $O(N(p^2 + q^2))$ for traditional optimal control solvers, where $N$ is the control horizon. Hence, RL evaluates much faster online compared to traditional optimal control methods.
+the tabular $Q$-learning values, $Q_n(x, u) \rightarrow Q^*(x, u)$ as $n \rightarrow \infty, \forall x, u$ with probability 1---the optimal result given such stochastic conditions \cite{convergence_rl_ref20}.  
+
+\subsection{Computational Complexity}
+The computation complexity was decomposed into training complexity and online evaluation complexity.  The training complexity refers to the computational time to find the optimal policy.  The online evaluation complexity is the online evaluation time required to find the optimal input.  Assuming \textit{tabula rasa}, the computational complexity to reach the goal state for the first time during training is $O(p^3)$ \cite{complexity_rl_ref19}. Online evaluation complexity is approximately $O(mlog(p))$ and $O(mlog(p) + qlog(q))$ for the prediction and control bandit, respectively. Here, the $O(mlog(p))$ is associated with finding the index of the states using binary search.  Likewise, $O(qlog(q))$ refers to sorting the value functions using heap sort to find the maximum value. For traditional optimal control solvers, the computational complexity is $O(N(p^2 + q^2))$, where $N$ is the control horizon \cite{mpc_comp_time}. Comparatively, RL evaluates much faster online compared to traditional optimal control methods, but must first be trained.  For tasks where long training times are feasible and demand fast online evaluation times, reinforcement learning may be the superior choice.
 
 \section{Concluding Comments}
 Eventually, all process equipment will reach the end of their operational lifetime and fail.  Such failures are difficult to predict and may cause catastrophic damage; therefore, it is advantageous to proactively manage risks using a fault-tolerant control system (FTCS).  This study proposed a general FTCS for continuous MIMO systems. The FTCS was placed in the supervisory control layer and gave operating recommendations to process control systems. The FTCS was simulated distillation tower, showing its fault tolerant nature, robustness to uncertainties, and disturbance rejection capabilities all while being adaptive.  

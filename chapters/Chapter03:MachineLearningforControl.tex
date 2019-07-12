@@ -19,6 +19,8 @@ Then compare these methods with MPC. MPC usually wins.
 Then do fault tolerant control where RL beats MPC in some systems
 
 \section{Tabular Q-learning and Process Control}
+- Position implementation
+- Velocity implementation
 
 \section{Continuous Control using Deep Reinforcement Learning}
 
@@ -37,7 +39,7 @@ Then do fault tolerant control where RL beats MPC in some systems
 
 \section{Fault-Tolerant Control System}
 \subsection{Introduction}
-All process equipment such as sensors and actuators may malfunction or breakdown during their operational lifetime. Hence, it is desirable to have a fault-tolerant control system (FTCS) to ensure sufficient performance during these impending failures. A typical FTCS contains two parts: i) Fault detection system (FDS) to identify the location and type of fault; ii) fault-tolerant controller (FTC) to operate the process safely during a fault.
+All process equipment such as sensors and actuators may malfunction or breakdown during their operational lifetime. Hence, it is desirable to have a fault-tolerant control system (FTCS) to ensure sufficient performance during these impending failures. The application of FTCS in an industrial environment results in increased operation robustness and safety, while reducing operating costs due to fewer plant-wide shut downs \cite{ftc_book_ref1}. A typical FTCS contains two parts: i) Fault detection system (FDS) to identify the location and type of fault; ii) fault-tolerant controller (FTC) to operate the process safely during a fault.
 
 Traditionally, a FTCS contain a variety of different controllers to handle different faults that may occur during online operations \cite{ftc_book_ref1}. Furthermore, PID controllers are generally used for FTC and are specially tuned to handle each fault specifically \cite{process_faults}. The traditional approaches work well in terms of safety, but the sheer number of controllers command a  high maintenance cost.  Moreover, the controllers must be re-tuned periodically for optimal performance due to unavoidable process drifts caused by wear and tear \cite{process_control_ref13}.
 
@@ -126,7 +128,9 @@ Fig. \ref{fig:ftc_pid_setup} shows the information flow of the control agent.
     \end{center}
 \end{figure}
 \subsection{Contextual Bandits Fault Detection}
-The fault detection system is used to identify faults in the process.  FDS can be categorized as model-, knowledge- or prediction-based approaches \cite{ftc_book_ref1}. Prediction-based methods are quickly becoming the forefront approach due to more readily available data. This study uses a contextual bandit prediction-based FDS to identify process faults. A contextual bandit algorithm was selected due to its ability to adapt to non-stationary problems.  Furthermore, bandit-based algorithms are well suited for identification tasks because the agent is not concerned with long term reward \cite{sutton}. The objective of the agent is to identify if the current situation is faulty, given the current states $x_t$ of the process. 
+The fault detection system is used to identify faults in the process.  FDS can be categorized as model-, knowledge- or prediction-based approaches \cite{ftcs_diagnosis_ref7}. Model-based approaches require an explicit model of the process.  A fault is deemed active if the prediction of the model is drastically different from the real time sensor measurement.  Knowledge-based approaches are based on subject matter expertise from process operators or equipment vendors and are usually rule-based (e.g., if $x > x_{max}$, then fault). Prediction-based approaches use historical data to identify a classification model for fault detection. The identified model would contain knowledge about normal operating boundaries regarding the process, and can be tuned by plant managers to be more conservative or aggressive. When the process conditions are outside the acceptable boundaries, a fault is deemed active. 
+
+Prediction-based methods are quickly becoming the forefront approach due to more readily available data. This study uses a contextual bandit prediction-based FDS to identify process faults. A contextual bandit algorithm was selected due to its ability to adapt to non-stationary problems.  Furthermore, bandit-based algorithms are well suited for identification tasks because the agent is not concerned with long term reward \cite{sutton}. The objective of the agent is to identify if the current situation is faulty, given the current states $x_t$ of the process. 
 
 \subsubsection{Prediction Agent Algorithm}
 
@@ -193,7 +197,8 @@ Once $Q(x, u)$ reaches convergence, real time process measurements are sent to t
 The prediction agent will activate the control agent when a fault is deemed active.
 
 \subsection{Reinforcement Learning Fault-Tolerant Control}
-Once activated, the control agent provides recommendations to stabilize the process. A $Q$-learning active FTC is used for this study because of its adaptive nature and ability to acknowledge future rewards \cite{rl_control_ref10}.
+Once activated, the control agent provides recommendations to stabilize the process.  Two strategies exist for the control agent: active FTC and passive FTC \cite{ftcs_passive_active_ref8}. Active FTC refers to re-configurable control, whereas passive FTC uses robust control principles. Active FTCs are generally more economically advantageous because passive FTCs are relatively more conservative. A tabular $Q$-learning active FTC is used for this study because of its adaptive nature and ability to acknowledge future rewards \cite{rl_control_ref10}.  The tabular based approach was selected for its simplicity and ease of implementation into industrial distributed control systems (DCS); however, this method lacks scalability. For large multiple-input multiple-output (MIMO) systems, function approximation RL can be easily substituted in.
+
 
 \subsubsection{Control Agent Algorithm}
 Reinforcement learning is similar to contextual bandits with the alteration that the long term trajectory is also considered. The $Q$-learning algorithm for MDPs is:
@@ -222,7 +227,7 @@ where $y_{k}^{sp}(t)$ and $e_k(t)$ are the set-point and tracking error for $y_k
 \end{equation}
 where superscripts $min$ and $max$ denotes the min and max for each state error or action. $p, q \geq 2$ denotes the number of discretized values. 
 
-During training, exploration of the environment is mandatory to avoid locally optimal policies. This study uses UCB action selection to explore actions based on its potential of being optimal \cite{sutton}:
+During training, exploration of the environment is mandatory to avoid locally optimal policies. Traditional exploration methods, such as $\epsilon$-greedy, indiscriminately tries non-greedy actions (i.e., non reward maximizing actions given the current knowledge) with a fixed probability \cite{ref11}. However, exploring in frequently visited states makes little sense. Instead, it be better to select non-greedy actions based on their potential of being optimal. One such way to do this is to use UCB action selection \cite{sutton}:
 \begin{equation}
     U_t = \argmax_u \left[Q_t(x, u) + c \sqrt{\frac{ln \; t}{N_t(x, u)}} \right]
 \label{eq:ucb}
@@ -267,9 +272,27 @@ u_{i, t} = u_{i, t - 1} + \Delta u_{i, t}, \hspace*{0.3cm} u_{i}^{min} \leq u_{i
 \end{equation}
 where $\Delta u_t$ is from Equation (\ref{eq: opt_policy}).
 
+\subsection{Stability and Convergence}
+The stability of RL is guaranteed assuming a Lipschitz continuous model and confining exploration to within the region of attraction, given a bounded input \cite{stability_rl_ref21}. For convergence, given learning rates $0 \leq \alpha_n < 1$, bounded rewards $|r_n| \leq \mathcal{R}$ and:
+\begin{equation}
+    \sum\limits^{\infty}_{i = 1}\alpha_i(x, u) = \infty, \; \;  \sum\limits^{\infty}_{i = 1}\alpha_i^2(x, u) < \infty, \forall x, u,
+\end{equation}
+the tabular $Q$-learning values, $Q_n(x, u) \rightarrow Q^*(x, u)$ as $n \rightarrow \infty, \forall x, u$ with probability 1---the optimal result given such stochastic conditions \cite{convergence_rl_ref20}.  
+
+\subsection{Computational Complexity}
+The computation complexity was decomposed into training complexity and online evaluation complexity.  The training complexity refers to the computational time to find the optimal policy.  The online evaluation complexity is the online evaluation time required to find the optimal input.  Assuming \textit{tabula rasa}, the computational complexity to reach the goal state for the first time during training is $O(p^3)$ \cite{complexity_rl_ref19}. Online evaluation complexity is approximately $O(mlog(p))$ and $O(mlog(p) + qlog(q))$ for the prediction and control bandit, respectively. Here, the $O(mlog(p))$ is associated with finding the index of the states using binary search.  Likewise, $O(qlog(q))$ refers to sorting the value functions using heap sort to find the maximum value. For traditional optimal control solvers, the computational complexity is $O(N(p^2 + q^2))$, where $N$ is the control horizon \cite{mpc_comp_time}. Comparatively, RL evaluates much faster online compared to traditional optimal control methods, but must first be trained.  For tasks where long training times are feasible and demand fast online evaluation times, reinforcement learning may be the superior choice.
+
 \section{Case Study}
+Distillation towers are integral units in industrial processes that require the separation of
+mixtures of different components into products based on their relative volatility. Heavy oil
+upgrading facilities utilize distillation towers to separate feed mixtures into various products based on their specific gravity.  For many chemical plants, the distillation tower can account up to 50\% of the total operating cost, making optimization of the distillation tower a low hanging fruit for cost savings.  
+
+Flooding is a common and costly problem in industrial distillation towers.  Flooding occurs when liquids are entrained in the vapour due to abnormally high vapour flow rates.  Moreover, the excess pressure also causes liquid holdup in the higher plates of the distillation tower. Ultimately, this leads to significant reduction in separation efficiency causing a loss in production, wasted energy, and off-spec products. Flooding commonly occurs when the distillation tower heats up uncontrollable; typically due to actuator faults.  In this case study, the proposed FTCS will be applied to the Woodberry distillation tower under different actuator faults. The FTCS will reside in the supervisory control layer, outputting recommended set-points for the regulatory controllers.
+
 \subsection{Process Description}
-The Wood-Berry distillation tower was used to validate the feasibility of the proposed FTCS. This tower contains one feed, two inputs and two outputs.  The feed stream containing methanol and water is characterized by the inlet mass composition $Z_f$. The control inputs are the reflux and steam flow rates, $R \; (lb/min)$ and $S \; (lb/min)$. Furthermore, the outputs are characterized by the methanol mass fraction, $X_D$ and $X_B$. Objectively, the distillation column aims to completely separate methanol and water.
+Distillation is the process of separating a liquid or vapour mixture of two or more components into desirable purities through the addition or removal of heat. The fundamental theory of distillation is that low boiling point components are richer in the vapour of a boiling mixture, while the liquids would contain more of the less volatile components \cite{distillation_intro}.  Liquids exit the bottom of the distillation tower and is sent to a reboiler, where heat is added to vaporize any straggling high volatility product to ensure maximum separation. Similarly, vapour from the top of the tower is sent to a condenser, where heat is removed and additional low volatility components may be recovered. The condensed vapour is collected in the reflux drum, and will be recycled back into the distillation tower. Typically, distillation columns are large vertical drums with evenly spaced trays to enhance separation of the vapour and liquid components \cite{mpc_for_distillation_tower}.  The tower is separated into two sections.  The rectifying section is located between the feed tray and the top of the column and aims to concentrate light components in the vapour phase.  Moreover, the stripping section is located between the feed tray and the column bottom and is used to concentrate the heavier components in the liquid phase \cite{henry_distillation}.
+
+The Wood-Berry distillation tower, shown in Fig. \ref{fig:woodberry}, contains one feed stream and two outlet streams. The feed stream containing methanol and water is characterized by the inlet mass composition $Z_f$. Methanol has a boiling point of 64.7 \textdegree C whereas pure liquid water has a boiling point of 100 \textdegree C \cite{sonntag_thermo}. Thus, making methanol the distillate and water is the bottoms product. The control inputs are the reflux and steam flow rates, $R \; (lb/min)$ and $S \; (lb/min)$. Furthermore, the outputs are characterized by the distillate and bottoms methanol mass fraction, $X_D$ and $X_B$, respectively. Objectively, the distillation column aims to achieve 100\% $X_D$, while maintaining $X_B$ at 0\%. Additional detailed information about the operation and inner workings of distillation towers can be found in \cite{henry_distillation}.  
 \begin{figure}[h]
     \begin{center}
         \includegraphics[width=9cm]{images/ftc/woodberry.png}
@@ -365,7 +388,8 @@ Equation (\ref{eq:transfer_functions}) was converted into state space form using
     \end{bmatrix}
     \label{eq: x_ss_eq2}
 \end{equation}
-where $I$ is the identity matrix and $\Tilde{u}(t)$ denotes actuator faults. Initially, the system was at steady state where $X_D, X_B = 100, 0$ and initial states $x_0 = [251, 0, 103, 0]$. Applying the Popov-Belevitch-Hautus test to the system, $rank([B, AB, A^2B, A^3B]) = 4$, satisfying the controllability criterion \cite{process_control_ref13}.  Furthermore, it can be seen that $X_D$ and $X_B$ are controllable using either $u_1$ or $u_2$. Thus, even if one controller is faulty, the non-faulty controller can still guide one system output to the desired set-point.
+where $I$ is the identity matrix and $\Tilde{u}(t)$ denotes actuator faults. Initially, the system was at steady state where $X_D, X_B = 100, 0$ and initial states $x_0 = [251, 0, 103, 0]$. Applying the Popov-Belevitch-Hautus test to the system, $rank([B, AB, A^2B, A^3B]) = 4$, satisfying the controllability criterion \cite{process_control_ref13}.  Furthermore, it can be seen that $X_D$ and $X_B$ are controllable using either $u_1$ or $u_2$. Thus, even if one controller is faulty, the non-faulty controller can still guide one system output to the desired set-point.  Finally, the system matrix contains only negative eigenvalues; therefore, the system is globally asymptotically stable with the region of attraction spanning the entire state space.  Given a constrained input, the control agent in this study is guaranteed to be stable under any policy.
+
 \subsection{Tuning of Regulatory Control}
 Proportional-Integral (PI) controllers were used for regulatory control because its performance exceeds Proportional-Integral-Derivative (PID) controllers in the Wood-Berry tower due to the slow dynamics of the system \cite{process_faults}. The discrete PI controller formulation is \cite{process_control_ref13}:
 \begin{equation}
@@ -440,14 +464,15 @@ The case study simulation results are shown in Figs. \ref{fig:case_study1}, \ref
 
 \begin{figure}[h]
     \begin{center}
-        \includegraphics[width=9.5cm]{images/ftc/Case1_Plot.eps}
-        \caption{\label{fig:case_study1} Mediating a fault in the reflux valve (Case 1).}
-    \end{center}
-\end{figure}
-\begin{figure}[h]
-    \begin{center}
-        \includegraphics[width=9.5cm]{images/ftc/Case2_Plot.eps}
-        \caption{\label{fig:case_study2} Mediating a fault in steam valve (Case 2).}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{images/ftc/Case1_Plot.eps}
+        \caption{\label{fig:case_study1} Fault in the reflux valve (Case 1).}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{images/ftc/Case2_Plot.eps}
+        \caption{\label{fig:case_study2} Fault in steam valve (Case 2).}
+    \end{subfigure}
     \end{center}
 \end{figure}
 
@@ -455,7 +480,7 @@ In case 3, both $X_D$ and $X_B$ are considered at different degrees, with $X_D$ 
 
 \begin{figure}[h]
     \begin{center}
-        \includegraphics[width=9.5cm]{images/ftc/Case3_Plot.eps}
+        \includegraphics{images/ftc/Case3_Plot.eps}
         \caption{\label{fig:case_study3} Trade-off between conflicting objectives (Case 3).}
     \end{center}
 \end{figure}
@@ -464,7 +489,7 @@ Case 4 was used to explore adaptability of the FTCS. A pre-trained control agent
 
 \begin{figure}[h]
     \begin{center}
-        \includegraphics[width=9.5cm]{images/ftc/Case4_Plot.eps}
+        \includegraphics{images/ftc/Case4_Plot.eps}
         \caption{\label{fig:case_study4} Adaptation of the FTCS (Case 4).}
     \end{center}
 \end{figure}
@@ -472,34 +497,73 @@ Case 4 was used to explore adaptability of the FTCS. A pre-trained control agent
 \subsection{Learning Speed and Fault Mediation Time}
 Fig. \ref{fig:time_to_mediate} shows the time required to mediate faults of different magnitude. The fault mediation time was calculated as $t_{s} - t_{f}$, where $t_{s}$ is when the control agent made its first action and $t_f$ is when set points returned to 98\% of its original values.
 
-\begin{figure}[h]
-    \begin{center}
-        \includegraphics[width=9.5cm]{images/ftc/time_to_mediate.pdf}
-        \caption{\label{fig:time_to_mediate} Time required to mediate faults of different magnitudes averaged over 1000 simulations.  Shaded regions correspond to one standard deviation.}
-    \end{center}
-\end{figure}
 From Fig. \ref{fig:time_to_mediate}, the time required to mediate a fault increased linearly with magnitude; however, this was caused by larger magnitude faults requiring additional actions from the control agent.  Moreover, the mediation time became constant after being normalizing by the minimum number of actions required to mediate the fault; the expected behaviour for linear systems. The control agent's actions can be increased to reduce mediation time during high magnitude faults.  Variance was higher at smaller magnitudes due to noise being more dominant.
 
 Fig. \ref{fig:training_time} shows the control agent's performance for mediating a constant fault after different training steps. It can be seen that the mean performance does not greatly increase after 160,000 training steps; however, variance of results reduce significantly until 320,000  training steps.
 \begin{figure}[h]
     \begin{center}
-        \includegraphics[width=9.5cm]{images/ftc/training_time.pdf}
-        \caption{Fault mediation time and error accumulation vs. \# of training steps averaged over 30 runs. Shaded regions correspond to one standard deviation.}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{images/ftc/training_time.pdf}
+        \caption{{\scriptsize Fault mediation time and error accumulation vs. \# of training steps averaged over 30 episodes. Shaded regions correspond to one standard deviation.}}
         \label{fig:training_time} 
+    \end{subfigure}
+    \begin{subfigure}[b]{0.46\textwidth}
+        \includegraphics[width=\textwidth]{images/ftc/time_to_mediate.pdf}
+        \caption{\label{fig:time_to_mediate} {\scriptsize Time required to mediate faults of different magnitudes averaged over 1000 simulations.  Shaded regions correspond to one standard deviation.}}
+    \end{subfigure}
     \end{center}
 \end{figure}
 
 \subsection{A Comparison of Optimal Control}
 
-\subsection{Stability and Convergence}
-The stability of RL is guaranteed assuming a Lipschitz continuous model and confining exploration to within the region of attraction, given a bounded input \cite{stability_rl_ref21}.  In this study, the system is globally asymptotically stable with the region of attraction spanning the entire state space and is therefore stable. For convergence, given learning rates $0 \leq \alpha_n < 1$, bounded rewards $|r_n| \leq \mathcal{R}$ and:
-\begin{equation}
-    \sum\limits^{\infty}_{i = 1}\alpha_i(x, u) = \infty, \; \;  \sum\limits^{\infty}_{i = 1}\alpha_i^2(x, u) < \infty, \forall x, u,
-\end{equation}
-the tabular $Q$-learning values, $Q_n(x, u) \rightarrow Q^*(x, u)$ as $n \rightarrow \infty, \forall x, u$ with probability 1---the optimal result given such stochastic conditions \cite{convergence_rl_ref20}.  
+Figs. \ref{fig:ftcComparison} and \ref{fig:ftcRL_FTCS} show the $X_D$ trajectories under different control strategies during a fault. The strategies provided are:
+\begin{enumerate}
+    \item Classic MPC with no fault detection
+    \item MPC equipped with the proposed FDS to detect faults
+    \begin{enumerate}
+        \item using a perfect model
+        \item using a perfect model with un-tuned cost matrices
+        \item MPC using a model with 5\% mismatch 
+    \end{enumerate}
+    \item RL-FTCS
+\end{enumerate}
 
-\subsection{Computational Complexity}
-The computation complexity was decomposed into training complexity and online evaluation complexity.  The training complexity refers to the computational time to find the optimal policy.  The online evaluation complexity is the online evaluation time required to find the optimal input.  Assuming \textit{tabula rasa}, the computational complexity to reach the goal state for the first time during training is $O(p^3)$ \cite{complexity_rl_ref19}. Online evaluation complexity is approximately $O(mlog(p))$ and $O(mlog(p) + qlog(q))$ for the prediction and control bandit, respectively. Here, the $O(mlog(p))$ is associated with finding the index of the states using binary search.  Likewise, $O(qlog(q))$ refers to sorting the value functions using heap sort to find the maximum value. For traditional optimal control solvers, the computational complexity is $O(N(p^2 + q^2))$, where $N$ is the control horizon \cite{mpc_comp_time}. Comparatively, RL evaluates much faster online compared to traditional optimal control methods, but must first be trained.  For tasks where long training times are feasible and demand fast online evaluation times, reinforcement learning may be the superior choice.
+The MPC objective function is given by:
+\begin{equation}
+    J = \sum\limits^{100}_{i=1} \gamma^i \dot x_i^T Q x_i
+\end{equation}
+where $\gamma = 0.9$ is the discount factor to decay future costs; a strategy RL uses to emphasize optimal performance in the present over the future. Here, it was added to the MPC cost to ensure the cost functions of the two strategies are identical.  The control and prediction horizons for the MPCs are $\infty$; however, stage costs beyond $i = 50$ are decayed by 99.5\% due to gamma. $Q$ is the identity matrix with exception of the un-tuned MPC case, where $Q$ was a random diagonal matrix. Additionally, the inputs of the MPC are bounded by $|u_i| \leq 10$, an identical condition imposed on the control agent. Overall, the MPC's objective was designed to be an exact replica of the RL's reward function to ensure both controllers are solving identical problems.
+
+In this simulation, a fault occurred in the reflux valve at $t = 300$, causing a major disturbance in $X_D$. For the MPC without fault detection, $X_D$ dropped drastically, and never recovered.  With the FDS equipped, the MPC with the perfect model was able to ach..
+
+Table \ref{tab:08fault_performance} contains the performance metrics for the controllers shown in Fig. \ref{fig:ftcComparison}.  
+\begin{table}[]
+    \centering
+    \begin{tabular}{c|c}
+         &  \\
+         & 
+    \end{tabular}
+    \caption{Caption}
+    \label{tab:08fault_performance}
+\end{table}
+
+
+
+\begin{figure}[h]
+    \begin{center}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{images/ftc/FTC_Comparison.pdf}
+        \caption{{\scriptsize Trajectories of $X_D$ under different control strategies during a constant reflux valve fault. Shaded region correspond to one standard deviation.}}
+        \label{fig:ftcComparison}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{images/ftc/RL_FTC.pdf}
+        \caption{{\scriptsize RL-FTC performance during a reflux valve fault averaged over 30 simulations.  RL-FTC was trained on a model with 5\% offset.}}
+        \label{fig:ftcRL_FTCS}
+    \end{subfigure}
+    \end{center}
+\end{figure}
 
 \section{Concluding Comments}
 Eventually, all process equipment will reach the end of their operational lifetime and fail.  Such failures are difficult to predict and may cause catastrophic damage; therefore, it is advantageous to proactively manage risks using a fault-tolerant control system (FTCS).  This study proposed a general FTCS for continuous MIMO systems. The FTCS was placed in the supervisory control layer and gave operating recommendations to process control systems. The FTCS was simulated distillation tower, showing its fault tolerant nature, robustness to uncertainties, and disturbance rejection capabilities all while being adaptive.  

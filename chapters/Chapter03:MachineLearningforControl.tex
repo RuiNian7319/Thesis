@@ -38,6 +38,10 @@ Then do fault tolerant control where RL beats MPC in some systems
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Fault-Tolerant Control System}
+While RL can only approach the performance of MPC in academic studies where MPC utilizes a perfect process model, is given sufficient computational time, and are well designed.  RL's generality, ease of use, adaptive nature might create more value in industrial practice, where engineers are time constrained and are tasked with assembling a "good enough" method with limited hardware.
+
+The next section explores the generality of the RL algorithm and ease of use, even when imperfectly designed.  The study was then simulated on the Wood-Berry distillation tower from the University of Alberta.
+
 \subsection{Introduction}
 All process equipment such as sensors and actuators may malfunction or breakdown during their operational lifetime. Hence, it is desirable to have a fault-tolerant control system (FTCS) to ensure sufficient performance during these impending failures. The application of FTCS in an industrial environment results in increased operation robustness and safety, while reducing operating costs due to fewer plant-wide shut downs \cite{ftc_book_ref1}. A typical FTCS contains two parts: i) Fault detection system (FDS) to identify the location and type of fault; ii) fault-tolerant controller (FTC) to operate the process safely during a fault.
 
@@ -527,16 +531,19 @@ Figs. \ref{fig:ftcComparison} and \ref{fig:ftcRL_FTCS} show the $X_D$ trajectori
     \end{enumerate}
     \item RL-FTCS
 \end{enumerate}
+For the MPC, the internal states of the system are assumed to be all measurable.
 
 The MPC objective function is given by:
 \begin{equation}
-    J = \sum\limits^{100}_{i=1} \gamma^i \dot x_i^T Q x_i
+    J = \sum\limits^{\infty}_{i=1} \gamma^i \dot x_i^T Q x_i
 \end{equation}
-where $\gamma = 0.9$ is the discount factor to decay future costs; a strategy RL uses to emphasize optimal performance in the present over the future. Here, it was added to the MPC cost to ensure the cost functions of the two strategies are identical.  The control and prediction horizons for the MPCs are $\infty$; however, stage costs beyond $i = 50$ are decayed by 99.5\% due to gamma. $Q$ is the identity matrix with exception of the un-tuned MPC case, where $Q$ was a random diagonal matrix. Additionally, the inputs of the MPC are bounded by $|u_i| \leq 10$, an identical condition imposed on the control agent. Overall, the MPC's objective was designed to be an exact replica of the RL's reward function to ensure both controllers are solving identical problems.
+where $\gamma = 0.9$ is the discount factor to decay future costs; a strategy RL uses to emphasize optimal performance in the present over the future. Here, it was added to the MPC cost to ensure the cost functions of the two strategies are identical.  The control and prediction horizons for the MPCs are $\infty$; however, stage costs beyond $i = 50$ are decayed by 99.5\% due to $\gamma$. $Q$ is the identity matrix with exception of the un-tuned MPC case, where $Q$ was a random diagonal matrix. Additionally, the inputs of the MPC are bounded by $|u_i| \leq 10$, an identical condition imposed on the RL controller. Overall, the MPC's objective was designed to be an exact replica of the RL's reward function to ensure both controllers are solving identical problems.
 
-In this simulation, a fault occurred in the reflux valve at $t = 300$, causing a major disturbance in $X_D$. For the MPC without fault detection, $X_D$ dropped drastically, and never recovered.  With the FDS equipped, the MPC with the perfect model was able to ach..
+In this simulation, a fault occurred in the reflux valve at $t = 300$, causing a major disturbance in $X_D$. For the MPC without fault detection, $X_D$ dropped drastically, and never recovered.  With the FDS equipped, the MPC with the \textbf{perfect} model was able to recover to pre-fault conditions very rapidly; however, the same MPC with a poorly tuned Q matrix may result in slight overshoot.  Nevertheless, the fault was still rejected. However, for a MPC using a model with 5\% offset (all values in the A matrix are increased by 5\%), the MPC had a large offset and was never able to achieve pre-fault conditions due to the optimal trajectory calculated by the MPC being purely reliant on the model itself.
 
-Table \ref{tab:08fault_performance} contains the performance metrics for the controllers shown in Fig. \ref{fig:ftcComparison}.  
+Here, RL can overcome this problem through the velocity implementation style and its \textit{model-free} nature.  RL uses a model purely for an initial policy.  Afterwards, real-time feedback for RL is obtained in terms of an tracking error from the plant, and does not rely on the initial model for any control purposes.  Through this, RL was able to reject faults, even when trained on inaccurate models as shown in Fig. \ref{fig:ftcComparison}.  Additionally, RL will update its policy online to adapt to process drift, and continue to improve.
+
+Table \ref{tab:08fault_performance} contains the performance metrics for the controllers shown in Fig. \ref{fig:ftcComparison}. Assuming a perfect model, MPC is still the superior 
 \begin{table}[]
     \centering
     \begin{tabular}{c|c}

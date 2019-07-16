@@ -38,9 +38,9 @@ Then do fault tolerant control where RL beats MPC in some systems
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Fault-Tolerant Control System}
-While RL can only approach the performance of MPC in academic studies where MPC utilizes a perfect process model, is given sufficient computational time, and are well designed.  RL's generality, ease of use, adaptive nature might create more value in industrial practice, where engineers are time constrained and are tasked with assembling a "good enough" method with limited hardware.
+While RL can only approach the performance of MPC in academic studies where MPC utilizes a perfect process model, is given sufficient computational time, and are well designed.  RL's generality, ease of use, and adaptive nature might create more value in industrial environments, where engineers are time constrained and are tasked with assembling a "good enough" controller with limited hardware.
 
-The next section explores the generality of the RL algorithm and ease of use, even when imperfectly designed.  The study was then simulated on the Wood-Berry distillation tower from the University of Alberta.
+The next section explores the generality of the RL algorithm and ease of use, even when imperfectly designed.  The algorithm from this study was then simulated on the Wood-Berry distillation tower from the University of Alberta and was compared to MPC.
 
 \subsection{Introduction}
 All process equipment such as sensors and actuators may malfunction or breakdown during their operational lifetime. Hence, it is desirable to have a fault-tolerant control system (FTCS) to ensure sufficient performance during these impending failures. The application of FTCS in an industrial environment results in increased operation robustness and safety, while reducing operating costs due to fewer plant-wide shut downs \cite{ftc_book_ref1}. A typical FTCS contains two parts: i) Fault detection system (FDS) to identify the location and type of fault; ii) fault-tolerant controller (FTC) to operate the process safely during a fault.
@@ -281,10 +281,27 @@ The stability of RL is guaranteed assuming a Lipschitz continuous model and conf
 \begin{equation}
     \sum\limits^{\infty}_{i = 1}\alpha_i(x, u) = \infty, \; \;  \sum\limits^{\infty}_{i = 1}\alpha_i^2(x, u) < \infty, \forall x, u,
 \end{equation}
-the tabular $Q$-learning values, $Q_n(x, u) \rightarrow Q^*(x, u)$ as $n \rightarrow \infty, \forall x, u$ with probability 1---the optimal result given such stochastic conditions \cite{convergence_rl_ref20}.  
+the tabular $Q$-learning values, $Q_n(x, u) \rightarrow Q^*(x, u)$ as $n \rightarrow \infty, \forall x, u$ with probability 1---the optimal result given such stochastic conditions \cite{convergence_rl_ref20}.
+
+Fig. \ref{fig:08RL_implementation} shows the steps to implementing the control agent into industrial control systems for mediating faults in \textbf{stable} processes where the above conditions are satisfied. The implementation consists of three phases: i) Preliminary training, ii) Calibration, iii) Online monitoring. 
+
+\begin{itemize}
+    \item \textbf{Preliminary training:}  A seed model of the process must be identified to allow for preliminary control agent training. Simulations using the seed model will establish a baseline performance for control agent. In this step, the control agent will learn to operate the process under a desired performance metric without using the commonly faulty instruments to gain fault tolerance.
+    \item \textbf{Calibrate:} The simulation-trained control agent will be implemented online where it will operate and adapt to the real process, overcoming any seed model mismatch. The control agent will perform minuscule exploratory moves here to ensure optimality.  Exploratory moves can be tuned by $u_{e, min} \leq u \leq u{e, max}$, where $u_{e, min}$ and $u_{e, max}$ are the lower and upper bounds of the exploratory actions.
+    \item \textbf{Online monitoring:} After sufficient performance is achieved, exploratory will be terminated, and the control agent is ready to mediate process faults.
+\end{itemize}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=12cm]{images/ftc/rl_implementation.png}
+    \caption{Steps on implementing the control agent.}
+    \label{fig:08RL_implementation}
+\end{figure}
+
+The plant managers may choose to leave the control agent in calibrate mode during a fault so it can continue to identify more optimal control strategies.  Such a strategy sounds risky in academia; however, it is indeed how MPCs are implemented in industry.
 
 \subsection{Computational Complexity}
-The computation complexity was decomposed into training complexity and online evaluation complexity.  The training complexity refers to the computational time to find the optimal policy.  The online evaluation complexity is the online evaluation time required to find the optimal input.  Assuming \textit{tabula rasa}, the computational complexity to reach the goal state for the first time during training is $O(p^3)$ \cite{complexity_rl_ref19}. Online evaluation complexity is approximately $O(mlog(p))$ and $O(mlog(p) + qlog(q))$ for the prediction and control bandit, respectively. Here, the $O(mlog(p))$ is associated with finding the index of the states using binary search.  Likewise, $O(qlog(q))$ refers to sorting the value functions using heap sort to find the maximum value. For traditional optimal control solvers, the computational complexity is $O(N(p^2 + q^2))$, where $N$ is the control horizon \cite{mpc_comp_time}. Comparatively, RL evaluates much faster online compared to traditional optimal control methods, but must first be trained.  For tasks where long training times are feasible and demand fast online evaluation times, reinforcement learning may be the superior choice.
+The computation complexity was decomposed into training complexity and online evaluation complexity.  The training complexity refers to the computational time to find the optimal policy.  The online evaluation complexity is the online evaluation time required to find the optimal input.  Assuming \textit{tabula rasa}, the computational complexity to reach the goal state for the first time during training is $O(p^3)$ \cite{complexity_rl_ref19}. Online evaluation complexity is approximately $O(mlog(p))$ and $O(mlog(p) + qlog(q))$ for the prediction and control bandit, respectively. Here, the $O(mlog(p))$ is associated with finding the index of the states using binary search.  Likewise, $O(qlog(q))$ refers to sorting the value functions using heap sort to find the maximum value. For traditional optimal control solvers, the computational complexity is $O(N(p^2 + q^2))$, where $N$ is the control horizon \cite{mpc_comp_time}. Comparatively, RL evaluates much faster online compared to traditional optimal control methods, but must first be trained. For tasks where long training times are feasible and demand fast online evaluation times, reinforcement learning may be the superior choice.  Typically in the process control industry, training models offline is not a significant downfall; however, online evaluation time is incredibly scarce especially in highly complex plants due to hardware limitations.  Therefore in terms of computation, RL may be the desired method.
 
 \section{Case Study}
 Distillation towers are integral units in industrial processes that require the separation of
@@ -526,33 +543,39 @@ Figs. \ref{fig:ftcComparison} and \ref{fig:ftcRL_FTCS} show the $X_D$ trajectori
     \item MPC equipped with the proposed FDS to detect faults
     \begin{enumerate}
         \item using a perfect model
-        \item using a perfect model with un-tuned cost matrices
+        \item using a perfect model with un-tuned weighting matrices
         \item MPC using a model with 5\% mismatch 
     \end{enumerate}
     \item RL-FTCS
 \end{enumerate}
-For the MPC, the internal states of the system are assumed to be all measurable.
-
-The MPC objective function is given by:
+For MPC control methods, the internal states of the system are all assumed to be measurable. The MPC cost function is given by:
 \begin{equation}
-    J = \sum\limits^{\infty}_{i=1} \gamma^i \dot x_i^T Q x_i
+        J = \sum\limits^{\infty}_{i=1} \gamma^i x_{i}^T Q x_{i} \\
 \end{equation}
-where $\gamma = 0.9$ is the discount factor to decay future costs; a strategy RL uses to emphasize optimal performance in the present over the future. Here, it was added to the MPC cost to ensure the cost functions of the two strategies are identical.  The control and prediction horizons for the MPCs are $\infty$; however, stage costs beyond $i = 50$ are decayed by 99.5\% due to $\gamma$. $Q$ is the identity matrix with exception of the un-tuned MPC case, where $Q$ was a random diagonal matrix. Additionally, the inputs of the MPC are bounded by $|u_i| \leq 10$, an identical condition imposed on the RL controller. Overall, the MPC's objective was designed to be an exact replica of the RL's reward function to ensure both controllers are solving identical problems.
+$$   x_{i} = x_i - x_i^{sp}$$
+where $i$ denotes the stage number.  $\gamma = 0.9$ is the discount factor to decay future costs; a strategy RL uses to emphasize near-term performance. Here, it was added to the MPC's cost function to ensure the objective of both controllers are identical.  The control and prediction horizons for the MPCs are $\infty$; however, stage costs beyond $i = 50$ are decayed by 99.5\% due to $\gamma$. The MPC weighting matrix, $Q_{m \times m}$, is an identity matrix.  In the un-tuned MPC case, $Q_{m \times m}$ is a random diagonal matrix. Furthermore, the inputs of the MPC are bounded by $|u_i| \leq 10$, an identical condition imposed on the RL controller. Overall, the MPC's objective was designed to be an exact replica of the RL's reward function to ensure both controllers are solving identical problems.
 
-In this simulation, a fault occurred in the reflux valve at $t = 300$, causing a major disturbance in $X_D$. For the MPC without fault detection, $X_D$ dropped drastically, and never recovered.  With the FDS equipped, the MPC with the \textbf{perfect} model was able to recover to pre-fault conditions very rapidly; however, the same MPC with a poorly tuned Q matrix may result in slight overshoot.  Nevertheless, the fault was still rejected. However, for a MPC using a model with 5\% offset (all values in the A matrix are increased by 5\%), the MPC had a large offset and was never able to achieve pre-fault conditions due to the optimal trajectory calculated by the MPC being purely reliant on the model itself.
+In this simulation, a fault occurred in the reflux valve at $t = 350$, causing a major disturbance in $X_D$. For the MPC without fault detection, $X_D$ dropped drastically, and never recovered.  With the FDS equipped, the MPC with the \textbf{perfect} model was able to recover to pre-fault conditions very rapidly; however, the same MPC with a poorly tuned Q matrix results in overshoot.  Nevertheless, the fault was still rejected. However, for a MPC using a model with 5\% offset (all values in the A matrix are increased by 5\%), the MPC had a large offset and was never able to achieve pre-fault conditions due to the optimal trajectory calculated by the MPC being purely reliant on the model itself.
 
 Here, RL can overcome this problem through the velocity implementation style and its \textit{model-free} nature.  RL uses a model purely for an initial policy.  Afterwards, real-time feedback for RL is obtained in terms of an tracking error from the plant, and does not rely on the initial model for any control purposes.  Through this, RL was able to reject faults, even when trained on inaccurate models as shown in Fig. \ref{fig:ftcComparison}.  Additionally, RL will update its policy online to adapt to process drift, and continue to improve.
 
-Table \ref{tab:08fault_performance} contains the performance metrics for the controllers shown in Fig. \ref{fig:ftcComparison}. Assuming a perfect model, MPC is still the superior 
-\begin{table}[]
+Table \ref{tab:08fault_performance} contains the performance metrics for the controllers shown in Fig. \ref{fig:ftcComparison}. MPC with a perfect model is still the superior choice, resulting in the lowest RMSE and fault mediation time.  On the contrary, if the weighting matrix is improperly tuned, the MPC's performance can suffer even using the perfect model.  RL has higher RMSE and fault mediation time compared to MPC with a perfect model; however, RL performs better than all other MPC implementations, and will continue to improve when implemented online.
+\begin{table}[h]
     \centering
-    \begin{tabular}{c|c}
-         &  \\
-         & 
-    \end{tabular}
-    \caption{Caption}
+    \def\arraystretch{1.1}
+\begin{tabular}{ll|l|l}
+                         &                          & RMSE & Mediation Time \\ \hline
+\multicolumn{1}{c|}{}    & Perfect Model            & 470  & 46             \\
+\multicolumn{1}{c|}{\rotatebox[origin=c]{90}{MPC}}  & Perfect Model (un-tuned) & 500  & 66             \\
+\multicolumn{1}{c|}{} & 5\% Offset               & N/A  & $\infty$       \\
+\multicolumn{1}{l|}{}    & No Fault Detection       & N/A  & $\infty$       \\ \hline
+\multicolumn{1}{c|}{\rotatebox[origin=c]{90}{RL}}  & RL-FTC                   & 500  & 49            
+\end{tabular}
+    \caption{Performance metrics for fault mediation using different control strategies.}
     \label{tab:08fault_performance}
 \end{table}
+
+RL is also less prone to poor tuning as shown in Figs. \ref{fig:ftcAlpha} and \ref{fig:ftcGamma}.
 
 
 
@@ -572,5 +595,5 @@ Table \ref{tab:08fault_performance} contains the performance metrics for the con
     \end{center}
 \end{figure}
 
-\section{Concluding Comments}
+\section{Concluding Remarks}
 Eventually, all process equipment will reach the end of their operational lifetime and fail.  Such failures are difficult to predict and may cause catastrophic damage; therefore, it is advantageous to proactively manage risks using a fault-tolerant control system (FTCS).  This study proposed a general FTCS for continuous MIMO systems. The FTCS was placed in the supervisory control layer and gave operating recommendations to process control systems. The FTCS was simulated distillation tower, showing its fault tolerant nature, robustness to uncertainties, and disturbance rejection capabilities all while being adaptive.  

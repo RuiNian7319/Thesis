@@ -29,6 +29,19 @@
 \usepackage{siunitx}
 \usepackage{textcomp}
 
+% Table on top
+\usepackage{float}
+\floatstyle{plaintop}
+\restylefloat{table}
+
+% Foot notes
+\newcommand\blfootnote[1]{%
+  \begingroup
+  \renewcommand\thefootnote{}\footnote{#1}%
+  \addtocounter{footnote}{-1}%
+  \endgroup
+}
+
 % Optimization
 \usepackage{optidef}
 

@@ -1,4 +1,4 @@
-Pipelines are critical for safe and efficient transportation of fluids across long distances.  For example, pipelines are used by utility companies to transport clean water and natural gas to homes for heating and living purposes.  Furthermore, pipelines are used in agriculture to transport irrigation water to hydrate crops.  Moreover, pipelines are used by energy companies for transporting energy-rich hydrocarbons to fuel the world's transportation and manufacturing needs. In the United States, over 70\% of petroleum products are shipped by pipeline.  In Canada, this number increases to 97\% \cite{pipeline_transport}.  Data in 2014 estimates that there are approximately 3,500,000 kms of operational pipelines across 120 countries \cite{CIA_pipeline}. Due to the world's dependency on pipelines for transporting their basic needs, ensuring its reliability and efficiency has a global-scale impact.
+Pipelines \blfootnote{This project was sponsored by Mitacs through the Mitacs Accelerate Program.} are critical for safe and efficient transportation of fluids across long distances.  For example, pipelines are used by utility companies to transport clean water and natural gas to homes for heating and living purposes.  Furthermore, pipelines are used in agriculture to transport irrigation water to hydrate crops.  Moreover, pipelines are used by energy companies for transporting energy-rich hydrocarbons to fuel the world's transportation and manufacturing needs. In the United States, over 70\% of petroleum products are shipped by pipeline.  In Canada, this number increases to 97\% \cite{pipeline_transport}.  Data in 2014 estimates that there are approximately 3,500,000 kms of operational pipelines across 120 countries \cite{CIA_pipeline}. Due to the world's dependency on pipelines for transporting their basic needs, ensuring its reliability and efficiency has a global-scale impact.
 
 Typical pipelines have hundreds of digital measurements per minute and are hard to analyze; however, machine learning methods benefit greatly from large amounts of data. Thus, an opportunity was discovered where machine learning methods can be applied to pipelines used to transport petroleum products. The objectives of this project were to leverage machine learning to identify anomalous pipeline behaviour, and to build a real time optimization tool to automate, normalize and enhance pipeline operation.
 
@@ -23,7 +23,7 @@ A schematic of Line B is shown in Figure \ref{fig:08RM06A}.  Line B is a complex
 
 \begin{figure}[h]
     \centering
-    \includegraphics[scale=0.4]{images/suncor/08RM06A.png}
+    \includegraphics[scale=0.33]{images/suncor/08RM06A.png}
     \caption{Schematic diagram of Line B.}
     \label{fig:08RM06A}
 \end{figure}
@@ -48,7 +48,7 @@ The hierarchical structure of a typical process control system is shown in Figur
 \end{figure}
 
 \subsection{Problem Description}
-Figure \ref{fig:08schedule} shows the communication framework for operating a pipeline. The goal of RM06A is to meet the demands of the Commerce City refinery. To do so, a schedule with desired flow rates are sent to the operators from the scheduling team, and the operators are tasked to operate the pipeline at the given flow rate. Due to the complexity of this pipeline, different operators operate the pipeline differently depending on their own experience.  This difference introduces turbulence and unnecessary wear-and-tear onto the pipeline, increasing maintenance costs. Moreover, some operators are less experienced and operate the pipeline sub-optimally.
+Figure \ref{fig:08schedule} shows the traditional communication framework for operating a pipeline. The goal of RM06A is to meet the demands of the downstream refinery. To do so, a schedule with desired flow rates are sent to the operators from the scheduling team, and the operators are tasked to operate the pipeline at the given flow rate. Due to the complexity of this pipeline, different operators operate the pipeline differently depending on their own experience.  This difference introduces turbulence and unnecessary wear-and-tear onto the pipeline, increasing maintenance costs. Moreover, some operators are less experienced and operate the pipeline sub-optimally.
 
 \begin{figure}[h]
     \centering
@@ -57,9 +57,9 @@ Figure \ref{fig:08schedule} shows the communication framework for operating a pi
     \label{fig:08schedule}
 \end{figure}
 
-To overcome this problem, machine learning was used to identify a model of the pipeline.  Then, a steady state optimization tool was built using mixed integer linear programming to give operators the \textbf{optimal} set-points for each equipment.  This system solves two problems: i) Introduces uniformity in operator behaviour for desired set-points. ii) Semi-automation of the pipeline, freeing up operators' time for other tasks.
+To overcome this problem, machine learning was used to identify a data driven model of the pipeline.  Then, a steady state optimization tool was built using mixed integer linear programming (MILP) to give operators the \textbf{optimal} set-points for each equipment given a desired flow rate.  This system achieves the following three objectives: i) Introduces uniformity in operator performance for desired set-points; ii) semi-automation of the pipeline, freeing up operators' time for other tasks; iii) training tool for new operators in a non-safety critical environment (comparable to flight simulators used for pilots).
 
-The new communication framework for Line B is shown in Figure \ref{fig:08scheduleV2}. Here, the desired flow rate is sent to the operator and optimization tool.  The tool will then identify the most effective set points to achieve the desired set point and recommend them to the operators.  The tool is fully capable of automating the pipeline in open loop; however, initial performance skepticism must be mediated before doing so.
+The new ML-assisted communication framework for Line B is shown in Figure \ref{fig:08scheduleV2}. Here, the desired flow rate is sent to both the operator and optimization tool.  The tool will then identify the most efficient set points to achieve the desired set point based on given cost metrics and recommend them to the operators.  The tool is fully capable of automating the pipeline in open loop; however, initial performance skepticism and lack of closed loop feedback may introduce unforeseen safety concerns.
 
 \begin{figure}[h]
     \centering
@@ -68,10 +68,10 @@ The new communication framework for Line B is shown in Figure \ref{fig:08schedul
     \label{fig:08scheduleV2}
 \end{figure}
 
-The rest of the section is organized as follows.  First, the data pre-processing step will be shown.  Then, the model identification phase will be introduced.  Following that, the optimization algorithm and constraints for real-time optimization are presented.  Finally, the section is concluded with some conceptual software design regarding its implementation into a supervisory control and data acquisition (SCADA) system and the overall project impact will also be shown.
+The rest of this section is organized as follows.  First, the data pre-processing step will be shown.  Then, the model identification phase will be introduced.  Following that, the optimization algorithm and constraints for the real-time optimization are presented.  Finally, the section is concluded with some conceptual software design regarding its implementation into a supervisory control and data acquisition (SCADA) system and the overall project impact will also be shown.
 
 \subsection{Data Pre-processing}
-Two data sets were initially provided by Suncor.  The details are shown in Table \ref{tab:08data}. Model identification and optimization evaluations were conducted for both datasets; however, the steps are very similar.  Because the 2019 algorithm will go into live production whereas the 2018 data was used primarily as a proof of concept, only the 2019 algorithm steps will be shown in detail.
+Two data sets were initially provided by the industrial sponsor.  The details are shown in Table \ref{tab:08data}. Model identification and optimization evaluations were conducted for both data sets; however, the steps are very similar.  Because the second data set was used for the algorithm for live implementation whereas the first data set was used primarily as a proof of concept, only the steps for the second data set will be shown in detail.
 
 \begin{table}[h]
     \centering
@@ -79,24 +79,22 @@ Two data sets were initially provided by Suncor.  The details are shown in Table
     \begin{tabular}{ c | c }
         Date of Collection     &      Data Dimension      \\
         \hline
-        June 2017 - June 2018  &    $525,601 \times 899$   \\
-        Dec. 2018 - March 2019 &    $159,851 \times 738$   \\
+        Date 1 - Date 2  &    $525,601 \times 899$   \\
+        Date 3 - Date 4 &    $159,851 \times 738$   \\
     \end{tabular}}
-    \caption{Suncor data details.}
+    \caption{Data details.}
     \label{tab:08data}
 \end{table}
 
-Data pre-processing can be broken down into three phases: Filtering by subject matter experts, automated data pre-processing, and manual data pre-processing.  An iterative procedure followed phase three where the subject matter experts worked alongside the machine learning scientists to give suggestions on which variables should be included/excluded in the final model.
+Data pre-processing can be broken down into three phases: Pre-processing by subject matter experts, automated data pre-processing, and manual data pre-processing.  An iterative procedure followed phase three where the subject matter experts worked alongside the machine learning scientists to give suggestions on which variables should be included/excluded in the final model.
 
 \subsubsection{Filtering by Subject Matter Experts}
-The first phase of data pre-processing was conducted by the subject matter experts at Suncor.  The original data set contained all data corresponding to the pipeline.  Variables such as alarm limits, fire detector status, monitor on/off status, etc., have low predictive power and were removed.  After this phase, the number of variables reduced from 738 to 124.  
-
-The distribution of the remaining variables along the pipeline is shown in Table \ref{tab:08Ph1Data}.
+The first phase of data pre-processing was conducted by subject matter experts from industry.  The original data set contained all data corresponding to the pipeline.  Variables such as alarm limits, fire detector status, monitor on/off status, etc., have low predictive power and were removed.  After this phase, the number of variables reduced from 738 to 124. The distribution of the remaining variables along the pipeline is shown in Table \ref{tab:08Ph1Data}.
 \begin{table}[h]
     \centering
     {\setstretch{1.2}
     \begin{tabular}{ c | c | c | c | c | c | c}
-             &  Cheyenne & CIG & Ault & Fort Lupton & Comm. City & Other      \\
+             & B1 & B2 & B3 & B4 & Refinery & Other      \\
         \hline
         \# of Variables  &  24  &  21  &  21  &  33  &  22  &  3  \\
     \end{tabular}}
@@ -110,7 +108,7 @@ Next, the data set was automatically filtered using the following methods:
 \begin{itemize}
     \item \textbf{Missing data removal}: Remove \textit{rows} of data containing missing values.
     \item \textbf{Data imbalance analysis}: Remove boolean variables that contain 97\% or more of a single class.  Heavily imbalanced variables create model biases towards the majority class \cite{data_preprocessing}.
-    \item \textbf{Collinear analysis}: Identify variables that are correlated over 90\%. Correlation, $r_{xy}$ is given in Equation \ref{eq:08correlation}. After correlated variables are identified, one variable is kept while the rest are removed to avoid redundant parameters \cite{data_preprocessing}.
+    \item \textbf{Collinear analysis}: Identify variables that are correlated over 90\%. Correlation, $r_{xy}$ is given in Equation \ref{eq:08correlation}. After correlated variables are identified, one variable is kept while the rest are removed to avoid redundancy \cite{data_preprocessing}.
     \begin{equation}
         r_{xy} = \frac{\sum(x_i - \bar{x})(y_i - \bar{y})}{\sqrt{\sum(x_i - \bar{x})^2\sum(y_i-\bar{y})^2}}
         \label{eq:08correlation}
@@ -123,7 +121,7 @@ After performing the above methods, the data set reduced from 124 to 65. The dis
     \centering
     {\setstretch{1.2}
     \begin{tabular}{ c | c | c | c | c | c | c}
-             &  Cheyenne & CIG & Ault & Fort Lupton & Comm. City & Other      \\
+             &  B1 & B2 & B3 & B4 & Refinery & Other      \\
         \hline
         \# of Variables  &  10  &  11  &  11  &  18  &  12  &  3  \\
     \end{tabular}}
@@ -155,7 +153,7 @@ For this pipeline, both light and heavy crude are transported in a cyclical fash
         \label{fig:08API}
 \end{figure}
 
-Moreover, there is a time delay for the flow rate to react to a DRA set point change because the new DRA concentration must be permeated throughout the line before its effect can be fully realized.  DRA was assumed to be catastrophically destroyed when passing through a pump; thus, DRA is only required to coat the pipeline between pump stations for its full effect to be exploited.  For CIG, it must coat the pipeline between CIG to Ault.  For Ault, the pipeline spanning between Ault and Fort Lupton must be coated.  Given the flow rate of the pipeline, it will take approximately ten hours to sufficiently coat the majority of the pipeline. Hence, data corresponding to transitional periods are removed. At times, transitional times may take longer; however, removing additional data will reduce the available data for model identification.  
+Moreover, there is a time delay for the flow rate to react to a DRA set point change because the new DRA concentration must be permeated throughout the line before its effect can be fully realized.  DRA was assumed to be catastrophically destroyed when passing through a pump\footnote{According to the industrial sponsors.}; thus, DRA is only required to coat the pipeline between pump stations for its full effect to be exploited.  For Station B2, it must coat the pipeline between Station B2 to Station B3.  For Station B3, the pipeline spanning between Station B3 and Station B4 must be coated.  Given the flow rate of the pipeline, it will take approximately ten hours to sufficiently coat the majority of the pipeline. Hence, data corresponding to transitional periods are removed. At times, transitional times may take longer; however, removing additional data will reduce the available data for model identification.  
 
 Pre- and post-processed DRA parts per million (ppm) measurements are shown in Figure \ref{fig:08DRA}. DRA ppm is measured continuously for the control of the DRA injection pumps. However, the measurement is unreliable and corrupted with noise. Because DRA set points are rarely changed, an exponentially weighted moving average (EWMA) was applied to the DRA ppm readings for increased measurement reliability.  The EWMA formula and bias correction are given in Equations \ref{eq:08EWMA} and \ref{eq:08Bias_Correction}, respectively: 
 \begin{equation}
@@ -168,17 +166,17 @@ Pre- and post-processed DRA parts per million (ppm) measurements are shown in Fi
 \end{equation}
 where $v_{t}$ is the exponentially weighted value at time $t$.  $\beta$ is the exponentially weighing factor.  Larger $\beta$ results in smoother results.  $\theta_t$ is the original value at time $t$. $V$ is a vector representing the exponentially weighted values before bias correction.
 
-The objective of the machine learning model was to predict the flow rate at Commerce City.  However, there is a natural time delay between the time an equipment status changed and the corresponding impact on downstream flow rate.  Because the pipeline is fully loaded and the product is incompressible, pressure changes upstream will be propagated downstream at close to the speed of sound \cite{fluid_mechanics}.  Table \ref{tab:08TimeToCC} shows the time required for pressure to propagate down the pipeline starting from each pump station.  The pump data for each pump station was shifted accordingly to account for this time delay.  
+The objective of the machine learning model was to predict the flow rate at refinery.  However, there is a natural time delay between the time an equipment status changed and the corresponding impact on downstream flow rate.  Because the pipeline is fully loaded and the product is incompressible, pressure changes upstream will be propagated downstream at close to the speed of sound \cite{fluid_mechanics}.  Table \ref{tab:08TimeToCC} shows the time required for pressure to propagate down the pipeline starting from each pump station.  The pump data for each pump station was shifted accordingly to account for this time delay\footnote{Time delays are significantly rounded for confidentiality purposes.}.  
 \begin{table}[h]
     \centering
     {\setstretch{1.2}
     \begin{tabular}{ p{6cm} | c | c | c | c}
-             &  Cheyenne & CIG & Ault & Fort Lupton \\
+             & B1 & B2 & B3 & B4 \\
         \hline
-        Time to Commerce City at speed of sound in liquids (1480 m/s) \cite{fluid_mechanics}
-        &  1.7 min  &  1.5 min  &  1.0 min  &  0.45 min  \\
+        Time to refinery at speed of sound in liquids (1480 m/s) \cite{fluid_mechanics}
+        &  2.0 min  &  2.0 min  &  1.0 min  &  1.0 min  \\
     \end{tabular}}
-    \caption{Time required for pressure changes at each pump station to be realized at Commerce City.}
+    \caption{Time required for pressure changes at each pump station to be realized at refinery.}
     \label{tab:08TimeToCC}
 \end{table}
 \begin{figure}
@@ -186,26 +184,26 @@ The objective of the machine learning model was to predict the flow rate at Comm
      \begin{subfigure}[b]{0.9\textwidth}
          \centering
          \includegraphics[width=\textwidth]{images/suncor/08CIGSour.eps}
-         \caption{CIG heavy DRA sensor reading.}
-         \label{fig:08CIGheavy}
+         \caption{Station B2 heavy DRA sensor reading.}
+         \label{fig:08Station B2heavy}
      \end{subfigure}
      \begin{subfigure}[b]{0.9\textwidth}
          \centering
          \includegraphics[width=\textwidth]{images/suncor/08CIGSweet.eps}
-         \caption{CIG light DRA sensor reading.}
-         \label{fig:08CIGlight}
+         \caption{Station B2 light DRA sensor reading.}
+         \label{fig:08Station B2light}
      \end{subfigure}
      \begin{subfigure}[b]{0.9\textwidth}
          \centering
          \includegraphics[width=\textwidth]{images/suncor/08AultSour.eps}
-         \caption{Ault heavy DRA sensor reading.}
-         \label{fig:08Aultheavy}
+         \caption{Station B3 heavy DRA sensor reading.}
+         \label{fig:08Station B3heavy}
      \end{subfigure}
      \begin{subfigure}[b]{0.9\textwidth}
          \centering
          \includegraphics[width=\textwidth]{images/suncor/08AultSweet.eps}
-         \caption{CIG light DRA sensor reading.}
-         \label{fig:08Aultlight}
+         \caption{Station B2 light DRA sensor reading.}
+         \label{fig:08Station B3light}
      \end{subfigure}
         \caption{Pre- and post-processed DRA sensor readings.}
         \label{fig:08DRA}
@@ -213,11 +211,11 @@ The objective of the machine learning model was to predict the flow rate at Comm
 
 A comprehensive list of the manual data pre-processing procedures is as follows:
 \begin{enumerate}
-    \item Shift data to accommodate the time delay at Commerce City.
-    \item Smooth DRA data using exponentially weighted moving average given in Equation \ref{eq:08EWMA}.  
+    \item Shift data to accommodate the time delay at refinery.
+    \item Smooth DRA data using EWMA given in Equation \ref{eq:08EWMA}.  
     \item Remove first 10 hours data corresponding to DRA set point changes.
     \item Remove data points where flow is under 800 bbl/hr.
-    \item Remove data when only light or heavy crude was sent through the pipeline.
+    \item Remove data when \textit{only} light or heavy crude was sent through the pipeline.
 \end{enumerate}
 
 The final data set contained 65 variables and 97,470 data points.
@@ -226,33 +224,33 @@ The final data set contained 65 variables and 97,470 data points.
 \subsubsection{Feature Selection}
 For each pump station, there was a variety of sensors measuring the same process variables.  For example, VFD pumps have four readings each: On/off status, RPM, HZ, and current. Many variables relating to one equipment is redundant; thus, only one variable was selected when redundancy existed. Additionally, some sensors were behaving abnormally.
 
-In normal operations, the density fluctuates between 10 - 50 API, depending on the crude present in the pipeline.  After analysis, the Fort Lupton densitometer was behaving abnormally compared to other densitometer and is shown in Figure \ref{fig:08Density}.  After confirming with Suncor that the densitometer was behaving abnormally, the variable was removed.  
+In normal operations, the density fluctuates between 10 - 50 API, depending on the crude present in the pipeline.  After analysis, the Station B4 densitometer was behaving abnormally compared to other densitometer and is shown in Figure \ref{fig:08Density}.  After confirming with the industrial that the densitometer was behaving abnormally, the variable was removed.  
 \begin{figure}[h]
      \centering
      \begin{subfigure}[b]{0.48\textwidth}
          \centering
          \includegraphics[width=\textwidth]{images/suncor/08CheyDensity.eps}
-         \caption{Cheyenne API data for 10,000 mins.}
+         \caption{Station B1 API data for 10,000 mins.}
          \label{fig:08GoodDensity}
      \end{subfigure}
      \hfill
      \begin{subfigure}[b]{0.48\textwidth}
          \centering
          \includegraphics[width=\textwidth]{images/suncor/08FLDensity.eps}
-         \caption{Fort Lupton API data for 10,000 mins.}
+         \caption{Station B4 API data for 10,000 mins.}
          \label{fig:08BadDensity}
      \end{subfigure}
         \caption{Comparison of normal and abnormal density readings.}
         \label{fig:08Density}
 \end{figure}
 
-Table \ref{tab:08featselect} shows the features selected for each pump station. The predicted variable was the flow rate (bbl/h) at Commerce City.
+Table \ref{tab:08featselect} shows the features selected for each pump station. The predicted variable was the flow rate (bbl/h) at refinery.
 \begin{table}[h]
     \centering
     {\tiny
     {\setstretch{1.2}
     \begin{tabular}{ c | c | c | c | c}
-        Cheyenne                       & CIG                      & Ault                        & Fort Lupton                    & Commerce City \\
+        Station B1                       & Station B2                      & Station B3                        & Station B4                    & refinery \\
         \hline
         $u_5$: Boos. Pump Status       &  $u_1$: light DRA (ppm)  &  $u_3$: light DRA (ppm)     &  $u_{8}$: Boos. Pump Status   &  $x_{8}$: Inlet Temp. (°C) \\
         
@@ -324,7 +322,7 @@ The resultant segregation created by DBSCAN using hyper parameters 1.13 and 10,0
     \label{fig:08DBSCAN}
 \end{figure}
 
-Average operating conditions of each cluster is shown in Figure \ref{fig:08cluster_variables}. The main differences are the flow rate, DRA usage, and pump usage.  Cluster 1 had 32\% higher average flow rate.  Cluster 1 also used substantially more DRA compared to cluster 2, where almost no DRA was used. Furthermore, the Cheyenne booster pump, Ault booster pump 1, Fort Lupton boooster pump, and Fort Lupton VFD were only used in cluster 1.  Ault booster pump 2 was only used in cluster 2.
+Average operating conditions of each cluster is shown in Figure \ref{fig:08cluster_variables}. The main differences are the flow rate, DRA usage, and pump usage.  Cluster 1 had 32\% higher average flow rate.  Cluster 1 also used substantially more DRA compared to cluster 2, where almost no DRA was used. Furthermore, the Station B1 booster pump, Station B3 booster pump 1, Station B4 boooster pump, and Station B4 VFD were only used in cluster 1.  Station B3 booster pump 2 was only used in cluster 2.
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{images/suncor/08AvgChar.png}
@@ -525,7 +523,7 @@ The linear regression model is given in Equation \ref{eq:08LS}.  Weights for $x_
     \label{eq:08LS_eq}
 \end{multline}
 
-From Equation \ref{eq:08LS}, it can be seen that turning on the booster pump at Fort Lupton results in a decrease in flow rate.  Theoretically, this is impossible and is most likely caused by noise in the data.  To increase the model's ability to reflect reality, engineering knowledge was injected into the model via constraining the weights of $u_1 - u_{10}$ to be strictly positive.
+From Equation \ref{eq:08LS}, it can be seen that turning on the booster pump at Station B4 results in a decrease in flow rate.  Theoretically, this is impossible and is most likely caused by noise in the data.  To increase the model's ability to reflect reality, engineering knowledge was injected into the model via constraining the weights of $u_1 - u_{10}$ to be strictly positive.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -851,7 +849,7 @@ The comparison of actual and predicted flow rates on the validation and test dat
         \label{fig:08PolynomialPlots}
 \end{figure}
 
-Ultimately, the LPV model structure was selected to model the pipeline.  The LPV model has the interpretability of linear models, while having the predictive capabilities of non-linear models.  Furthermore, the LPV model identifies a separate set of parameters for the two distributions, making the optimization algorithm more representative of live operations.  For example, because no DRA was used for lower flow rates, the optimization algorithm will have explicit constraints on model 2 to not use DRA as well. A similar example would be using only Ault booster 1 for cluster 2, while using Ault booster 2 for cluster 1.  The advantages of these constraints are twofold: i) More realistic to live operations.  ii) Avoid model extrapolations (since no DRA data was used to identify model 2, the optimizer should not be able to use it for optimization).
+Ultimately, the LPV model structure was selected to model the pipeline.  The LPV model has the interpretability of linear models, while having the predictive capabilities of non-linear models.  Furthermore, the LPV model identifies a separate set of parameters for the two distributions, making the optimization algorithm more representative of live operations.  For example, because no DRA was used for lower flow rates, the optimization algorithm will have explicit constraints on model 2 to not use DRA as well. A similar example would be using only Station B3 booster 1 for cluster 2, while using Station B3 booster 2 for cluster 1.  The advantages of these constraints are twofold: i) More realistic to live operations.  ii) Avoid model extrapolations (since no DRA data was used to identify model 2, the optimizer should not be able to use it for optimization).
 
 \subsubsection{Time-series Modelling}
 All previous models are static (i.e., $y_{ss} = f(x, u)$) and are used for the real time optimization layer in Figure \ref{fig:08APC}. To completely automate the pipeline, a dynamic model was identified for the application of supervisory control. In dynamic modelling, temporal correlations within the time-series data are exploited to improve model accuracy.  Moreover, $y_t$ is measured at each time and can be used to further improve model accuracy. The time-series model will have the following structure:
@@ -919,14 +917,14 @@ Extrapolation while using data-driven models introduce risks to operations. Thus
         Variables                         &  Valid Range           \\
         \hline
         Flow Rate (bbl/h)                       &      2012 - 2913       \\
-        Cheyenne Density (API)                  &      22 - 47           \\ 
-        CIG Density (API)                       &      15 - 45           \\
-        Ault Density (API)                      &      15 - 45           \\
-        Cheyenne Temp (°C)                      &      35 - 50           \\
-        CIG Temp (°C)                           &      41 - 51           \\
-        Ault Temp (°C)                          &      43 - 54           \\
-        Fort Lupton Temp (°C)                   &      48 - 60           \\
-        Commerce City Temp  (°C)                &      40 - 58           \\
+        Station B1 Density (API)                  &      22 - 47           \\ 
+        Station B2 Density (API)                       &      15 - 45           \\
+        Station B3 Density (API)                      &      15 - 45           \\
+        Station B1 Temp (°C)                      &      35 - 50           \\
+        Station B2 Temp (°C)                           &      41 - 51           \\
+        Station B3 Temp (°C)                          &      43 - 54           \\
+        Station B4 Temp (°C)                   &      48 - 60           \\
+        refinery Temp  (°C)                &      40 - 58           \\
     \end{tabular}}
     \caption{Applicable states of the machine learning models.}
     \label{tab:08StateConst}
@@ -940,10 +938,10 @@ In addition to the state ranges provided above, the recommended set points are a
     \begin{tabular}{ p{6cm} | c }
         Variables                               &  Valid Range            \\
         \hline
-        Cheyenne VFD (Amps)                     &      105 - 322          \\
-        Fort Lupton VFD (Amps)                  &      78 - 134           \\ 
-        CIG \& Ault light DRA (ppm)             &      20 - 40            \\
-        CIG \& Ault heavy DRA (ppm)              &      20 - 40            \\
+        Station B1 VFD (Amps)                     &      105 - 322          \\
+        Station B4 VFD (Amps)                  &      78 - 134           \\ 
+        Station B2 \& Station B3 light DRA (ppm)             &      20 - 40            \\
+        Station B2 \& Station B3 heavy DRA (ppm)              &      20 - 40            \\
     \end{tabular}}
     \caption{Applicable inputs of the machine learning models.}
     \label{tab:08InputConst}
@@ -964,7 +962,7 @@ In addition to the state ranges provided above, the recommended set points are a
 \end{figure}
 
 \subsection{Mixed Integer Linear Programming}
-The information flow of the optimization algorithm is shown in Figure \ref{fig:08Optimization_flow}.  First, a desired flow will be inputted by the operators depending on the demand from Commerce City.  Then, the machine learning model along with equality and in-equality constraints will be provided to the mixed integer linear program (MILP).  Given the objective function, decision variables, and the current costs of operation, the MILP will output the optimal set points.
+The information flow of the optimization algorithm is shown in Figure \ref{fig:08Optimization_flow}.  First, a desired flow will be inputted by the operators depending on the demand from refinery.  Then, the machine learning model along with equality and in-equality constraints will be provided to the mixed integer linear program (MILP).  Given the objective function, decision variables, and the current costs of operation, the MILP will output the optimal set points.
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{images/suncor/08Optimization_flow.png}
@@ -982,9 +980,9 @@ MILP was used to perform steady state optimization on the linear model because t
     \begin{tabular}{ c | c }
         Binary                       &  Continuous           \\
         \hline
-        On/off Cheyenne Pump               &  Cheyenne \& Fort Lupton VFD            \\
-        2$\times$ On/off Ault Pump         &  2$\times$ light \& 2$\times$ heavy DRA  \\
-        On/off Fort Lupton Pump
+        On/off Station B1 Pump               &  Station B1 \& Station B4 VFD            \\
+        2$\times$ On/off Station B3 Pump         &  2$\times$ light \& 2$\times$ heavy DRA  \\
+        On/off Station B4 Pump
     \end{tabular}}
     \caption{Binary and continuous decision variables.}
     \label{tab:08binary_cont}
@@ -992,7 +990,7 @@ MILP was used to perform steady state optimization on the linear model because t
 
 \noindent
 \textit{Constraints} \\
-The constraints consists of the machine learning model, equality, and in-equality constraints.  The equality and in-equality constraints are shown in Table \ref{tab:08eq_neq_constraints}. From the data provided, the Cheyenne pump was on 95\% of the time, and at least one Ault on/off pump was always on. Therefore, constraints were incorporated to reflect this.  Additionally, constraints were used to ensure proper DRA was injected into the pipeline for the different crudes.  There were also pressure constraints on the outlet pressure of the pumps to ensure safe operations.  Before a recommendation is made to the operators, the recommended set points were used to predict for the outlet pressures at each pump to ensure they do not exceed the maximum allowable working pressure (MAWP). Finally, the final flow rate is given a range to ensure optimization feasibility. Specifying exact flow rates lead to infeasible solutions because there may not exist a combination to get an \textit{exact} flow rate.
+The constraints consists of the machine learning model, equality, and in-equality constraints.  The equality and in-equality constraints are shown in Table \ref{tab:08eq_neq_constraints}. From the data provided, the Station B1 pump was on 95\% of the time, and at least one Station B3 on/off pump was always on. Therefore, constraints were incorporated to reflect this.  Additionally, constraints were used to ensure proper DRA was injected into the pipeline for the different crudes.  There were also pressure constraints on the outlet pressure of the pumps to ensure safe operations.  Before a recommendation is made to the operators, the recommended set points were used to predict for the outlet pressures at each pump to ensure they do not exceed the maximum allowable working pressure (MAWP). Finally, the final flow rate is given a range to ensure optimization feasibility. Specifying exact flow rates lead to infeasible solutions because there may not exist a combination to get an \textit{exact} flow rate.
 
 \begin{table}[h]
     \centering
@@ -1000,73 +998,73 @@ The constraints consists of the machine learning model, equality, and in-equalit
     \begin{tabular}{c|c}
          Equality Constraints              & In-equality Constraints \\
          \hline
-         On/off Cheyenne Pump = On         & $\text{Lower bound} \leq \text{Flow rate} \leq \text{Upper bound}$ \\
+         On/off Station B1 Pump = On         & $\text{Lower bound} \leq \text{Flow rate} \leq \text{Upper bound}$ \\
          
-         Ault Pump 1 and/or 2 = On          & $P_{Outlet}^{Chey} \leq 1480 \text{ psi}$       \\
+         Station B3 Pump 1 and/or 2 = On          & $P_{Outlet}^{Chey} \leq 1480 \text{ psi}$       \\
          
-         $API^{CIG} \geq 30: DRA_{light}^{CIG}$ = On & $P_{Outlet}^{Ault} \leq 1613 \text{ psi}$ \\
+         $API^{Station B2} \geq 30: DRA_{light}^{Station B2}$ = On & $P_{Outlet}^{Station B3} \leq 1613 \text{ psi}$ \\
          
-         $API^{CIG} \leq 30: DRA_{heavy}^{CIG}$ = On  & $P_{Outlet}^{FL} \leq 1613 \text{ psi}$  \\
+         $API^{Station B2} \leq 30: DRA_{heavy}^{Station B2}$ = On  & $P_{Outlet}^{FL} \leq 1613 \text{ psi}$  \\
          
-         $API^{Ault} \geq 30: DRA_{light}^{Ault}$ = On & $20 \text{ ppm} \leq DRA \leq 40 \text{ ppm}$                 \\
+         $API^{Station B3} \geq 30: DRA_{light}^{Station B3}$ = On & $20 \text{ ppm} \leq DRA \leq 40 \text{ ppm}$                 \\
          
-         $API^{Ault} \leq 30: DRA_{heavy}^{Ault}$  = On  & $105 \text{ Amps} \leq VFD^{Chey} \leq 322 \text{ Amps}$   \\
+         $API^{Station B3} \leq 30: DRA_{heavy}^{Station B3}$  = On  & $105 \text{ Amps} \leq VFD^{Chey} \leq 322 \text{ Amps}$   \\
          
-         Cheyenne On/off = 28 Amps  & $78 \text{ Amps} \leq VFD^{FL} \leq 134 \text{ Amps}$  \\
-         Ault 1 Pump = 190 Amps & \\
-         Ault 2 Pump = 278 Amps & \\
-         Fort Lupton Pump = 117 Amps & \\
+         Station B1 On/off = 28 Amps  & $78 \text{ Amps} \leq VFD^{FL} \leq 134 \text{ Amps}$  \\
+         Station B3 1 Pump = 190 Amps & \\
+         Station B3 2 Pump = 278 Amps & \\
+         Station B4 Pump = 117 Amps & \\
     \end{tabular}}   
     \caption{List of equality and inequality constraints}
     \label{tab:08eq_neq_constraints}
 \end{table}
 
-Pressure models were built to ensure MAWP was not exceeded when the recommended set points are implemented. In the end, three linear regression pressure models were identified; each at the outlet of a pump station (Cheyenne, Ault, Fort Lupton) where pressure is expected to be the highest. The inputs to the pressure models were all upstream of the pump station is located and is given in Table \ref{tab:08pressure_inputs}.
+Pressure models were built to ensure MAWP was not exceeded when the recommended set points are implemented. In the end, three linear regression pressure models were identified; each at the outlet of a pump station (Station B1, Station B3, Station B4) where pressure is expected to be the highest. The inputs to the pressure models were all upstream of the pump station is located and is given in Table \ref{tab:08pressure_inputs}.
 
 \begin{table}[]
     \centering
     {\setstretch{1.2}
     \begin{tabular}{p{5cm} | p{5cm} | p{5cm}}
-         Cheyenne & Ault & Fort Lupton \\
+         Station B1 & Station B3 & Station B4 \\
          \hline
          
          Pipeline inlet pressure & Pipeline inlet pressure & Pipeline inlet pressure \\
          
-         Cheyenne VFD & Cheyenne VFD & Cheyenne VFD \\
+         Station B1 VFD & Station B1 VFD & Station B1 VFD \\
          
-         Cheyenne on/off pump & Cheyenne on/off pump & Cheyenne on/off pump \\
+         Station B1 on/off pump & Station B1 on/off pump & Station B1 on/off pump \\
          
-         Cheyenne temperature & Ault on/off pump 1 & CIG DRA ppm \\
+         Station B1 temperature & Station B3 on/off pump 1 & Station B2 DRA ppm \\
          
-         & Ault on/off pump 2 & Ault on/off pump 1 \\
+         & Station B3 on/off pump 2 & Station B3 on/off pump 1 \\
          
-         & CIG DRA ppm & Ault on/off pump 2 \\
+         & Station B2 DRA ppm & Station B3 on/off pump 2 \\
          
-         & Cheyenne temperature & Ault DRA ppm \\
+         & Station B1 temperature & Station B3 DRA ppm \\
          
-         & Ault temperature & Fort Lupton VFD \\
-         & & Fort Lupton on/off pump \\
-         & & Cheyenne temperature \\
-         & & Ault temperature \\
+         & Station B3 temperature & Station B4 VFD \\
+         & & Station B4 on/off pump \\
+         & & Station B1 temperature \\
+         & & Station B3 temperature \\
          & & FL temperature \\
     \end{tabular}}
     \caption{Inputs to the pressure constraint models.}
     \label{tab:08pressure_inputs}
 \end{table}
 
-The performance assessment of the Cheyenne, Ault, and Fort Lupton pressure constraint models are shown in Table \ref{tab:08pres_const_performance}. The Cheyenne pressure prediction is very accurate; however the accuracy decreases as we traverse down the pipeline.  The primary reason is because an accurate inlet pressure is required to predict for the outlet pressure.  But the inlet pressure beyond Cheyenne is unknown because the set points are not actuated in the pipeline yet. Furthermore, predicting the outlet pressure at Ault is especially difficult because a mechanism exists to limit the pressure to 1377 psi.  The mechanism's data is not captured, and causes the regression curve to be hard constrained at an upper bound. Consequently, this causes many inputs to result in the same output, and hinders learning.
+The performance assessment of the Station B1, Station B3, and Station B4 pressure constraint models are shown in Table \ref{tab:08pres_const_performance}. The Station B1 pressure prediction is very accurate; however the accuracy decreases as we traverse down the pipeline.  The primary reason is because an accurate inlet pressure is required to predict for the outlet pressure.  But the inlet pressure beyond Station B1 is unknown because the set points are not actuated in the pipeline yet. Furthermore, predicting the outlet pressure at Station B3 is especially difficult because a mechanism exists to limit the pressure to 1377 psi.  The mechanism's data is not captured, and causes the regression curve to be hard constrained at an upper bound. Consequently, this causes many inputs to result in the same output, and hinders learning.
 
 \begin{table}[h]
     \centering
     {\setstretch{1.2}
     \begin{tabular}{c|c|c|c|c|c|c|}
     \multicolumn{1}{l|}{} & \multicolumn{3}{c|}{Training Data} & \multicolumn{3}{c|}{Validation Data} \\ \cline{2-7} 
-    \multicolumn{1}{l|}{} & Cheyenne   & Ault   & Fort Lupton  & Cheyenne    & Ault   & Fort Lupton   \\ \hline
+    \multicolumn{1}{l|}{} & Station B1   & Station B3   & Station B4  & Station B1    & Station B3   & Station B4   \\ \hline
     MAE                   & 75         & 179    & 25           & 72          & 179    & 27            \\
     RMSE                  & 101        & 217    & 32           & 96          & 217    & 35            \\
     $R^2$                 & 0.88       & 0.5    & 0.47         & 0.89        & 0.49   & 0.46         
     \end{tabular}}
-    \caption{Performance assessment of the Cheyenne, Ault, and Fort Lupton pressure constraint models}
+    \caption{Performance assessment of the Station B1, Station B3, and Station B4 pressure constraint models}
     \label{tab:08pres_const_performance}
 \end{table}
 
@@ -1077,19 +1075,19 @@ The performance of the pressure constraint models on the validation data is show
     \begin{subfigure}[b]{0.325\textwidth}
          \centering
          \includegraphics[width=\textwidth]{images/suncor/08Chey_Pconst.eps}
-         \caption{Cheyenne}
+         \caption{Station B1}
          \label{fig:08Chey_Pconst}
     \end{subfigure}
     \begin{subfigure}[b]{0.325\textwidth}
          \centering
          \includegraphics[width=\textwidth]{images/suncor/08Ault_Pconst.eps}
-         \caption{Ault}
-         \label{fig:08Ault_Pconst}
+         \caption{Station B3}
+         \label{fig:08Station B3_Pconst}
     \end{subfigure}
     \begin{subfigure}[b]{0.325\textwidth}
          \centering
          \includegraphics[width=\textwidth]{images/suncor/08FL_Pconst.eps}
-         \caption{Fort Lupton}
+         \caption{Station B4}
          \label{fig:08FL_Pconst}
     \end{subfigure}
     \caption{Pressure constraint model performance on validation data.}
@@ -1104,7 +1102,7 @@ The objective is to operate the pipeline at the desired flow rate with the minim
     {J} {= \left[ \alpha_i \sum_i \mu_i \cdot DRA_i + \beta \sum_j \nu_j \cdot I_jV_j \right]}
     {}{}
     \addConstraint{y = f(x, u)}                
-    \addConstraint{\nu_{Ault1} + \nu_{Ault2} \geq 1} 
+    \addConstraint{\nu_{Station B31} + \nu_{Station B32} \geq 1} 
     \addConstraint{\nu_{Chey} = 1} 
     \addConstraint{20 \leq DRA_i \leq 40, \; i \in I} 
     \addConstraint{\gamma_j^{min} \leq I_j \leq \gamma_j^{max}, \; j \in J}{}
@@ -1121,8 +1119,8 @@ The voltages of the pumps are provided in Table \ref{tab:08Voltages}.  The power
         $VFD^{Chey}$    &  4160    \\
         $VFD^{FL}$      &  4160    \\
         On/off $Pump^{Chey}$    & 480   \\
-        On/off $Pump^{Ault1}$   & 4000  \\
-        On/off $Pump^{Ault2}$   & 4000  \\
+        On/off $Pump^{Station B31}$   & 4000  \\
+        On/off $Pump^{Station B32}$   & 4000  \\
         On/off $Pump^{FL}$      & 480   \\
     \end{tabular}}
     \caption{Voltages for the pumps.}
@@ -1149,7 +1147,7 @@ The cost to increase DRA ppm is dependent on the flow rate of the pipeline. High
 where Q denotes the volumetric flow rate in barrels per hour.
 
 \subsection{Conceptual Software Design}
-The conceptual software design for the optimization tool is shown in Figure \ref{fig:08concept_software}. From the right, the users would first populate the costs corresponding to each equipment.  The pump costs are on a \$/kWh basis, and the DRA cost is based on \$/ppm. Operating costs can also be incorporated by multiplying the costs by a fixed factor (e.g. 1.1 $\cdot$ \$/kWh). Currently, DRA costs are calculated automatically based on the historical data using Equations \ref{eq:08light_dra} and \ref{eq:08heavy_dra}. Next, the user would specify the maximum steady state operating pressure (MSSOP) for the pipeline, and enter the desired flow rate.  Finally, the "OPTIMIZE" button would be pressed and all the boxes outlined in green will be populated with the optimal set point values.  When a set point is no longer deemed optimal, the outline turns red.  An example of such a scenario would be when the batch switches at the CIG or Ault stations.  During maintenance activities, the user can click the "ADVANCED..." button to specify special constraints and eliminate the optimization from using certain equipment. For example, if the Cheyenne VFD is under maintenance, $\nu_{Chey VFD}$ can be constrained to 0, preventing the optimization from using it.
+The conceptual software design for the optimization tool is shown in Figure \ref{fig:08concept_software}. From the right, the users would first populate the costs corresponding to each equipment.  The pump costs are on a \$/kWh basis, and the DRA cost is based on \$/ppm. Operating costs can also be incorporated by multiplying the costs by a fixed factor (e.g. 1.1 $\cdot$ \$/kWh). Currently, DRA costs are calculated automatically based on the historical data using Equations \ref{eq:08light_dra} and \ref{eq:08heavy_dra}. Next, the user would specify the maximum steady state operating pressure (MSSOP) for the pipeline, and enter the desired flow rate.  Finally, the "OPTIMIZE" button would be pressed and all the boxes outlined in green will be populated with the optimal set point values.  When a set point is no longer deemed optimal, the outline turns red.  An example of such a scenario would be when the batch switches at the Station B2 or Station B3 stations.  During maintenance activities, the user can click the "ADVANCED..." button to specify special constraints and eliminate the optimization from using certain equipment. For example, if the Station B1 VFD is under maintenance, $\nu_{Chey VFD}$ can be constrained to 0, preventing the optimization from using it.
 
 \begin{figure}[h]
     \centering
@@ -1158,7 +1156,7 @@ The conceptual software design for the optimization tool is shown in Figure \ref
     \label{fig:08concept_software}
 \end{figure}
 
-A flow diagram of the tool's internal structure is shown in Figure \ref{fig:08Product_Flow}. Starting from the left, the operator would provide the constraints (equipment maintenance, MSSOP, etc.), desired flow rate, and operating costs to the optimization tool.  Likewise, the optimization tool also receives live temperature and density readings from the SCADA system.  Given the densities at CIG and Ault, the proper VFD pumps are turned on.  From the flow rate and DRA pump status, DRA costs are computed from Equations \ref{eq:08light_dra} and \ref{eq:08heavy_dra}.  Next, the costs, densities, and temperatures are all fed into the machine learning model and the MILP is ran to find the optimal set points to reach the desired flow rate. The set points are then sent to the pressure constraint models to validate that no outlet pressure constraints are violated.  If none are violated, the optimal set points are recommended to the operators. To ensure implementability, the VFD amperes are first converted to pressure set points.
+A flow diagram of the tool's internal structure is shown in Figure \ref{fig:08Product_Flow}. Starting from the left, the operator would provide the constraints (equipment maintenance, MSSOP, etc.), desired flow rate, and operating costs to the optimization tool.  Likewise, the optimization tool also receives live temperature and density readings from the SCADA system.  Given the densities at Station B2 and Station B3, the proper VFD pumps are turned on.  From the flow rate and DRA pump status, DRA costs are computed from Equations \ref{eq:08light_dra} and \ref{eq:08heavy_dra}.  Next, the costs, densities, and temperatures are all fed into the machine learning model and the MILP is ran to find the optimal set points to reach the desired flow rate. The set points are then sent to the pressure constraint models to validate that no outlet pressure constraints are violated.  If none are violated, the optimal set points are recommended to the operators. To ensure implementability, the VFD amperes are first converted to pressure set points.
 
 \begin{figure}[h]
     \centering
@@ -1182,7 +1180,7 @@ where the functions represent Equations \ref{eq:08light_dra} and \ref{eq:08heavy
 \end{equation}
 where $i$ denotes the $i^{th}$ hour in a particular month and $j$ denote the $j^{th}$ pump. $p$ denotes the power cost in kWh. Additionally, $I_j$ and $V_j$ denotes the current and voltage for the $j^{th}$ pump.
 
-The actual and optimal costs for DRA and power are shown in Table \ref{tab:08opt_vs_act_costs}.  It can be seen that the total savings range between -3.7\% to 17.6\%.  The savings were realized by using less DRA while running the pumps harder. For this initial study, interaction effects between pumps and DRA were not explicitly considered. Additionally, the effectiveness of the pumps (i.e., flow rate as a function of current) were assumed to be constant; this may not be the case in actual production because pumps' efficiency changes with accordance to the pump curve \cite{fluid_mechanics}. Likewise, DRA effectiveness was also assumed to be constant; however, preliminary data analysis showed a exponential decay relationship between flow rate and increased DRA.  Additionally, the system was assumed to transition to the desired set point immediately after the set points are inputted for the optimal costs. The average flow rate change between time steps was 8 bbl/h and pressure is propagated down the pipeline at 1480 m/s.  Thus, the error for this assumption is not large. A loss was incurred in April because Suncor used only 10 - 15 ppm of DRA for a large part of the month. In the optimization, minimum DRA was constrained to 20 ppm.
+The actual and optimal costs for DRA and power are shown in Table \ref{tab:08opt_vs_act_costs}.  It can be seen that the total savings range between -3.7\% to 17.6\%.  The savings were realized by using less DRA while running the pumps harder. For this initial study, interaction effects between pumps and DRA were not explicitly considered. Additionally, the effectiveness of the pumps (i.e., flow rate as a function of current) were assumed to be constant; this may not be the case in actual production because pumps' efficiency changes with accordance to the pump curve \cite{fluid_mechanics}. Likewise, DRA effectiveness was also assumed to be constant; however, preliminary data analysis showed a exponential decay relationship between flow rate and increased DRA.  Additionally, the system was assumed to transition to the desired set point immediately after the set points are inputted for the optimal costs. The average flow rate change between time steps was 8 bbl/h and pressure is propagated down the pipeline at 1480 m/s.  Thus, the error for this assumption is not large. A loss was incurred in April because the industrial sponsor used only 10 - 15 ppm of DRA for a large part of the month. In the optimization, minimum DRA was constrained to 20 ppm.
 
 \begin{table}[h]
     \centering

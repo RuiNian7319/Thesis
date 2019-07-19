@@ -42,8 +42,8 @@
 \usepackage[toc]{appendix}
 
 % For wrapping text
-\newcolumntype{L}{>{\centering\arraybackslash}m{2.6cm}}
-
+\newcolumntype{L}{>{\centering\arraybackslash}m{4.5cm}}
+\newcolumntype{C}[1]{>{\arraybackslash}p{#1}}
 
 \begin{document}
 
@@ -126,8 +126,8 @@ And finally, to the unsung heroes of the machine learning community.  I would li
 \chapter{Machine Learning for Predictive Applications}
 \input{chapters/Chapter02:MachineLearningforPrediction.tex}
 
-\chapter{Machine Learning for Control Applications}
-\input{chapters/Chapter03:MachineLearningforControl.tex}
+% \chapter{Machine Learning for Control Applications}
+% \input{chapters/Chapter03:MachineLearningforControl.tex}
 
 \chapter{Machine Learning for Process Monitoring}
 \input{chapters/Chapter04:MachineLearningforMonitoring.tex}
@@ -137,7 +137,7 @@ And finally, to the unsung heroes of the machine learning community.  I would li
 
 \printbibliography
 
-% \appendix
+\appendix
 % % Might include in body
 % \chapter{Optimal Control and Alarm Management of a Waste Water Treatment Process}
 % \input{chapters/AppendixA:WWTP.tex}
@@ -146,8 +146,8 @@ And finally, to the unsung heroes of the machine learning community.  I would li
 % \chapter{Distillation Tower Fault Prevention using Reinforcement Learning}
 % \input{chapters/AppendixB:ImperialOilProject.tex}
 
-% % Only one for sure in appendix
-% \chapter{Process Monitoring and Optimization of an Industrial Pipeline}
-% \input{chapters/AppendixC:Suncor.tex}
+% Only one for sure in appendix
+\chapter{Process Monitoring and Optimization of an Industrial Pipeline}
+\input{chapters/AppendixC:Suncor.tex}
 
 \end{document}

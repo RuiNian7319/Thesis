@@ -1123,7 +1123,7 @@ where $\alpha$ denotes the cost of DRA per ppm, $\beta$ denotes the cost of one 
     \label{tab:08Voltages}
 \end{table}
 
-The cost curves for DRA is shown in Figures \ref{fig:08DRA_Cost}. The cost to increase DRA ppm is dependent on the flow rate of the pipeline. Higher flow rates require more DRA to be injected; hence a higher cost.  Given a flow rate, the cost to increase the DRA ppm is given by Equations \ref{eq:08light_dra} and \ref{eq:08heavy_dra} for the light and heavy DRA, respectively.
+The cost curves for DRA is shown in Figures \ref{fig:08DRA_Cost}. The cost to increase DRA ppm is dependent on the flow rate of the pipeline. Higher flow rates require more DRA to be injected to achieve a desired parts per million reading; hence a higher cost.  Given a flow rate, the cost to increase the DRA ppm is given by Equations \ref{eq:08light_dra} and \ref{eq:08heavy_dra} for the light and heavy DRA, respectively\footnote{Costing information are highly confidential and are also masked.}.
 
 \begin{figure}[h]
     \centering
@@ -1133,17 +1133,17 @@ The cost curves for DRA is shown in Figures \ref{fig:08DRA_Cost}. The cost to in
 \end{figure}
 
 \begin{equation}
-    \$ / ppm_{light} = 0.00071Q + 0.01630
+    \$ / ppm_{light} = W \cdot Q + b
     \label{eq:08light_dra}
 \end{equation}
 \begin{equation}
-    \$ / ppm_{heavy} = 0.00176Q + 0.00226
+    \$ / ppm_{heavy} = W \cdot Q + b
     \label{eq:08heavy_dra}
 \end{equation}
 where Q denotes the volumetric flow rate in barrels per hour.
 
 \subsection{Conceptual Software Design}
-The conceptual software design for the optimization tool is shown in Figure \ref{fig:08concept_software}. From the right, the users would first populate the costs corresponding to each equipment.  The pump costs are on a \$/kWh basis, and the DRA cost is based on \$/ppm. Operating costs can also be incorporated by multiplying the costs by a fixed factor (e.g. 1.1 $\cdot$ \$/kWh). Currently, DRA costs are calculated automatically based on the historical data using Equations \ref{eq:08light_dra} and \ref{eq:08heavy_dra}. Next, the user would specify the maximum steady state operating pressure (MSSOP) for the pipeline, and enter the desired flow rate.  Finally, the "OPTIMIZE" button would be pressed and all the boxes outlined in green will be populated with the optimal set point values.  When a set point is no longer deemed optimal, the outline turns red.  An example of such a scenario would be when the batch switches at the Station B2 or Station B3 stations.  During maintenance activities, the user can click the "ADVANCED..." button to specify special constraints and eliminate the optimization from using certain equipment. For example, if the Station B1 VFD is under maintenance, $\nu_{Chey VFD}$ can be constrained to 0, preventing the optimization from using it.
+The conceptual software design for the optimization tool is shown in Figure \ref{fig:08concept_software}. From the right, the users would first populate the costs corresponding to each equipment.  The pump costs are on a \$/kWh basis, and the DRA cost is based on \$/ppm. Operating costs can also be incorporated by multiplying the costs by a fixed factor (e.g. 1.1 $\cdot$ \$/kWh). Currently, DRA costs are calculated automatically based on the historical data using Equations \ref{eq:08light_dra} and \ref{eq:08heavy_dra}. After specifying costs, the user would provide the maximum steady state operating pressure (MSSOP) for the pipeline, and enter the desired flow rate.  Finally, the "OPTIMIZE" button would be pressed and all the boxes outlined in green will be populated with the optimal set point values.  When a set point is no longer deemed optimal, the outline turns red.  An example of such a scenario would be when the batch switches at the Station B2 or Station B3 stations.  During maintenance activities, the user can click the "ADVANCED..." button to specify special constraints and eliminate the optimization from using certain equipment. For example, if the Station B1 VFD is under maintenance, $\nu_{Chey VFD}$ can be constrained to 0, preventing the optimization from using it.
 
 \begin{figure}[h]
     \centering
@@ -1152,7 +1152,7 @@ The conceptual software design for the optimization tool is shown in Figure \ref
     \label{fig:08concept_software}
 \end{figure}
 
-A flow diagram of the tool's internal structure is shown in Figure \ref{fig:08Product_Flow}. Starting from the left, the operator would provide the constraints (equipment maintenance, MSSOP, etc.), desired flow rate, and operating costs to the optimization tool.  Likewise, the optimization tool also receives live temperature and density readings from the SCADA system.  Given the densities at Station B2 and Station B3, the proper VFD pumps are turned on.  From the flow rate and DRA pump status, DRA costs are computed from Equations \ref{eq:08light_dra} and \ref{eq:08heavy_dra}.  Next, the costs, densities, and temperatures are all fed into the machine learning model and the MILP is ran to find the optimal set points to reach the desired flow rate. The set points are then sent to the pressure constraint models to validate that no outlet pressure constraints are violated.  If none are violated, the optimal set points are recommended to the operators. To ensure implementability, the VFD amperes are first converted to pressure set points.
+A flow diagram of the tool's internal structure is shown in Figure \ref{fig:08Product_Flow}. Starting from the left, the operator would provide the constraints (equipment maintenance, MSSOP, etc.), desired flow rate, and operating costs to the optimization tool.  Likewise, the optimization tool also receives live temperature and density readings from the SCADA system.  Given the densities at Station B2 and Station B3, the proper VFD pumps are turned on.  From the flow rate and DRA pump status, DRA costs are computed from Equations \ref{eq:08light_dra} and \ref{eq:08heavy_dra}.  Next, the costs, densities, and temperatures are all fed into the machine learning model and the MILP is ran to find the optimal set points to reach the desired flow rate. The set points are then sent to the pressure constraint models to validate that no outlet pressure constraints are violated.  If none are violated, the optimal set points are recommended to the operators. To ensure implementability, the VFD amperes are first converted to pressure set points because the operators do not know how to operate pumps by amperes.
 
 \begin{figure}[h]
     \centering
@@ -1162,7 +1162,7 @@ A flow diagram of the tool's internal structure is shown in Figure \ref{fig:08Pr
 \end{figure}
 
 \subsection{Cost Savings and Impact on Society}
-Operating costs for running the pipeline using the optimization tool was compared to historical values to identify the potential cost savings.  In 2019, the pipeline was plagued with unexpected shut downs and maintenances. Thus, the data set ranging from January 2018 - May 2018 was used for this comparison due to the stability of operations. Both the actual and optimal costs are calculated using the same formulation to ensure a fair comparison.  
+Operating costs for running the pipeline using the optimization tool was compared to historical values to identify the potential cost savings.  In 2019, the pipeline was plagued with unexpected shut downs and maintenances; thus, the data set ranging from January 2018 - May 2018 was used for this comparison due to the stability of operations. Both the actual and optimal costs are calculated using the same formulation to ensure a fair comparison.  
 
 First, the total monthly DRA cost was calculated by:
 \begin{equation}
@@ -1171,30 +1171,12 @@ First, the total monthly DRA cost was calculated by:
 \end{equation}
 where the functions represent Equations \ref{eq:08light_dra} and \ref{eq:08heavy_dra} for computing the DRA cost per hour. Here, $i$ denotes the $i^{th}$ minute in a particular month. The costs are divided by 60 to obtain the per minute costs and are summed over 43,200 entries representing the total minutes in a 30 day month. Likewise, the monthly power costs are calculated by:
 \begin{equation}
-    Cost_{power} = \frac{p}{1000} \sum\limits^{1,800}_{i=1} \sum\limits^{6}_{j=1} I_j \cdot V_j
+    Cost_{power} = \frac{p}{1000} \sum\limits^{720}_{i=1} \sum\limits^{6}_{j=1} I_j \cdot V_j
     \label{eq:08power_cost}
 \end{equation}
-where $i$ denotes the $i^{th}$ hour in a particular month and $j$ denote the $j^{th}$ pump. $p$ denotes the power cost in kWh. Additionally, $I_j$ and $V_j$ denotes the current and voltage for the $j^{th}$ pump.
+where $i$ denotes the $i^{th}$ \textbf{hour} in a particular month and $j$ denote the $j^{th}$ pump. The 720 corresponds to the amount of hours per 30 day month. $p$ denotes the power cost in kWh and is divided by 1000 for unit consistency. Additionally, $I_j$ and $V_j$ denotes the current and voltage for the $j^{th}$ pump.
 
-The actual and optimal costs for DRA and power are shown in Table \ref{tab:08opt_vs_act_costs}.  It can be seen that the total savings range between -3.7\% to 17.6\%.  The savings were realized by using less DRA while running the pumps harder. For this initial study, interaction effects between pumps and DRA were not explicitly considered. Additionally, the effectiveness of the pumps (i.e., flow rate as a function of current) were assumed to be constant; this may not be the case in actual production because pumps' efficiency changes with accordance to the pump curve \cite{fluid_mechanics}. Likewise, DRA effectiveness was also assumed to be constant; however, preliminary data analysis showed a exponential decay relationship between flow rate and increased DRA.  Additionally, the system was assumed to transition to the desired set point immediately after the set points are inputted for the optimal costs. The average flow rate change between time steps was 8 bbl/h and pressure is propagated down the pipeline at 1480 m/s.  Thus, the error for this assumption is not large. A loss was incurred in April because the industrial sponsor used only 10 - 15 ppm of DRA for a large part of the month. In the optimization, minimum DRA was constrained to 20 ppm.
-
-\begin{table}[h]
-    \centering
-    {\setstretch{1.2}
-\begin{tabular}{cc|c|c|c|c|c}
-                                                 &            & January & February & March & April & May \\ \hline
-\multicolumn{1}{c|}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Actual}}}    & DRA cost   & 102.2 & 114.2 &    106.2 & 84.8 & 140.3 \\
-\multicolumn{1}{c|}{}                            & Power cost & 52.3 & 61.6 & 59.7 & 54.0 & 66.5 \\
-\multicolumn{1}{c|}{}                            & Total cost & 154.5 & 175.8 & 165.9 & 138.8 & 206.8 \\\hline
-\multicolumn{1}{c|}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Optimal}}}     & DRA cost   & 84.9 & 80.6 &    90.9 & 84.9 & 99.7 \\
-\multicolumn{1}{c|}{}                            & Power cost & 57.3 & 64.2 & 62.0 & 59.1 & 87.0 \\
-\multicolumn{1}{c|}{}                            & Total cost & 142.2 & 144.8 & 152.9 & 144.0 & 186.7 \\ \hline
-\multicolumn{1}{c|}{\multirow{2}{*}{\rotatebox[origin=c]{90}{Diff.}}} & Dollars    & \textbf{12.3} & \textbf{31.0} & \textbf{13.0} & \textbf{\textcolor{red}{(5.2)}} & \textbf{20.1} \\
-\multicolumn{1}{c|}{}                            & \% change        & \textbf{8.0} & \textbf{17.6} & \textbf{7.8} & \textbf{\textcolor{red}{(3.7)}} & \textbf{9.7}    
-\end{tabular}}
-    \caption{Optimal vs. actual costs (\$USD 000's) for January - May 2018.}
-    \label{tab:08opt_vs_act_costs}
-\end{table}
+The actual and optimal costs for DRA and power are shown in Table \ref{tab:08opt_vs_act_costs}\footnote{Actual costs are removed for confidentiality; however, percentage savings are still present.}.  It can be seen that the total savings range between -3.7\% to 17.6\%.  The savings were realized by using less DRA while running the pumps harder. For this initial study, interaction effects between pumps and DRA were not explicitly considered. Additionally, the effectiveness of the VFDs (i.e., flow rate as a function of current) were assumed to be linear in the region of study; this may not be the case in actual production because pumps' efficiency changes with accordance to the pump curve \cite{fluid_mechanics}. Likewise, DRA effectiveness was also assumed to be linear. Preliminary data analysis showed a quadratic relationship between flow rate and increased DRA (Figs. \ref{fig:08light_dra_curve} and \ref{fig:08heavy_dra_curve} and below for detailed DRA study); however, a MILP was used for the first release of this product so a linear curve was used instead. From Table \ref{tab:08opt_vs_act_costs}, it can be seen that the optimization tool shows great promise in terms of cost savings. A loss was incurred in April because the industrial sponsor used only 10 - 15 ppm of DRA for a large part of the month. In the optimization, minimum DRA was constrained to 20 ppm. In all other months, the algorithm was able to achieve a cost savings.
 
 Figures \ref{fig:08light_dra_curve} and \ref{fig:08heavy_dra_curve} shows the flow rate change (normalized by dP) as a function of DRA ppm. The flow rates were normalized by pressure to ensure only the DRA's effect was explored.  The flow rate was normalized by:
 \begin{equation}
@@ -1205,19 +1187,36 @@ where $P_1$ and $P_2$ are the pressures at the starting and ending pump stations
     \centering
     \begin{subfigure}[b]{0.48\textwidth}
         \includegraphics[width=\textwidth]{images/suncor/08Sweet_dra_curve.png}
-        \caption{light DRA}
+        \caption{Light DRA}
         \label{fig:08light_dra_curve}
     \end{subfigure}
     \begin{subfigure}[b]{0.48\textwidth}
         \includegraphics[width=\textwidth]{images/suncor/08Sour_dra_curve.png}
-        \caption{heavy DRA}
+        \caption{Heavy DRA}
         \label{fig:08heavy_dra_curve}
     \end{subfigure}
         \caption{Flow rate as a function of DRA ppm.}
-        \label{fig:my_label}
 \end{figure}
 
-A detailed analysis of the cost savings for January - May 2018 are shown in Table \ref{tab:08Cost_per_barrel}. It can be seen that savings per barrel is more significant at higher flow rates.  
+\begin{table}[h]
+    \centering
+    {\setstretch{1.2}
+\begin{tabular}{cc|c|c|c|c|c}
+                                                 &            & January & February & March & April & May \\ \hline
+\multicolumn{1}{c|}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Actual}}}    & DRA cost   & - & - & - & - & - \\
+\multicolumn{1}{c|}{}                            & Power cost & - & - & - & - & - \\
+\multicolumn{1}{c|}{}                            & Total cost & - & - & - & - & - \\\hline
+\multicolumn{1}{c|}{\multirow{3}{*}{\rotatebox[origin=c]{90}{Optimal}}}     & DRA cost   & - & - &  - & - & - \\
+\multicolumn{1}{c|}{}                            & Power cost & - & - & - & - & - \\
+\multicolumn{1}{c|}{}                            & Total cost & - & - & - & - & - \\ \hline
+\multicolumn{1}{c|}{\multirow{2}{*}{\rotatebox[origin=c]{90}{Diff.}}} & Dollars    & \textbf{-} & \textbf{-} & \textbf{-} & \textbf{\textcolor{red}{(-)}} & \textbf{-} \\
+\multicolumn{1}{c|}{}                            & \% Improvement        & \textbf{8.0} & \textbf{17.6} & \textbf{7.8} & \textbf{\textcolor{red}{(3.7)}} & \textbf{9.7}    
+\end{tabular}}
+    \caption{Optimal vs. actual costs (\$USD 000's) for January - May 2018.}
+    \label{tab:08opt_vs_act_costs}
+\end{table}
+
+A detailed analysis of the cost savings for January - May 2018 are shown in Table \ref{tab:08Cost_per_barrel}. The savings per barrel at higher flow rates were more significant compared to savings at lower flow rates.  
 
 \begin{table}[h]
     \centering
@@ -1225,19 +1224,19 @@ A detailed analysis of the cost savings for January - May 2018 are shown in Tabl
     \begin{tabular}{c|c|c|c|c|c}
                        & January & February & March & April & May  \\ \hline
         Ave. flow rate (bbl/h) & 2195    & 2400     & 2256  & 2248  & 2575 \\
-        Saving / bbl per hour (\$)      & 5.6     & 12.9     & 5.7   & \textcolor{red}{(2.3)} & 7.8\\
-        Saving / bbl / hour / km (\$) & 0.037 & 0.085 & 0.038 & \textcolor{red}{(0.015)} & 0.052 \\
+        Saving / bbl per hour (\$)      & -     & -     & -   & \textcolor{red}{(-)} & -\\
+        Saving / bbl / hour / km (\$) & - & - & - & \textcolor{red}{(-)} & - \\
     \end{tabular}}
     \caption{Cost savings per barrel of crude shipped.}
     \label{tab:08Cost_per_barrel}
 \end{table}
 
-Ultimately, expected operating cost savings were estimated to be between 7\% to 9\%.  Average saving per barrel was \$5.95, increasing as the flow rate increased. Moreover, savings for transporting one barrel of crude one km was \$0.04 USD.  The total expected savings per year for Line B was estimated to be \$105,600 USD.  However, the results are only realized if the pipeline is operating within the ranges provided in Tables \ref{tab:08StateConst} and \ref{tab:08InputConst}.
+Ultimately, expected operating cost savings were estimated to be between 7\% to 9\%.  Average saving per barrel was \$ -- (8\%), increasing as the flow rate increased. Moreover, savings for transporting one barrel of crude one km was \$ -- USD.  The total expected savings per year for Line B was estimated to be \$ -- USD.  However, the results are only realized if the pipeline is operating within the ranges provided in Tables \ref{tab:08StateConst} and \ref{tab:08InputConst}.
 
 \subsubsection{Benefits for Society}
-On the financial side, this optimization tool has shown to reduce operating costs of transporting one bbl/h/km by \$0.04 USD for an industry leading energy company. Cost savings can be even more significant for lower tier, in-experienced companies. In Canada alone, 175,000 barrels of crude is produced per hour and transported at an average velocity of 9.5 km/h \cite{canada_crude_facts}.  Assuming a \$0.04 USD savings per barrel/km results in an annual saving of \$583M USD (\$784M CAD).  Expanding to North America, where approximately 742,000 barrels of crude is produced per hour, the savings jump up to \$2.5B USD (\$3.4B CAD) \cite{NA_crude_facts}. Moreover, the savings here does not include inter-refinery and inter-market pipelines; only produced crude were included.  The savings can be reinvested into greener products, resulting in significant reduction of green house gases (GHG). In 2018, the social cost of carbon was valued at \$46 USD per metric ton \cite{cost_of_carbon}; \$2.5B results in a 54.3M metric ton of reduced GHG.
+On the financial side, this optimization tool has shown to reduce operating costs of transporting one bbl/h/km by \$0.04 USD\footnote{A significantly rounded and slightly altered value to maintain confidentiality.  An estimated value was provided in order to quantify the impact to society.} for an industry leading energy company. Cost savings can be even more significant for lower tier, in-experienced companies. In Canada alone, 175,000 barrels of crude is produced per hour and transported at an average velocity of 9.5 km/h \cite{canada_crude_facts}. At \$0.04 USD savings per barrel/km, the annual savings result to approximately \$583M USD (\$784M CAD).  Expanding to North America, where approximately 742,000 barrels of crude is produced per hour, the savings jump up to \$2.5B USD (\$3.4B CAD) \cite{NA_crude_facts}. Moreover, the savings here does not include inter-refinery and inter-market pipelines; only produced crude were included.  The savings can be reinvested into greener products, resulting in significant reduction of green house gases (GHG). In 2018, the social cost of carbon was valued at \$46 USD per metric ton \cite{cost_of_carbon}; \$2.5B results in a 54.3M metric ton of reduced GHG.
 
-On the operational level, this tool standardizes operation of complex pipelines. Given a set of inputs, $I = \{Q, Costs, x\}$, the output of the optimization tool will be identical each time due to the linear model. Thus, operators on different shifts and with different experience levels will operate very similarly if this tool is used.  Additionally, this normalization reduces variance in operations which reduces depreciation of process equipment. Furthermore, the free cash flow can be reinvested to obtain higher throughputs, which in turn will increase revenue and increase tax dollars.  Finally, the tool will also increase operational safety, which may result in the Alberta Energy Regulator (AER) allowing higher throughputs on pipelines currently operating under capacity.
+On the operational level, this tool standardizes the operation of complex pipelines. Given a set of inputs, $I = \{Q, Costs, x\}$, the output of the optimization tool will be identical each time due to the linear model. Thus, operators on different shifts and with different experience levels will operate very similarly if this tool is used.  Additionally, this normalization reduces variance in operations which reduces depreciation of process equipment. Furthermore, the free cash flow can be reinvested to obtain higher throughputs, which in turn will increase revenue and increase tax dollars.  Finally, the tool will also increase operational safety, which may result in the Alberta Energy Regulator (AER) allowing higher throughputs on pipelines currently operating under capacity.
 
 \section{Pipeline Project Conclusion}
 An adaptive outlier-robust optimization tool based on linear parameter-varying (LPV) models was presented in this study. Objectively, the project aims to: 1) Introduce standardization in operations to reduce turbulence in the pipeline while increasing efficiency of less experienced operators. 2) Open-loop automation of the pipeline; reducing repetitive and painful tasks for the operators while freeing up their time for more attention demanding tasks.  First, exploratory data analytics was performed to pick the most relevant features for the model. It was identified that the flow rate followed a bi-modal distribution.  The data was clustered into the two operating conditions where cluster 1 averaged 2500 bbl/h and cluster 2 averaged 1900 bbl/h.  Then, a LPV model consisting of two models was built; one model for each cluster. The models predicted the output flow rate of the pipeline as a function of 10 inputs and 8 states. The MAE, RMSE and $R^2$ for model 1 on the testing data set was 96, 120, 0.78, respectively.  Likewise, the performance metrics were 85, 110, and 0.57 for model 2.  These models were then used for optimization via a mixed integer linear program where the outputs were the optimal steady state set inputs based on specified operating costs.  By comparing the operating costs incurred from the actual operation with the optimal set points, cost savings of \$105,000 USD could have been realized in 2018.  The average cost reduction was \$8\%, with an average savings margin of \$0.04 USD per barrel/km transported.  A preliminary study was conducted and found that \$583M USD in cost savings can be realized if this tool was applied to all exporting pipelines in Canada. Intangible benefits include increased efficiency for lower experience level operators, increased stability in the pipeline, and reduced wear-and-tear from turbulence.

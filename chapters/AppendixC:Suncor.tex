@@ -250,11 +250,11 @@ Table \ref{tab:08featselect} shows the features selected for each pump station. 
     {\tiny
     {\setstretch{1.2}
     \begin{tabular}{ c | c | c | c | c}
-        Station B1                       & Station B2                      & Station B3                        & Station B4                    & refinery \\
+        Station B1                       & Station B2                      & Station B3                        & Station B4                    & Refinery \\
         \hline
-        $u_5$: Boos. Pump Status       &  $u_1$: light DRA (ppm)  &  $u_3$: light DRA (ppm)     &  $u_{8}$: Boos. Pump Status   &  $x_{8}$: Inlet Temp. (°C) \\
+        $u_5$: Boos. Pump Status       &  $u_1$: Light DRA (ppm)  &  $u_3$: Light DRA (ppm)     &  $u_{8}$: Boos. Pump Status   &  $x_{8}$: Inlet Temp. (°C) \\
         
-        $u_9$: VFD Current (Amp)       &  $u_2$: heavy DRA (ppm)   &  $u_4$: heavy DRA (ppm)      & $u_{10}$: VFD Current (Amp)      & \\
+        $u_9$: VFD Current (Amp)       &  $u_2$: Heavy DRA (ppm)   &  $u_4$: Heavy DRA (ppm)      & $u_{10}$: VFD Current (Amp)      & \\
         
         $x_{4}$: Inlet Temp. (°C)     &  $x_{5}$: Inlet Temp. (°C) &  $u_6$: Small Pump Status &  $x_{7}$: Inlet Temp. (°C)  & \\
         
@@ -322,7 +322,7 @@ The resultant segregation created by DBSCAN using hyper parameters 1.13 and 10,0
     \label{fig:08DBSCAN}
 \end{figure}
 
-Average operating conditions of each cluster is shown in Figure \ref{fig:08cluster_variables}. The main differences are the flow rate, DRA usage, and pump usage.  Cluster 1 had 32\% higher average flow rate.  Cluster 1 also used substantially more DRA compared to cluster 2, where almost no DRA was used. Furthermore, the Station B1 booster pump, Station B3 booster pump 1, Station B4 boooster pump, and Station B4 VFD were only used in cluster 1.  Station B3 booster pump 2 was only used in cluster 2.
+Average operating conditions of each cluster is shown in Figure \ref{fig:08cluster_variables}. The main differences are the flow rate, DRA usage, and pump usage.  Cluster 1 had 32\% higher average flow rate.  Cluster 1 also used substantially more DRA compared to cluster 2, where almost no DRA was used\footnote{Actual values masked to ensure confidentality}. Furthermore, the Station B1 booster pump, Station B3 booster pump 1, Station B4 boooster pump, and Station B4 VFD were only used in cluster 1.  Station B3 booster pump 2 was only used in cluster 2.
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{images/suncor/08AvgChar.png}
@@ -331,7 +331,7 @@ Average operating conditions of each cluster is shown in Figure \ref{fig:08clust
 \end{figure}
 
 \subsubsection{Data Partitioning}
-The data set was split into three sections for machine learning: training, validation, and testing.  The partition and description of each section is shown in Table \ref{tab:08datapart}. The training data set was used to identify the machine learning model(s).  Then, the model was validated on unseen data via the validation data set (sometimes called development data).  The error of the model on the validation data set, $e_{validation}$, was evaluated and compared to the training data error, $e_{train}$.  If the difference is large, the model was rebuilt using different data pre-processing techniques and features. This step was repeated until $e_{train} \approx e_{validation}$ to ensure that the model did not overfit to the training data. Finally, the model was tested on the testing data to explore the performance of the model in live production.  Testing data was always the last 5\% of the data set.
+The data set was split into three sections for machine learning: training, validation, and testing.  The partition and description of each section is shown in Table \ref{tab:08datapart}. The training data set was used to identify the machine learning model(s).  Then, the model was validated on unseen data via the validation data set (sometimes called development data).  The error of the model on the validation data set, $e_{validation}$, was then evaluated and compared to the training data error, $e_{train}$.  If the difference is large, the model was rebuilt using different data pre-processing techniques and features. This step was repeated until $e_{train} \approx e_{validation}$ to ensure that the model did not overfit to the training data. Finally, the model was tested on the testing data to explore the performance of the model in live production.  Testing data was always the last 5\% of the data set.
 \begin{table}[h]
     \centering
     {\setstretch{1.2}
@@ -347,7 +347,7 @@ The data set was split into three sections for machine learning: training, valid
         Testing             &  5\%             
         &  Used to test performance of machine learning model on unseen data       \\             
     \end{tabular}}
-    \caption{Features selected for machine learning models.}
+    \caption{Description of each data partition.}
     \label{tab:08datapart}
 \end{table}
 
@@ -360,7 +360,7 @@ The mean squared error (MSE) cost function was used for all predictive models an
 \end{equation}
 where $n$ is the number of samples in the current optimization step.  $\hat{y}_i$ and $y_i$ are the $i^{th}$ predicted and actual labels, respectively. Here, $J$ is the loss. The MSE cost function was selected due to its convex nature \cite{deeplearning_course}.
 
-To ensure adequate performance on the validation and testing data, the model must avoid overfitting to the training data.  This was conducted by reducing the model complexity through removing or reducing individual variables' impact on the model.  This study used a ridge regularization to reduce model complexity:
+To ensure adequate performance on the validation and testing data, the model must avoid overfitting to the training data.  This was done by reducing the model complexity through removing or reducing individual variables' impact on the model.  This study used a ridge regularization to reduce model complexity:
 \begin{equation}
     J(W) = \frac{1}{n}\sum\limits^n_{i=1}(\hat{y}_i - y_i)^2 + \lambda \sum\limits^n_{j=1} W_j^2
     \label{eq:08MSE_wR}
@@ -446,7 +446,7 @@ Table \ref{tab:08performanceassessment} shows the advantages and disadvantages o
         
         $R^2$               &  Easy to understand, $-\infty \leq R^2 \leq 1$                                         &  Valid only for linear relationships       \\             
     \end{tabular}}
-    \caption{Constrained least squares validation and test plots.}
+    \caption{Pros and cons of different model performance assessment methods.}
     \label{tab:08performanceassessment}
 \end{table}
 
@@ -465,7 +465,7 @@ Linear regression was the first regression method to be explored, and was select
 \end{equation}
 where $x \in R^8$ is a vector of states, $u \in R^{10}$ is a vector of inputs and superscript $T$ denotes the transpose operation.
 
-Hyper parameters of the linear regression are shown in Table \ref{tab:08LSHparameters}.
+Hyper parameters of the linear regression are shown in Table \ref{tab:08LSHparameters}. The performance assessment of the least squares model is shown in Table \ref{tab:08LSperformance}. The overall performance of the linear model was good. Error on the test data was 5.8\% higher compared to the training and validation data.
 \begin{table}[h]
     \centering
     {\setstretch{1.2}
@@ -480,8 +480,6 @@ Hyper parameters of the linear regression are shown in Table \ref{tab:08LSHparam
     \caption{Hyper parameters for linear regression.}
     \label{tab:08LSHparameters}
 \end{table}
-
-The performance assessment of the least squares model is shown in Table \ref{tab:08LSperformance}. The overall performance of the linear model was good. Error on the test data was 5.8\% higher compared to the training and validation data.
 \begin{table}[h]
     \centering
     {\setstretch{1.2}
@@ -496,7 +494,7 @@ The performance assessment of the least squares model is shown in Table \ref{tab
     \label{tab:08LSperformance}
 \end{table}
 
-The model performance on the validation and test data sets are shown in Figures \ref{fig:08LSValidation} and \ref{fig:08LSTest}.
+The models' performance on the validation and test data sets are shown in Figures \ref{fig:08LSValidation} and \ref{fig:08LSTest}.
 \begin{figure}[h]
      \centering
      \begin{subfigure}[b]{0.48\textwidth}
@@ -512,7 +510,6 @@ The model performance on the validation and test data sets are shown in Figures 
          \caption{Predicted vs. actual flow rate for the test data set.}
          \label{fig:08LSTest}
      \end{subfigure}
-        \caption{Comparison of normal and abnormal density readings.}
         \label{fig:08LSPlots}
 \end{figure}
 
@@ -592,7 +589,7 @@ To further increase the accuracy of the models, the following non-linear methods
     \item Linear parameter-varying model
 \end{itemize}
 
-Performance assessment of the non-linear models will use MAE and RMSE. In non-linear models, $R^2$ is not valid due to $SS_R + SS_E \neq SS_{Total}$ and was not provided \cite{generic_stats}.
+Performance assessment of the non-linear models will use MAE and RMSE. In non-linear models, $R^2$ is not valid due to $SS_R + SS_E \neq SS_{Total}$ \cite{generic_stats}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -715,7 +712,7 @@ Mathematically, for one example $x$:
     $y = W^{[o]}a^{[r]}_j + b^{[o]}$ \\  
 \end{center}
 
-The hyper parameters for each neural network is given in Table \ref{tab:08NN_hp}. $\lambda$ was increased as the neural network got more complex to reduce overfitting.  The ReLU activation function was chosen for computational efficiency and avoiding the exploding/vanishing gradient problem \cite{ReLU}.
+The hyper parameters for each neural network is given in Table \ref{tab:08NN_hp}. For highly complex models such as large neural networks, overfitting was inevitable; thus, $\lambda$ was increased as the neural network got more complex to reduce overfitting.  The ReLU activation function was chosen for computational efficiency and avoiding the exploding/vanishing gradient problem \cite{ReLU}.
 \begin{table}[h]
     \centering
     {\setstretch{1.2}
@@ -729,6 +726,7 @@ The hyper parameters for each neural network is given in Table \ref{tab:08NN_hp}
         Number of layers                           &  3         & 6         & 8     \\
         Neurons per layer                          &  20        & 30        & 40    \\
         Activation function for hidden layers      & ReLU       & ReLU      & ReLU  \\
+        Activation function for hidden layers      & Linear     & Linear    & Linear \\
     \end{tabular}}
     \caption{Hyper parameters for the feed-forward neural network.}
     \label{tab:08NN_hp}
@@ -822,7 +820,7 @@ The performance assessment of the two LPV models are shown in Table \ref{tab:08c
     \label{tab:08cluster1_cluster2_reg}
 \end{table}
 
-The comparison of actual and predicted flow rates on the validation and test data for the LPV models are shown in Figures \ref{fig:08cluster1_valid} to \ref{fig:08cluster2_test}. In Figures \ref{fig:08cluster2_valid} and \ref{fig:08cluster2_test}, it can be seen that model 2 performs poorly on the data.  This might be caused by some unobserved variables that were only used during low flow rate operations.
+The comparison of actual and predicted flow rates on the validation and test data for the LPV models are shown in Figures \ref{fig:08cluster1_valid} to \ref{fig:08cluster2_test}. In Figures \ref{fig:08cluster2_valid} and \ref{fig:08cluster2_test}, it can be seen that model 2 performs poorly on the testing data.  This might be caused by some unobserved variables that were only used during low flow rate operations.
 \begin{figure}[h]
     \centering
      \begin{subfigure}[b]{0.48\textwidth}
@@ -924,7 +922,7 @@ Extrapolation while using data-driven models introduce risks to operations. Thus
         Station B2 Temp (°C)                           &      41 - 51           \\
         Station B3 Temp (°C)                          &      43 - 54           \\
         Station B4 Temp (°C)                   &      48 - 60           \\
-        refinery Temp  (°C)                &      40 - 58           \\
+        Refinery Temp  (°C)                &      40 - 58           \\
     \end{tabular}}
     \caption{Applicable states of the machine learning models.}
     \label{tab:08StateConst}
@@ -940,8 +938,8 @@ In addition to the state ranges provided above, the recommended set points are a
         \hline
         Station B1 VFD (Amps)                     &      105 - 322          \\
         Station B4 VFD (Amps)                  &      78 - 134           \\ 
-        Station B2 \& Station B3 light DRA (ppm)             &      20 - 40            \\
-        Station B2 \& Station B3 heavy DRA (ppm)              &      20 - 40            \\
+        Station B2 \& B3 Light DRA             &      Values            \\
+        Station B2 \& B3 Heavy DRA             &     Values            \\
     \end{tabular}}
     \caption{Applicable inputs of the machine learning models.}
     \label{tab:08InputConst}
@@ -972,7 +970,7 @@ The information flow of the optimization algorithm is shown in Figure \ref{fig:0
 
 \noindent
 \textit{Mixed Integer Linear Program} \\
-MILP was used to perform steady state optimization on the linear model because the decision variables included binary and continuous variables.  In total, there were 10 decision variables; 4 binary and 6 continuous.  The binary and continuous variables are shown in Table \ref{tab:08binary_cont}.
+The binary and continuous variables of the optimization problem are shown in Table \ref{tab:08binary_cont}. MILP was used to perform steady state optimization on the linear model because the decision variables included binary and continuous variables.  In total, there were 10 decision variables; 4 binary and 6 continuous. 
 
 \begin{table}[h]
     \centering
@@ -990,7 +988,7 @@ MILP was used to perform steady state optimization on the linear model because t
 
 \noindent
 \textit{Constraints} \\
-The constraints consists of the machine learning model, equality, and in-equality constraints.  The equality and in-equality constraints are shown in Table \ref{tab:08eq_neq_constraints}. From the data provided, the Station B1 pump was on 95\% of the time, and at least one Station B3 on/off pump was always on. Therefore, constraints were incorporated to reflect this.  Additionally, constraints were used to ensure proper DRA was injected into the pipeline for the different crudes.  There were also pressure constraints on the outlet pressure of the pumps to ensure safe operations.  Before a recommendation is made to the operators, the recommended set points were used to predict for the outlet pressures at each pump to ensure they do not exceed the maximum allowable working pressure (MAWP). Finally, the final flow rate is given a range to ensure optimization feasibility. Specifying exact flow rates lead to infeasible solutions because there may not exist a combination to get an \textit{exact} flow rate.
+The equality and in-equality constraints are shown in Table \ref{tab:08eq_neq_constraints}. From the data provided, the Station B1 pump was on 95\% of the time, and at least one Station B3 on/off pump was on; therefore, constraints were incorporated to reflect this.  Additionally, constraints were used to ensure proper DRA was injected into the pipeline for the different crudes.  There were also pressure constraints on the outlet pressure of the pumps to ensure safe operations.  Before a recommendation is made to the operators, the recommended set points were used to predict for the outlet pressures at each pump to ensure they do not exceed the maximum allowable working pressure (MAWP). Finally, the final flow rate is given a range to ensure optimization feasibility. Specifying exact flow rates sometimes led to infeasible solutions because there may not exist a combination to get an \textit{exact} flow rate.
 
 \begin{table}[h]
     \centering
@@ -998,7 +996,7 @@ The constraints consists of the machine learning model, equality, and in-equalit
     \begin{tabular}{c|c}
          Equality Constraints              & In-equality Constraints \\
          \hline
-         On/off Station B1 Pump = On         & $\text{Lower bound} \leq \text{Flow rate} \leq \text{Upper bound}$ \\
+         On/off Station B1 Pump = On         & $\text{LB} \leq \text{Flow rate} \leq \text{UB}$ \\
          
          Station B3 Pump 1 and/or 2 = On          & $P_{Outlet}^{Chey} \leq 1480 \text{ psi}$       \\
          
@@ -1006,7 +1004,7 @@ The constraints consists of the machine learning model, equality, and in-equalit
          
          $API^{Station B2} \leq 30: DRA_{heavy}^{Station B2}$ = On  & $P_{Outlet}^{FL} \leq 1613 \text{ psi}$  \\
          
-         $API^{Station B3} \geq 30: DRA_{light}^{Station B3}$ = On & $20 \text{ ppm} \leq DRA \leq 40 \text{ ppm}$                 \\
+         $API^{Station B3} \geq 30: DRA_{light}^{Station B3}$ = On & $LB \text{ ppm} \leq DRA \leq UB \text{ ppm}$                 \\
          
          $API^{Station B3} \leq 30: DRA_{heavy}^{Station B3}$  = On  & $105 \text{ Amps} \leq VFD^{Chey} \leq 322 \text{ Amps}$   \\
          
@@ -1019,52 +1017,52 @@ The constraints consists of the machine learning model, equality, and in-equalit
     \label{tab:08eq_neq_constraints}
 \end{table}
 
-Pressure models were built to ensure MAWP was not exceeded when the recommended set points are implemented. In the end, three linear regression pressure models were identified; each at the outlet of a pump station (Station B1, Station B3, Station B4) where pressure is expected to be the highest. The inputs to the pressure models were all upstream of the pump station is located and is given in Table \ref{tab:08pressure_inputs}.
+Pressure models were built to ensure MAWP was not exceeded when the recommended set points are implemented. In the end, three linear regression pressure models were identified; each at the outlet of a pump station (Station B1, Station B3, Station B4) where pressure is expected to be the highest. The inputs to the pressure models were all upstream of where the pump station was located and is given in Table \ref{tab:08pressure_inputs}.
 
 \begin{table}[]
     \centering
     {\setstretch{1.2}
-    \begin{tabular}{p{5cm} | p{5cm} | p{5cm}}
-         Station B1 & Station B3 & Station B4 \\
+    \begin{tabular}{c|c|c}
+         B1 Outlet & B3 Outlet & B4 Outlet \\
          \hline
          
-         Pipeline inlet pressure & Pipeline inlet pressure & Pipeline inlet pressure \\
+         Inlet pressure & Inlet pressure & Inlet pressure \\
          
-         Station B1 VFD & Station B1 VFD & Station B1 VFD \\
+         B1 VFD & B1 VFD & B1 VFD \\
          
-         Station B1 on/off pump & Station B1 on/off pump & Station B1 on/off pump \\
+         B1 on/off pump & B1 on/off pump & B1 on/off pump \\
          
-         Station B1 temperature & Station B3 on/off pump 1 & Station B2 DRA ppm \\
+          B1 temperature & B3 on/off pump 1 & B2 DRA ppm \\
          
-         & Station B3 on/off pump 2 & Station B3 on/off pump 1 \\
+         & B3 on/off pump 2 & B3 on/off pump 1 \\
          
-         & Station B2 DRA ppm & Station B3 on/off pump 2 \\
+         & B2 DRA ppm & B3 on/off pump 2 \\
          
-         & Station B1 temperature & Station B3 DRA ppm \\
+         & B1 temperature & B3 DRA ppm \\
          
-         & Station B3 temperature & Station B4 VFD \\
-         & & Station B4 on/off pump \\
-         & & Station B1 temperature \\
-         & & Station B3 temperature \\
-         & & FL temperature \\
+         & B3 temperature & B4 VFD \\
+         & & B4 on/off pump \\
+         & & B1 temperature \\
+         & & B3 temperature \\
+         & & B4 temperature \\
     \end{tabular}}
     \caption{Inputs to the pressure constraint models.}
     \label{tab:08pressure_inputs}
 \end{table}
 
-The performance assessment of the Station B1, Station B3, and Station B4 pressure constraint models are shown in Table \ref{tab:08pres_const_performance}. The Station B1 pressure prediction is very accurate; however the accuracy decreases as we traverse down the pipeline.  The primary reason is because an accurate inlet pressure is required to predict for the outlet pressure.  But the inlet pressure beyond Station B1 is unknown because the set points are not actuated in the pipeline yet. Furthermore, predicting the outlet pressure at Station B3 is especially difficult because a mechanism exists to limit the pressure to 1377 psi.  The mechanism's data is not captured, and causes the regression curve to be hard constrained at an upper bound. Consequently, this causes many inputs to result in the same output, and hinders learning.
+The performance assessment of the Station B1, Station B3, and Station B4 pressure constraint models are shown in Table \ref{tab:08pres_const_performance}. The Station B1 pressure prediction is very accurate; however the accuracy decreases as we traverse down the pipeline.  The primary reason is because an accurate inlet pressure is required to predict for the outlet pressure.  But the inlet pressures beyond Station B1 are unknown before the set points implemented in the pipeline (Ex: the inlet pressure at Station B3 is unknown because the recommended Station B1 VFD set points are not implemented yet; thus, the predicted output pressure will be inaccurate). Furthermore, predicting the outlet pressure at Station B3 is especially difficult because a mechanism exists to limit the pressure to 1377 psi.  The mechanism's data is not captured, and causes the regression curve to be hard constrained at an upper bound. Consequently, this causes many inputs to result in the same output, and hinders learning.
 
 \begin{table}[h]
     \centering
     {\setstretch{1.2}
     \begin{tabular}{c|c|c|c|c|c|c|}
     \multicolumn{1}{l|}{} & \multicolumn{3}{c|}{Training Data} & \multicolumn{3}{c|}{Validation Data} \\ \cline{2-7} 
-    \multicolumn{1}{l|}{} & Station B1   & Station B3   & Station B4  & Station B1    & Station B3   & Station B4   \\ \hline
+    \multicolumn{1}{l|}{} & B1   & B3   & B4  & B1    & B3   & B4   \\ \hline
     MAE                   & 75         & 179    & 25           & 72          & 179    & 27            \\
     RMSE                  & 101        & 217    & 32           & 96          & 217    & 35            \\
     $R^2$                 & 0.88       & 0.5    & 0.47         & 0.89        & 0.49   & 0.46         
     \end{tabular}}
-    \caption{Performance assessment of the Station B1, Station B3, and Station B4 pressure constraint models}
+    \caption{Performance assessment of the Station B1, Station B3, and Station B4 pressure constraint models.}
     \label{tab:08pres_const_performance}
 \end{table}
 
@@ -1107,27 +1105,25 @@ The objective is to operate the pipeline at the desired flow rate with the minim
     \addConstraint{20 \leq DRA_i \leq 40, \; i \in I} 
     \addConstraint{\gamma_j^{min} \leq I_j \leq \gamma_j^{max}, \; j \in J}{}
 \end{mini*}
-where $\alpha$ denotes the cost of DRA per ppm, $\beta$ denotes the cost of one kWh, $mu$ denotes the on/off status of the DRA pumps, and $\nu$ denotes the on/off status of the pumps. $DRA_i$ is the DRA ppm set point of the $i^{th}$ DRA injection pump. Moreover, $V_j$ and $I_j$ are the voltage and amperes corresponding to the $j^{th}$ pump. Here, $\gamma_j$ are the upper and lower bounds of the VFDs' currents and are provided in Table \ref{tab:08eq_neq_constraints}. For on/off pumps, $\gamma_j$ is fixed.
-
-The voltages of the pumps are provided in Table \ref{tab:08Voltages}.  The power cost per kWh for the pipeline was \$0.09 USD.
+where $\alpha$ denotes the cost of DRA per ppm, $\beta$ denotes the cost of one kWh, $\mu$ denotes the on/off status of the DRA pumps, and $\nu$ denotes the on/off status of the pumps. $DRA_i$ is the DRA ppm set point of the $i^{th}$ DRA injection pump. Moreover, $V_j$ and $I_j$ are the voltage and amperes corresponding to the $j^{th}$ pump. Here, $\gamma_j$ are the upper and lower bounds of the VFDs' currents and are provided in Table \ref{tab:08eq_neq_constraints}. For on/off pumps, $\gamma_j$ is fixed. The voltages of the pumps are provided in Table \ref{tab:08Voltages}.  The power cost per kWh for the pipeline was \$0.09 USD according to the local commercial electricity costs\footnote{Location masked for confidentiality.}.
 \begin{table}[h]
     \centering
     {\setstretch{1.2}
     \begin{tabular}{c|c}
         Pump          &  Voltage \\
         \hline
-        $VFD^{Chey}$    &  4160    \\
-        $VFD^{FL}$      &  4160    \\
-        On/off $Pump^{Chey}$    & 480   \\
-        On/off $Pump^{Station B31}$   & 4000  \\
-        On/off $Pump^{Station B32}$   & 4000  \\
-        On/off $Pump^{FL}$      & 480   \\
+        $VFD^{Chey}$    &  Large    \\
+        $VFD^{FL}$      &  Large    \\
+        On/off $Pump^{Chey}$    & Small   \\
+        On/off $Pump^{Station B31}$   & Large  \\
+        On/off $Pump^{Station B32}$   & Large  \\
+        On/off $Pump^{FL}$      & Small   \\
     \end{tabular}}
     \caption{Voltages for the pumps.}
     \label{tab:08Voltages}
 \end{table}
 
-The cost to increase DRA ppm is dependent on the flow rate of the pipeline. Higher flow rates require more DRA to be injected; hence a higher cost.  The cost curves for DRA is shown in Figures \ref{fig:08DRA_Cost}.  Given a flow rate, the cost to increase the DRA ppm is given by Equations \ref{eq:08light_dra} and \ref{eq:08heavy_dra} for the light and heavy DRA, respectively.
+The cost curves for DRA is shown in Figures \ref{fig:08DRA_Cost}. The cost to increase DRA ppm is dependent on the flow rate of the pipeline. Higher flow rates require more DRA to be injected; hence a higher cost.  Given a flow rate, the cost to increase the DRA ppm is given by Equations \ref{eq:08light_dra} and \ref{eq:08heavy_dra} for the light and heavy DRA, respectively.
 
 \begin{figure}[h]
     \centering

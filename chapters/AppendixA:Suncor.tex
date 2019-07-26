@@ -155,16 +155,7 @@ For this pipeline, both light and heavy crude are transported in a cyclical fash
 
 Moreover, there is a time delay for the flow rate to react to a DRA set point change because the new DRA concentration must be permeated throughout the line before its effect can be fully realized.  DRA was assumed to be catastrophically destroyed when passing through a pump\footnote{According to the industrial sponsors.}; thus, DRA is only required to coat the pipeline between pump stations for its full effect to be exploited.  For Station B2, it must coat the pipeline between Station B2 to Station B3.  For Station B3, the pipeline spanning between Station B3 and Station B4 must be coated.  Given the flow rate of the pipeline, it will take approximately ten hours to sufficiently coat the majority of the pipeline. Hence, data corresponding to transitional periods are removed. At times, transitional times may take longer; however, removing additional data will reduce the available data for model identification.  
 
-Pre- and post-processed DRA parts per million (ppm) measurements are shown in Figure \ref{fig:08DRA}. DRA ppm is measured continuously for the control of the DRA injection pumps. However, the measurement is unreliable and corrupted with noise. Because DRA set points are rarely changed, an exponentially weighted moving average (EWMA) was applied to the DRA ppm readings for increased measurement reliability.  The EWMA formula and bias correction are given in Equations \ref{eq:08EWMA} and \ref{eq:08Bias_Correction}, respectively: 
-\begin{equation}
-    v_t = \beta v_{t - 1} + (1 - \beta) \theta_t, \; v_0 = 0
-    \label{eq:08EWMA}
-\end{equation}
-\begin{equation}
-    v_t \leftarrow \frac{v_t}{1 - \beta^t}, \forall v \in V
-    \label{eq:08Bias_Correction}
-\end{equation}
-where $v_{t}$ is the exponentially weighted value at time $t$.  $\beta$ is the exponentially weighing factor.  Larger $\beta$ results in smoother results.  $\theta_t$ is the original value at time $t$. $V$ is a vector representing the exponentially weighted values before bias correction.
+Pre- and post-processed DRA parts per million (ppm) measurements are shown in Figure \ref{fig:08DRA}. DRA ppm is measured continuously for the control of the DRA injection pumps. However, the measurement is unreliable and corrupted with noise. Because DRA set points are rarely changed, an exponentially weighted moving average (EWMA) was applied to the DRA ppm readings for increased measurement reliability.  The EWMA formula and bias correction are given in Equations \ref{eq:08EWMA} and \ref{eq:08Bias_Correction}, respectively.
 
 The objective of the machine learning model was to predict the flow rate at refinery.  However, there is a natural time delay between the time an equipment status changed and the corresponding impact on downstream flow rate.  Because the pipeline is fully loaded and the product is incompressible, pressure changes upstream will be propagated downstream at close to the speed of sound \cite{fluid_mechanics}.  Table \ref{tab:08TimeToCC} shows the time required for pressure to propagate down the pipeline starting from each pump station.  The pump data for each pump station was shifted accordingly to account for this time delay\footnote{Time delays are significantly rounded for confidentiality purposes.}.  
 \begin{table}[h]

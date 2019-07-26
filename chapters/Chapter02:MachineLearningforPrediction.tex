@@ -11,24 +11,109 @@
 
 Cheap data storage and escalation of computational power allowed the world to enter a new age: the age of \textit{big data}. With vast amounts of data, previously in-viable and data hungry machine learning algorithms are now implementable.  The technology sector was the first group to be able to exploit this arcane technology to create tremendous value in applications ranging from targeted advertisements to self driving cars. The value was so great that the current top four companies in America by market capitalization are all technology companies (Microsoft, Apple, Amazon, and Facebook) as of 2019. As the technology sector's successes grow, other industries begin to catch a glimpse of the potential value creation in their own respective industries and initiate their own digital revolution. The ripples of success from the technology industry ultimately resulted in waves of capital investments into machine learning (ML) and artificial intelligence (AI) from all industries.
 
-ML solutions promise to be cheaper, more accurate, and have online learning abilities compared to traditional methods.  Additionally, the solutions are promised to be easier to implement and will take less time to design; feed it data and it will learn, as they claim.  With this mentality, machine learning engineers and data scientists from technology companies attempted to conquer other industries, one industry being process control and chemical engineering. Unfortunately, their crusade fell short and their successes were few due to their lack of engineering knowledge and inability to identify large value gains.  Typically, projects in technology companies deal with very unambiguous information such as identifying location of objects or predicting the enjoyments of an individual based on previous articles they have read.
+ML solutions promise to be cheaper, more accurate, and have online learning abilities compared to traditional methods.  Additionally, the solutions are promised to be easier to implement and will take less time to design; feed it data and it will learn, as they claim.  With this mentality, machine learning engineers and data scientists from technology companies attempted to conquer other industries, one industry being process control and chemical engineering. Unfortunately, their crusade fell short and their successes were few due to their lack of engineering knowledge and inability to identify large value gains.  Typically, projects in technology companies deal with very unambiguous information such as identifying location of objects or predicting the enjoyments of an individual based on previous articles they have read. However, process control typically generate time-series data and are often very ambiguous with data characteristics unique to the industry. Some characteristics include time delayed data, multi-modal data, unreliable data, highly noisy data, state transition dynamics data, and any combination of the prior.  Due to the increased complexity, data pre-processing for ML projects in the process control industry is mission critical and much more vigorous to ensure successful applications.
 
-However, process control data are often times very ambiguous with data characteristics unique to the industry. Some characteristics include time delayed data, critically important yet unavailable data (data obtained through lab testing once every few hours), and highly noisy and/or unreliable sensor data.
+Table \ref{tab:2MLApplications} shows some general machine learning applications for the process control industry. Currently, ML applications in the process industry can be broken down into prediction, monitoring, and control.  The field of prediction deals with mapping from certain inputs to desired outputs. An example would be building a soft sensor to predict for a state, $x_{m}$, that is expensive to measure.  By identifying states highly correlated to $x_{m}$, a multivariate soft sensor can be built to inexpensively predict the state in the future. In ML monitoring, the algorithms are tasked to monitor the process for anomalous activities. Here, an example would be applying a classification method to predict for failures in process equipment.  Lastly, ML control is concerned with the topics of adaptive, multivariate optimal control. Reinforcement learning is the typical ML algorithm for control.  
 
-Talk about how the methods are applied to process industry, compared to other places like cat classification.  Things such as time delay, type of model (steady state or dynamic), etc. that are unique to process control.
+\begin{table}[h]
+    \centering
+    {\setstretch{1.2}
+    \begin{tabular}{c|c|c}
+    Prediction & Monitoring & Control \\ \hline
+    Soft sensing & Anomaly detection & Supervisory control \\
+    Forecasting  & Anomaly prediction & Regulatory control \\
+    Operator education  & Alarm prioritization & Operator education \\
+    Digital twin  & Alarm reduction & Multivariate control\\
+    \end{tabular}}
+    \caption{General applications for machine learning in the process control industry.}
+    \label{tab:2MLApplications}
+\end{table}
 
-- Largest customer is probably soft sensors, training, and planning for management.  A field now named the industrial internet of things (IIoT). The industrial internet of things (IIoT) is the use of smart sensors and actuators to enhance manufacturing and industrial processes.
+ Figure \ref{fig:02AICloud} shows a the machine learning architecture that is generic enough for implementation in all industrial plants. First, the industrial process (e.g. refinery, pipeline, reactor, etc.) sends raw sensor data into the cloud, where it is cleansed through data pre-processing methods.  Then, the filtered data is sent into different machine learning algorithms depending on the objective of the application and will output the desired values.  After a set time frame, all ML models will then be re-updated to learn the newest experiences. For computations requiring speedy outputs, portions of the ML code can also be pushed to the local devices using Microsoft Azure IoT edge devices. 
 
-The objective of this section is to convey ideas for implementing machine learning solutions catered towards the \textbf{process control} industry.  In this chapter
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/ch2/02AICloud.png}
+    \caption{Overall machine learning architecture in an industrial environment}
+    \label{fig:02AICloud}
+\end{figure}
 
-The machine learning methods were then applied to the prediction and optimization of an industrial pipeline\footnote{This project was supported in part by Mitacs through the Mitacs Accelerate program.}. This chapter only contains the theory, application, and highlights. The detailed industrial project report can be found in Appendix A.
+The objective of this chapter was to convey ideas for implementing machine learning solutions catered towards the \textbf{process control} industry.  In this chapter, the first half consists of common data pre-processing techniques to handle common process control concerns.  The second half contains machine learning methods (in order of difficulty) to handle different process control problems. For validation purposes, the machine learning methods were implemented live onto an industrial pipeline for prediction, monitoring, and optimization\footnote{This project was supported in part by Mitacs through the Mitacs Accelerate program and the algorithms went live as of May 7th, 2019.}\footnote{This chapter only contains the theory, application, and highlights. The detailed industrial project report can be found in Appendix A.}.
 
-\section{Linear Models}
+\section{Data Pre-processing}
+Data pre-processing typically includes many steps starting with filtering by subject matter expertise, and then transitioning to common statistical methods.  For this section, only the filtering methods unique to process control will be discussed. Please refer to Appendix A for details regarding the other steps. Process control is typically concerned with multivariate time-series data plagued with noisy and/or unreliable sensor readings. Time delays are critical to successful prediction applications in process control. Furthermore, some processes may also have a variety of different operating regimes depending on downstream demand or ambient conditions.  In order to have successful prediction algorithms for process control, all of the above must be considered.
 
-\section{Polynomial Models}
+\subsection{Time delay data}
+Time delay is the time between the performance of a control action and the change in output. Time delays occur due to the physics of the natural world.  For example, turning on a pump at the beginning of a pipeline does not result in higher flow rates immediately.  The process takes time to adjust and \textbf{transition} to the new steady state; therefore, raw data must be first shifted to account for the time delay.  Without doing so, models would be using current information to predict the past.  Imagine building a model to predict for the outlet flow rate of a pipeline where the regressors are pump statuses 300 km upstream of the outlet.  If a change in pump status occurred at $t = 0$, the pressure will take a few minutes to propagate down the pipeline.  Thus, the model taking pump statuses at $t = 0$ must have its flow rate labels shifted from $t = \tau$, where $\tau$ is the expected time delay.  An example of the time delay shifting procedure for an industrial pipeline is shown in Table \ref{tab:08TimeToCC} located in Appendix A, where data was shifted for different locations along the pipeline to enhance predictive capabilities.
 
-\section{Deep Learning Approaches}
+Initial engineering expertise and/or data analysis must be conducted to identify the time delay for specific processes.  For example, it is well known that pressure propagates down incompressible fluids at approximately the speed of sound (1480 km/h) \cite{fluid_mechanics}.  Using this information, adjusting for the time delays along the pipeline was made trivial.
 
-\section{Linear Parameter-Varying Models}
+\subsection{Multi-modal data}
+In the process industry, it is common to have multiple modes of operation due to changing ambient conditions (e.g. summer, winter), different market demands, and a variety of other factors.  Each operating condition also consists of unique equipment operation and process characteristics (flow rates, temperatures, etc.); therefore, a common model to predict for many different operating conditions lead to increased model errors.  Here, unsupervised learning should be used to avoid this scenario for systems with many modes.  More specifically, clustering methods should be applied to segregate data from different operating modes, and separate models should be built using data from each operating mode to enhance accuracy.  For big data applications, \textit{k}-means or density based scanning (DBSCAN) should be used due to their scalability and non-iterative nature \cite{clustering_complexity}. Of the two methods, \textit{k}-means is much faster while DBSCAN is more robust to outliers.
 
-\section{Adaptive Modelling: Importance Sampling Incremental Learning (ISIS)}
+An example of the breakdown of a multi-modal system can be found in Figure \ref{fig:08DBSCAN} in Appendix A.  By segregating the system into multiple modes, more accurate weights can be identified for each mode compared to general weights for all modes.  In fact, most modes would not even use the same equipment.  Such a concept is similar to using a linear parameter-varying model to approximate a non-linear system.  
+
+\subsection{Unreliable and noisy data}
+Thousands of measured data are recorded per minute on modern distributed control systems. However, many process variables such as viscosity, or parts per million (ppm) are difficult to measure with modern equipment on a live process. This results in inaccurate values being sent to the ML models, ultimately reducing accuracy.  To overcome highly unreliable data, a general strategy is to identify how the operator(s) are using the data and to engineer the feature(s) to be used in the same way for the ML model.  For example, the densitometers installed along the industrial pipeline shown in Appendix A all show different readings for the same crude. At times, the reading could be off by $\pm 20\%$. However, the operators only use the density reading to determine the grade of crude inside the batching pipeline. The crude is light if the API is above a threshold, heavy otherwise.  The physical number had no meaning for them.  To improve the ML model accuracy, the density reading was feature engineered to be a binary variable reading "1" if the API was above the threshold, "0" otherwise.  By doing so, the variable in the ML model was used in the same way as the operators and the accuracy increased.
+
+Other data measurements may be accurate, but highly noisy. Noisy measurements may lead to significant predictive errors 
+Noise can be reduced significantly by applying an exponentially weighted moving average (EWMA) filter given by:
+\begin{equation}
+    v_t = \beta v_{t - 1} + (1 - \beta) \theta_t, \; v_0 = 0
+    \label{eq:08EWMA}
+\end{equation}
+\begin{equation}
+    v_t \leftarrow \frac{v_t}{1 - \beta^t}, \forall v \in V
+    \label{eq:08Bias_Correction}
+\end{equation}
+where $v_{t}$ is the exponentially weighted value at time $t$.  $\beta$ is the exponentially weighing factor.  Larger $\beta$ results in smoother results.  $\theta_t$ is the original value at time $t$. $V$ is a vector representing the exponentially weighted values before bias correction. EWMA is a very effective way to remove noise in chemical processes because these processes typically contain slow dynamics. By exponentially smoothing the data, the fast peaks are removed while preserving the slow dynamics. An example of the EWMA algorithm applied to the measurement of drag reducing agent (DRA) ppm values is shown in Figure \ref{fig:08DRA} in Appendix A.  DRA ppm measurements are known to be highly noisy; however, the noise can be almost completely removed by applying EWMA.
+
+\subsection{State transition dynamics data}
+Another unique topic of process control is the dynamics of the system. System dynamics refer to the transitional period of going from one steady state to another after a control input is provided. Typically, dynamical models are used for advanced process controls where optimizing for the dynamics of the system is critical for optimal performance.  In order to build machine learning models to describe the dynamics of systems, a time-series implementation must be pursued.  Typical ML models map states and control actions at time $t$ to states and actions at time $t_{ss}$, where $t_{ss}$ is the time required for the system to transition to the new steady state.  By doing so, the dynamics of the system are completely omitted.  In order to build a dynamical ML model, the raw data needs to skip the time delay pre-processing step and be augmented by time.  Imagine a simple single-input single-output (SISO) system:
+\begin{equation}
+    y = w_1x + b
+\end{equation}
+In time-series implementation, the model would instead be:
+\begin{equation}
+    y_{t + 1} = w_1x_{t} + w_2x_{t - 1} + w_3x_{t - 2} + ... + b
+    \label{eq:02_1step}
+\end{equation}
+where the input vectors would be augmented as $\mathcal{X} = [x_{t} | x_{t - 1} | x_{t - 2} | ... ]$. Here, Equation \ref{eq:02_1step} becomes the 1-step ahead predictor of the system.  For a larger 
+
+\section{Machine Learning Methods}
+
+Many ML methods exist for prediction, each having its advantages and disadvantages. In this section, the most common ML methods will be shown along with their applications in process control.  Unique hyper parameters for different ML methods will also be shown; however, common hyper parameters such as $\alpha$, training epoch, and mini-batch size are common throughout and will be omitted.
+
+\subsection{Linear Models}
+Linear models have two variants, linear regression and logistic regression.  The former is used for prediction tasks associated with continuous variables while the latter is used for classification tasks.  For example, linear regression is a great algorithm for soft sensor applications whereas logistic regression is more suitable for monitoring for anomalous activities. In this chapter, only the prediction variant will be shown. The model structure of linear regression is given as:
+\begin{equation}
+    \hat{y} = W_1^Tx + W_2^Tu + b
+    \label{eq:02LS}
+\end{equation}
+where $x \in R^n$ is a vector of states, $u \in R^{m}$ is a vector of inputs and superscript $T$ denotes the transpose operation.  $\hat{y}$ is the predicted variable and can be anything; in soft sensors, $\hat{y}$ would be the "soft sensed" variable.  
+
+The most common model structure for ML in the process control industry are linear models despite all processes being non-linear.  This is because the narrow region most processes operate around can typically be assumed to be linear \cite{process_control_ref13}.  Additionally, linear models are simple, interpretable, and require low amounts of data. However, the draw backs of linear models are their poor performance in the big data era where large amounts of data is available (see Figure \ref{fig:02learning_aggro}).  This trait is intensified given high dimensional data sets where identifying interaction effects are critical for accurate predictions.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/ch2/02Learning_Aggro.png}
+    \caption{Performance as a function of data.  Original image from \cite{deeplearning_course}.}
+    \label{fig:02learning_aggro}
+\end{figure}
+
+\subsection{Polynomial Models}
+Polynomial models are a general class of non-linear models that explores the main and interaction effects of its regressors.  The general model structure of a two regressor polynomial model is given by:
+\begin{equation}
+    \hat{y} = w_1x_1 + w_2x_2 + w_3x_1^2 + w_4x_2^2 + w_5x_1x_2 + e
+\end{equation}
+where $w$ are the weights, $x$ are the regressors, and $e$ is the modelling error.  In this model, linear, quadratic, and interaction effects are all explored simultaneously. Contrarily, the amount of parameterization required for a high dimensional prediction problem using this model structure may be infeasible, thus, a truncated version of the model should be used instead for high dimensional problems. One special case of a truncated polynomial model is the exponential model given by:
+\begin{equation}
+    \hat{y} = w_1 x_1^{w_2} + b
+\end{equation}
+where the power of the regressor is also a weight to be identified.
+
+\subsection{Deep Learning Approaches}
+\subsection{Linear Parameter-varying Models}
+\subsection{Time-series Variant}
+\subsection{Adaptive Modelling: Importance Sampling Incremental Learning (ISIS)}
+

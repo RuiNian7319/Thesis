@@ -428,14 +428,14 @@ Table \ref{tab:08performanceassessment} shows the advantages and disadvantages o
 \begin{table}[h]
     \centering
     {\setstretch{1.2}
-    \begin{tabular}{ c | p{7cm} | p{7cm}}
+    \begin{tabular}{ c | p{6.2cm} | p{6.0cm}}
          Method             & Advantages        &  Disadvantages \\
         \hline
         RMSE                &  Useful for identifying large errors                            &  Smaller errors are muted        \\
         
         MAE                 &  Easy to interpret as all errors have the same weight           &  Inferior to RMSE when large errors are undesirable \\
         
-        $R^2$               &  Easy to understand, $-\infty \leq R^2 \leq 1$                                         &  Valid only for linear relationships       \\             
+        $R^2$               &  Easy to understand, {\small $-\infty \leq R^2 \leq 1$   }                                      &  Valid only for linear relationships       \\             
     \end{tabular}}
     \caption{Pros and cons of different model performance assessment methods.}
     \label{tab:08performanceassessment}
@@ -501,6 +501,7 @@ The models' performance on the validation and test data sets are shown in Figure
          \caption{Predicted vs. actual flow rate for the test data set.}
          \label{fig:08LSTest}
      \end{subfigure}
+     \caption{Linear regression validation and test plots.}
         \label{fig:08LSPlots}
 \end{figure}
 
@@ -723,7 +724,7 @@ The hyper parameters for each neural network is given in Table \ref{tab:08NN_hp}
     \label{tab:08NN_hp}
 \end{table}
 
-Table \ref{tab:08_nn} shows the performance assessment of the small, medium and large neural networks.  In all cases, the training and validation data set performance was significantly better compared to the linear model; however, the performance was only slightly better on the test data set. On the training and validation data, the error went down by up to 61\%.  On the test data, error went down by up to 19\%. The difference may be caused by the test data being different from the training data.  Due to the complexity of neural network models, they perform exceptionally well on data that shares similar characteristics as the training data, but perform poorly otherwise. To close the gap in performance, a higher $\lambda$ could be used to reduce model complexity.  Moreover, smaller neural networks could also be explored to reduce model complexity.
+Table \ref{tab:08_nn} shows the performance assessment of the small, medium and large neural networks.  In all cases, the training and validation data set performance was significantly better compared to the linear model; however, the performance was only slightly better on the test data set. On the training and validation data, the error went down by up to 61\%.  On the test data, error went down by up to 19\%. The difference may be caused by the test data being different from the training data.  Due to the complexity of neural network models, they perform exceptionally well on data that shares similar characteristics as the training data, but perform poorly otherwise. To close the gap in performance, a higher $\lambda$ could be used to reduce model complexity.  Moreover, smaller neural networks could also be explored to reduce model complexity. Additionally, a significant amount of data is lacking for the application of neural networks to this data set because only winter months data was collected; however, the models were tested on summer months data where temperatures have increased by up to $\ang{10}$ C, significantly reducing viscosity of the shipped crude.
 
 \begin{table}[h]
 \centering

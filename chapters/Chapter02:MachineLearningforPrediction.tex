@@ -11,7 +11,7 @@
 
 Cheap data storage and escalation of computational power allowed the world to enter a new age: the age of \textit{big data}. With vast amounts of data, previously in-viable and data hungry machine learning algorithms are now implementable.  The technology sector was the first group to be able to exploit this arcane technology to create tremendous value in applications ranging from targeted advertisements to self driving cars. The value was so great that the current top four companies in America by market capitalization are all technology companies (Microsoft, Apple, Amazon, and Facebook) as of 2019. As the technology sector's successes grow, other industries begin to catch a glimpse of the potential value creation in their own respective industries and initiate their own digital revolution. The ripples of success from the technology industry ultimately resulted in waves of capital investments into machine learning (ML) and artificial intelligence (AI) from all industries.
 
-ML solutions promise to be cheaper, more accurate, and have online learning abilities compared to traditional methods.  Additionally, the solutions are promised to be easier to implement and will take less time to design; feed it data and it will learn, as they claim.  With this mentality, machine learning engineers and data scientists from technology companies attempted to conquer other industries, one industry being process control and chemical engineering. Unfortunately, their crusade fell short and their successes were few due to their lack of engineering knowledge and inability to identify large value gains.  Typically, projects in technology companies deal with very unambiguous information such as identifying location of objects or predicting the enjoyments of an individual based on previous articles they have read. However, process control typically generate time-series data and are often very ambiguous with data characteristics unique to the industry. Some characteristics include time delayed data, multi-modal data, unreliable data, highly noisy data, state transition dynamics data, and any combination of the prior.  Due to the increased complexity, data pre-processing for ML projects in the process control industry is mission critical and much more vigorous to ensure successful applications.
+ML solutions promise to be cheaper, more accurate, and have online learning abilities compared to traditional methods.  Additionally, the solutions are promised to be easier to implement and will take less time to design; feed it data and it will learn, as they claim.  With this mentality, machine learning engineers and data scientists from technology companies attempted to conquer other industries, one industry being process control and chemical engineering. Unfortunately, their crusade fell short and their successes were few due to their lack of engineering knowledge and inability to identify large value gains.  Typically, projects in technology companies deal with very unambiguous information such as identifying location of objects or predicting the enjoyments of an individual based on previous articles they have read. However, process control typically generate time-series data and are often very ambiguous with data characteristics unique to the industry. Some characteristics include time delayed data, multi-modal data, unreliable data, highly noisy data, state transition dynamics data, and any combination of the prior.  Due to the increased complexity, data pre-processing for ML projects in the process control industry is mission critical and much more vigorous for successful applications.
 
 Table \ref{tab:2MLApplications} shows some general machine learning applications for the process control industry. Currently, ML applications in the process industry can be broken down into prediction, monitoring, and control.  The field of prediction deals with mapping from certain inputs to desired outputs. An example would be building a soft sensor to predict for a state, $x_{m}$, that is expensive to measure.  By identifying states highly correlated to $x_{m}$, a multivariate soft sensor can be built to inexpensively predict the state in the future. In ML monitoring, the algorithms are tasked to monitor the process for anomalous activities. Here, an example would be applying a classification method to predict for failures in process equipment.  Lastly, ML control is concerned with the topics of adaptive, multivariate optimal control. Reinforcement learning is the typical ML algorithm for control.  
 
@@ -38,7 +38,7 @@ Table \ref{tab:2MLApplications} shows some general machine learning applications
     \label{fig:02AICloud}
 \end{figure}
 
-The objective of this chapter was to convey ideas for implementing machine learning solutions catered towards the \textbf{process control} industry.  In this chapter, the first half consists of common data pre-processing techniques to handle common process control concerns and is visually described by the "Filter Data" box.  The second half contains machine learning methods (in order of difficulty) to handle different process control prediction problems ("Prediction" box in the above figure). For validation, the machine learning methods were implemented live onto an industrial pipeline for prediction, monitoring, and optimization\footnote{This project was supported in part by Mitacs through the Mitacs Accelerate program and the algorithms went live as of May 7th, 2019.}\footnote{This chapter only contains the theory, application, and highlights. The detailed industrial project report can be found in Appendix A.}.
+The objective of this chapter was to convey ideas for implementing machine learning solutions catered towards the \textbf{process control} industry.  In this chapter, the first half consists of common data pre-processing techniques to handle common process control concerns and is visually described by the "Filter Data" box.  The second half contains machine learning methods (in order of difficulty) to handle different process control prediction problems ("Prediction" box in the above figure). To conclude this chapter, the prediction algorithms will be closed off with an adaptive modelling technique inspired by reinforcement learning and adaptive resonance theory. A brief analysis will also be provided to evaluate the ML models' "cheaper, more accurate, and online capability" claim. For validation purposes, the machine learning methods were implemented onto an industrial pipeline for prediction, monitoring, and optimization\footnote{This project was supported in part by Mitacs through the Mitacs Accelerate program and the algorithms went live as of May 7th, 2019.}\footnote{This chapter only contains the theory, application, and highlights. The detailed industrial project report can be found in Appendix A.}.
 
 \section{Data Pre-processing}
 Data pre-processing typically includes many steps starting with filtering by subject matter expertise, and then transitioning to common statistical methods.  For this section, only the filtering methods unique to process control will be discussed. Please refer to Appendix A for details regarding the other steps. Process control is typically concerned with multivariate time-series data plagued with noisy and/or unreliable sensor readings. Time delays are critical to successful prediction applications in process control. Furthermore, some processes may also have a variety of different operating regimes depending on downstream demand or ambient conditions.  In order to have successful prediction algorithms for process control, all of the above must be considered.
@@ -143,7 +143,7 @@ An especially useful type of neural networks for the process industry are RNNs (
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.9\textwidth]{images/ch2/02RNN.png}
-    \caption{Architecture of a RNN.  Original image from \cite{NN}}
+    \caption{Architecture of a RNN.  Original image from \cite{NN}.}
     \label{fig:02RNN}
 \end{figure}
 
@@ -152,7 +152,7 @@ CNNs are the last type of neural networks and are typically used for computer vi
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.9\textwidth]{images/ch2/02CNN.png}
-    \caption{Architecture of a CNN.  Original image from \cite{NN}}
+    \caption{Architecture of a CNN.  Original image from \cite{NN}.}
     \label{fig:02CNN}
 \end{figure}
 
@@ -161,7 +161,73 @@ In the process industry, CNNs can be leveraged as a soft sensor to measure varia
 Both CNNs and RNNs were not applied to the industrial project directly, but were provided to the reader as \textbf{advanced} methods for future projects that command exceptionally high predictive power, or computer vision soft sensing capabilities.  More information regarding RNNs and CNNs can be found in \cite{NN}.
 
 \subsection{Linear Parameter-varying Models}
-Linear parameter-varying models (LPV) are last type of ML models that were applied to the industrial pipeline.  
+Linear parameter-varying models (LPV) were last type of ML models that were applied to the industrial pipeline. The motivation behind LPV models is twofold: i) Achieves a non-linear representation of the data using a combination of linear models; ii) Models different operating regimes of a process using different models.  The LPV model structure is identical to linear models with the exception that there are multiple linear models.  The number of linear models is a function of the non-linearity of the system, the number of operating regimes, and the amount of available data.  
 
-\subsection{Adaptive Modelling: Importance Sampling Incremental Learning (ISIS)}
+Figure \ref{fig:02LPVexample} shows an example of fitting multiple linear models to approximate a non-linear system. Two separate approaches were used: 3-model approach and 6-model approach.  Performance wise, the 6-model approach is far superior. However, the 6-model approach uses twice as many models resulting in a significantly higher maintenance and ownership cost.  Additionally, the individual model performance for the 6-model approach may experience high variance if low amounts of data are present at certain points.  If performance is of utmost importance and data is abundant, a large number of linear models could be used.  Otherwise, a LPV model with a lower amount of models is adequate.
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/ch2/02LPVexample.jpeg}
+    \caption{Fitting a non-linear function using multiple linear models.}
+    \label{fig:02LPVexample}
+\end{figure}
+
+Clustering techniques can be used to identify distinct models for large MIMO systems containing multiple operating regimes and/or where non-linearity is not easily visualized.  Table \ref{tab:08cluster1_cluster2_reg} and Figure \ref{fig:08LPVModels} shows the application of a 2-model LPV model onto the industrial pipeline for the two separate operating regimes.  The original data set was first segregated into two clusters using DBSCAN.  Then, separate linear models were built for each cluster. During model testing, the Euclidean distance of new samples to the centroids of each cluster is computed to determine which linear model should be used for prediction. In terms of performance, the LPV model was able to achieve very similar performance metrics compared to the other non-linear models.  Additionally, the LPV models are more representative of the process in terms of control because each model (for each operating regime) has unique weights and constraints. For control, this is especially beneficial.  For example, if pump A was never used for operating regime B, the model would be highly inaccurate if the control system recommended its operation.  Using LPV models, explicit constraints can be placed to prevent such a scenario, as shown in the LPV section in Appendix A.
+
+The training and deployment procedure for using a LPV model in an arbitrary process is shown in Figure \ref{fig:02lpv_architecture}.  Starting from the top, historical data for the process is first clustered into $n$ data sets.  Here, $n$ can be pre-defined using subject matter knowledge, or can be found using DBSCAN.  After segregation, each cluster should have enough data to effectively identify useful linear models.  Finally, the data sets are used to identify linear models.  Each model will have unique constraints to enhance the representation of the physical process.  Deployment-wise, new measurements are obtained from field sensors and are sent to the LPV model.  Then, the Euclidean distance (or desired distance metric) between the new measurement and the centroids of each model are calculated. The model exhibiting the lowest distance will be used for prediction. However, if the distance between the new measurement and the closest centroid is too large, the measurement will be labeled as anomalous instead.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/ch2/02lpv_architecture.jpeg}
+    \caption{Architecture of the LPV model during training and implementation}
+    \label{fig:02lpv_architecture}
+\end{figure}
+
+\subsection{USIS: Uniform Sampling Incremental Supervised learning}
+A major selling point of ML solutions is their promise of being adaptive. Because of the way ML solutions are updated (gradient descent), adaption can easily be incorporated in a natural and biological way. Figure \ref{fig:02GradDesc} shows an intuitive representation of the gradient descent algorithm.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.75\textwidth]{images/ch2/02GradDesc}
+    \caption{An intuitive representation of gradient descent.}
+    \label{fig:02GradDesc}
+\end{figure}
+
+During an update step, the new knowledge is intuitively the old knowledge adjusted by new learnings.  The new learnings are typically multiplied by a fixed learning rate, $\alpha$. From this, the new knowledge is always biased towards the most recent experience, giving ML solutions an adaptive characteristic.  Adaptive ML can be implemented in two forms: online learning or incremental learning. Online learning refers to the ML models being updated after each prediction and can be understood mathematically as stochastic optimization. Common applications of online learning can be found in search optimization for web pages, where millions of data points are generated per minute. Online learning is not suitable for process control applications due to three reasons: catastrophic interference (i.e., tendency of neural networks to completely and abruptly forget previously learned information upon learning new information \cite{cat_int}), sequential noisy data decimating model accuracy, and insufficient incoming data to identify representative models for useful applications.  In adaptive ML, incremental learning is the preferred choice for process control applications due to its reduced randomness.  Incremental ML works by creating a data cache, and then updating the model using all data from the cache simultaneously after a fixed interval.  By doing so, the models will be updated much slower and the gradient of the loss function is an average of many examples, a method similar to semi-stochastic optimization.
+
+\subsubsection{Motivation}
+Incremental learning still falls short in terms of catastrophic interference (also known as catastrophic forgetting). This is especially a problem for the process industry, where operating conditions may be prolonged for many months before a switch is made. Because ML solutions are biased towards the most recent experiences, past experiences will be forgotten and the model will perform poorly if faced with old conditions after a long time. 
+
+The uniform sampling incremental supervised learning (USIS) algorithm is proposed to overcome this issue and to enhance data efficiency for adaptive ML techniques.  USIS is a combination of adaptive resonance theory, uniform sampling, experience replay (from reinforcement learning theory), where each update step is outlier free, data is efficiently used many times, and data is uniformly sampled across the distribution of the model to prevent catastrophic interference.
+
+The simplified adaptive resonance theory (ART) architecture is shown in Figure \ref{fig:02art}. ART was originally proposed to prevent disrupting existing knowledge during learning of new knowledge.  In ART, the comparison field first allocates the input vector to the best match model in the recognition field based on a distance metric, $d$.  Then, the distance between the input vector and the closest matching model is compared to the vigilance parameter, $\nu$.  If $d < \nu$, the model weights will be adjusted using the new input vector.  Otherwise, the input vector is used to initiate a new model.  The vigilance parameter has significant influence on the overall system.  Intuitively, higher vigilance produces highly detailed memories (many specialized models), while lower vigilance creates generalized memories (fewer, generalized models) \cite{art}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/ch2/02art.jpeg}
+    \caption{The simplified adaptive resonance theory architecture.}
+    \label{fig:02art}
+\end{figure}
+
+Uniform sampling is random sampling method where proportions of each desired group are forced to be sampled equally.  In the context of process control where data typically remain constant over long periods of time, uniform sampling can guarantee data variety during an incremental learning update step.
+
+Lastly, experience replay is a method that gained popularity when it was first introduced to reinforcement learning to improve data effciency \cite{dqn}.
+
+\subsubsection{USIS Algorithm}
+
+Figure \ref{fig:02USIS} shows the architecture for the USIS algorithm.  
+
+- Add effects of memory replay here for tuning of USIS.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{images/suncor/08IncrementalLearning.png}
+    \caption{Uniform Sampling Incremental Supervised learning architecture.}
+    \label{fig:02USIS}
+\end{figure}
+
+Uniform sampling in USIS can also be swapped out for importance sampling, where high error examples are prioritized for the next sampling cycle (motivation from \cite{prioritize_exp_replay}.  Although, such a method may prioritize noisy, near-outlier data points and introduce model divergence.
+
+as proposed in \cite{}
+
+\subsection{Conclusion: Cheaper, More Accurate, and Adaptive?}

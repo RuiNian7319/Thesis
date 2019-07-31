@@ -836,7 +836,7 @@ The comparison of actual and predicted flow rates on the validation and test dat
          \label{fig:08cluster2_test}
      \end{subfigure}
         \caption{Predicted vs. actual flow rate for the linear parameter-varying models.}
-        \label{fig:08PolynomialPlots}
+        \label{fig:08LPVModels}
 \end{figure}
 
 Ultimately, the LPV model structure was selected to model the pipeline.  The LPV model has the interpretability of linear models, while having the predictive capabilities of non-linear models.  Furthermore, the LPV model identifies a separate set of parameters for the two distributions, making the optimization algorithm more representative of live operations.  For example, because no DRA was used for lower flow rates, the optimization algorithm will have explicit constraints on model 2 to not use DRA as well. A similar example would be using only Station B3 booster 1 for cluster 2, while using Station B3 booster 2 for cluster 1.  The advantages of these constraints are twofold: i) More realistic to live operations.  ii) Avoid model extrapolations (since no DRA data was used to identify model 2, the optimizer should not be able to use it for optimization).

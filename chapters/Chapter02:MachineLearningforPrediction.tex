@@ -198,7 +198,7 @@ During an update step, the new knowledge is intuitively the old knowledge adjust
 \subsubsection{Motivation}
 Incremental learning still falls short in terms of catastrophic interference (also known as catastrophic forgetting). This is especially a problem for the process industry, where operating conditions may be prolonged for many months before a switch is made. Because ML solutions are biased towards the most recent experiences, past experiences will be forgotten and the model will perform poorly if faced with old conditions after a long time. 
 
-The uniform sampling incremental supervised learning (USIS) algorithm is proposed to overcome this issue and to enhance data efficiency for adaptive ML techniques.  USIS is a combination of adaptive resonance theory, uniform sampling, experience replay (from reinforcement learning theory), where each update step is outlier free, data is efficiently used many times, and data is uniformly sampled across the distribution of the model to prevent catastrophic interference.
+The uniform sampling incremental supervised learning (USIS) algorithm was proposed to overcome this issue and to enhance data efficiency for adaptive ML techniques.  USIS is a combination of adaptive resonance theory, uniform sampling, and experience replay (from reinforcement learning theory), where each update step is outlier free, data is efficiently used many times, and data is uniformly sampled across the distribution of the model to prevent catastrophic interference.
 
 The simplified adaptive resonance theory (ART) architecture is shown in Figure \ref{fig:02art}. ART was originally proposed to prevent disrupting existing knowledge during learning of new knowledge.  In ART, the comparison field first allocates the input vector to the best match model in the recognition field based on a distance metric, $d$.  Then, the distance between the input vector and the closest matching model is compared to the vigilance parameter, $\nu$.  If $d < \nu$, the model weights will be adjusted using the new input vector.  Otherwise, the input vector is used to initiate a new model.  The vigilance parameter has significant influence on the overall system.  Intuitively, higher vigilance produces highly detailed memories (many specialized models), while lower vigilance creates generalized memories (fewer, generalized models) \cite{art}.
 
@@ -209,16 +209,18 @@ The simplified adaptive resonance theory (ART) architecture is shown in Figure \
     \label{fig:02art}
 \end{figure}
 
-Uniform sampling is random sampling method where proportions of each desired group are forced to be sampled equally.  In the context of process control where data typically remain constant over long periods of time, uniform sampling can guarantee data variety during an incremental learning update step.
+Uniform sampling is random sampling method where proportions of each desired group are forced to be sampled equally. For example, imagine a pump data set used to predict for the pump RPM given an input current.  The pump RPMs range between 0 - 1000 and the accuracy of the model is important across all values; however, the data set is significantly biased towards the 900 - 1000 RPM range, with only few data points in other regions.   In the context of process control where data typically remain constant over long periods of time, uniform sampling can guarantee data variety during an incremental learning update step.
 
-Lastly, experience replay is a method that gained popularity when it was first introduced to reinforcement learning to improve data effciency \cite{dqn}.
+Lastly, experience replay is a method that gained popularity when it was first introduced to reinforcement learning to improve data efficiency and break temporal correlations \cite{dqn}. In experience replay, data (or experiences) are accumulated over time and are stored in a buffer.  During an update step, data is randomly sampled from the buffer to break temporal correlations that could potentially bias the models towards the most recent experience.  Additionally, data within the buffer can be re-used many times rather than being discarded after one update. Only after many time steps are the oldest memories removed from the buffer. An biological interpretation behind the algorithm is that humans create memories of past experiences.  Over the span of our lives, the same experiences are replayed many times; subconsciously when we eat, study, sleep.  In doing so, humans can learn new experiences without catastrophically forgetting about past experiences; however, after an elongated period of time, distance memories that are rarely experienced are forgotten.
+
+By combining the advantages of the previous three topics, a new adaptive, outlier-robust, and data efficient algorithm catered towards the process control industry was developed.
 
 \subsubsection{USIS Algorithm}
 
-Figure \ref{fig:02USIS} shows the architecture for the USIS algorithm.  
+Figure \ref{fig:02USIS} shows the architecture for the USIS algorithm.  Initially, $n \geq 1$ models are present to model for the system.  
 
 - Add effects of memory replay here for tuning of USIS.
-
+- Tuning parameters: size of replay buffer, size of each bin, vigilance parameter, distance metric.
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{images/suncor/08IncrementalLearning.png}
@@ -226,8 +228,8 @@ Figure \ref{fig:02USIS} shows the architecture for the USIS algorithm.
     \label{fig:02USIS}
 \end{figure}
 
-Uniform sampling in USIS can also be swapped out for importance sampling, where high error examples are prioritized for the next sampling cycle (motivation from \cite{prioritize_exp_replay}.  Although, such a method may prioritize noisy, near-outlier data points and introduce model divergence.
+Uniform sampling in USIS can also be swapped out for importance sampling, where high error examples are prioritized for the next sampling cycle (motivation from \cite{prioritize_exp_replay}. In doing so, high error examples (biologically modelled as 'shocking' experiences) have higher probabilities of being recalled.  Intuitively, humans recall 'shocking' experiences more often. The method enhances accuracy in many reinforcement learning applications \cite{dqn, er1, er2}, although, such a method may prioritize noisy, near-outlier data points in process control applications and introduce model divergence.
 
-as proposed in \cite{}
+as proposed in \cite{eff_of_er}.
 
-\subsection{Conclusion: Cheaper, More Accurate, and Adaptive?}
+\section{Conclusion: Cheaper, More Accurate, and Adaptive?}

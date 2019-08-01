@@ -40,6 +40,8 @@ Table \ref{tab:2MLApplications} shows some general machine learning applications
 
 The objective of this chapter was to convey ideas for implementing machine learning solutions catered towards the \textbf{process control} industry.  In this chapter, the first half consists of common data pre-processing techniques to handle common process control concerns and is visually described by the "Filter Data" box.  The second half contains machine learning methods (in order of difficulty) to handle different process control prediction problems ("Prediction" box in the above figure). To conclude this chapter, the prediction algorithms will be closed off with an adaptive modelling technique inspired by reinforcement learning and adaptive resonance theory. A brief analysis will also be provided to evaluate the ML models' "cheaper, more accurate, and online capability" claim. For validation purposes, the machine learning methods were implemented onto an industrial pipeline for prediction, monitoring, and optimization\footnote{This project was supported in part by Mitacs through the Mitacs Accelerate program and the algorithms went live as of May 7th, 2019.}\footnote{This chapter only contains the theory, application, and highlights. The detailed industrial project report can be found in Appendix A.}.
 
+The contributions of the author in this chapter...
+
 \section{Data Pre-processing}
 Data pre-processing typically includes many steps starting with filtering by subject matter expertise, and then transitioning to common statistical methods.  For this section, only the filtering methods unique to process control will be discussed. Please refer to Appendix A for details regarding the other steps. Process control is typically concerned with multivariate time-series data plagued with noisy and/or unreliable sensor readings. Time delays are critical to successful prediction applications in process control. Furthermore, some processes may also have a variety of different operating regimes depending on downstream demand or ambient conditions.  In order to have successful prediction algorithms for process control, all of the above must be considered.
 
@@ -200,7 +202,7 @@ Incremental learning still falls short in terms of catastrophic interference (al
 
 The uniform sampling incremental supervised learning (USIS) algorithm was proposed to overcome this issue and to enhance data efficiency for adaptive ML techniques.  USIS is a combination of adaptive resonance theory, uniform sampling, and experience replay (from reinforcement learning theory), where each update step is outlier free, data is efficiently used many times, and data is uniformly sampled across the distribution of the model to prevent catastrophic interference.
 
-The simplified adaptive resonance theory (ART) architecture is shown in Figure \ref{fig:02art}. ART was originally proposed to prevent disrupting existing knowledge during learning of new knowledge.  In ART, the comparison field first allocates the input vector to the best match model in the recognition field based on a distance metric, $d$.  Then, the distance between the input vector and the closest matching model is compared to the vigilance parameter, $\nu$.  If $d < \nu$, the model weights will be adjusted using the new input vector.  Otherwise, the input vector is used to initiate a new model.  The vigilance parameter has significant influence on the overall system.  Intuitively, higher vigilance produces highly detailed memories (many specialized models), while lower vigilance creates generalized memories (fewer, generalized models) \cite{art}.
+The simplified adaptive resonance theory (ART) architecture is shown in Figure \ref{fig:02art}. ART was originally proposed to prevent disrupting existing knowledge during learning of new knowledge.  In ART, the comparison field first allocates the input vector to the best match model in the recognition field based on a distance metric, $d$.  Then, the distance between the input vector and the closest matching model is compared to the vigilance parameter, $\nu$.  If $d < \nu$, the model weights will be adjusted using the new input vector.  Otherwise, the input vector is used to initiate a new model.  The vigilance parameter has significant influence on the overall system.  Intuitively, lower vigilance produces highly detailed memories (many specialized models), while higher vigilance creates generalized memories (fewer, generalized models)\footnote{Originally, ART uses a measure of similarity and not distance.  High similarity represents low distance; therefore, higher vigilance produces highly detailed memories while lower vigilance creates generalized memories, the opposite of distance.} \cite{art}.
 
 \begin{figure}[h]
     \centering
@@ -209,18 +211,16 @@ The simplified adaptive resonance theory (ART) architecture is shown in Figure \
     \label{fig:02art}
 \end{figure}
 
-Uniform sampling is random sampling method where proportions of each desired group are forced to be sampled equally. For example, imagine a pump data set used to predict for the pump RPM given an input current.  The pump RPMs range between 0 - 1000 and the accuracy of the model is important across all values; however, the data set is significantly biased towards the 900 - 1000 RPM range, with only few data points in other regions.   In the context of process control where data typically remain constant over long periods of time, uniform sampling can guarantee data variety during an incremental learning update step.
+Uniform sampling is a random sampling method where proportions of each desired group are forced to be sampled equally. For example, imagine a pump data set used to predict for the pump RPM given an input current.  The pump RPMs range between 0 - 1000 and the accuracy of the model is important across all values; however, the data set is significantly biased towards the 900 - 1000 RPM range, with only few data points in other regions. To ensure the model has acceptable performance across all values, the data set can be binned and equal amounts of data from each bin are sampled during the update step.  In the context of process control where data typically remain constant over long periods of time, uniform sampling can guarantee data variety during an incremental learning update step.
 
-Lastly, experience replay is a method that gained popularity when it was first introduced to reinforcement learning to improve data efficiency and break temporal correlations \cite{dqn}. In experience replay, data (or experiences) are accumulated over time and are stored in a buffer.  During an update step, data is randomly sampled from the buffer to break temporal correlations that could potentially bias the models towards the most recent experience.  Additionally, data within the buffer can be re-used many times rather than being discarded after one update. Only after many time steps are the oldest memories removed from the buffer. An biological interpretation behind the algorithm is that humans create memories of past experiences.  Over the span of our lives, the same experiences are replayed many times; subconsciously when we eat, study, sleep.  In doing so, humans can learn new experiences without catastrophically forgetting about past experiences; however, after an elongated period of time, distance memories that are rarely experienced are forgotten.
+Lastly, experience replay is a method that gained popularity when it was first introduced to reinforcement learning to improve data efficiency and break temporal correlations \cite{dqn}. In experience replay, data (or experiences) are accumulated over time and are stored in a buffer.  During an update step, data is randomly sampled from the buffer to break temporal correlations that could potentially bias the models towards the most recent experience.  Additionally, data within the buffer can be re-used many times rather than being discarded after one update. Only after many time steps are the oldest memories removed from the buffer. An biological interpretation behind the algorithm is that humans create memories of past experiences.  Over the span of our lives, the same experiences are replayed many times; subconsciously when we eat, study, sleep, etc.  In doing so, humans can learn new experiences without catastrophically forgetting about past experiences; however, after an elongated period of time, distance unimpactful memories are forgotten.
 
 By combining the advantages of the previous three topics, a new adaptive, outlier-robust, and data efficient algorithm catered towards the process control industry was developed.
 
 \subsubsection{USIS Algorithm}
 
-Figure \ref{fig:02USIS} shows the architecture for the USIS algorithm.  Initially, $n \geq 1$ models are present to model for the system.  
+Figure \ref{fig:02USIS} shows the architecture for the USIS algorithm.  Initially, $n \geq 1$ models are present to model the system.  For input vectors in $n \geq 2$ systems, the distance $d$ between the input vector and the centroid of the data for each model is computed. This step is skipped for systems where $n = 1$ because only one $d$ is computed. The lowest $d$ is then compared to the vigilance parameter, $\nu$.  If $d \leq \nu$, the input vector will be added to the training archive (experience replay buffer) corresponding to the model.  Otherwise, the data point is transferred to the new model archive where data currently not belonging to any model is stored. In the new model archive, new models will be generated and added to the existing system of models after enough similar data is accumulated. Likewise, the training archives are used to incrementally update all models after a certain amount of data or time elapsed. During an update step, the archive data will be blended with additional uniformly sampled data from the historical archive (experience replay buffer) to avoid catastrophic interference. 
 
-- Add effects of memory replay here for tuning of USIS.
-- Tuning parameters: size of replay buffer, size of each bin, vigilance parameter, distance metric.
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{images/suncor/08IncrementalLearning.png}
@@ -228,8 +228,24 @@ Figure \ref{fig:02USIS} shows the architecture for the USIS algorithm.  Initiall
     \label{fig:02USIS}
 \end{figure}
 
+To enhance clarity of each update step, the data storage structure of USIS is shown in Figure \ref{fig:02USISData}. Before an update, the bins of each model must be defined.  The bins are typically defined by dividing the distribution of the predicted variable.  Bins can be narrower around regimes with abundant data, and wider for regimes lacking data.  During an update step, all data from the training archive alongside some sampled data from the historical training archive are blended together and fed into the gradient descent step for model updates.  Typically in process control applications, systems tend to linger around certain set points for many time steps.  Given this characteristic, the data in the training archives, consisting of $m$ training examples, typically belong to the same bin.  To avoid catastrophic interference when learning on 
+
+After the updates, all training archives are emptied by transferring the data into the historical archives.  When the historical archives get sufficiently full, the oldest data (or memories) are deleted.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/ch2/02USISData.jpeg}
+    \caption{Data storage structure of USIS.}
+    \label{fig:02USISData}
+\end{figure}
+
+- Add effects of memory replay here for tuning of USIS.
+- Tuning parameters: size of replay buffer, size of each bin, vigilance parameter, distance metric, time/size of replay buffer before model update.
+
 Uniform sampling in USIS can also be swapped out for importance sampling, where high error examples are prioritized for the next sampling cycle (motivation from \cite{prioritize_exp_replay}. In doing so, high error examples (biologically modelled as 'shocking' experiences) have higher probabilities of being recalled.  Intuitively, humans recall 'shocking' experiences more often. The method enhances accuracy in many reinforcement learning applications \cite{dqn, er1, er2}, although, such a method may prioritize noisy, near-outlier data points in process control applications and introduce model divergence.
 
 as proposed in \cite{eff_of_er}.
+
+\section{Application onto an Industrial Pipeline}
 
 \section{Conclusion: Cheaper, More Accurate, and Adaptive?}

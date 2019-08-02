@@ -282,7 +282,7 @@ To summarize, ML prediction applications are generally cheaper compared to their
 
 \section{Highlights of ML Application onto a Pipeline}
 
-The methods and algorithms in this chapter were applied onto an industrial pipeline.  The highlights of the implementation will be shown in this section.  For a detailed project report, please refer to Appendix A.
+The methods and algorithms in this chapter were applied onto an industrial pipeline\footnote{Many values are significantly rounded and/or omitted to maintain confidentality of the project}.  The highlights of the implementation will be shown in this section.  For a detailed project report, please refer to Appendix A.
 
 \subsection{Process Description}
 Pipelines are critical assets for the transport of fluids safely and efficiently across long distances. Fluids include petroleum products, clean water, natural gas, sewage, and even beer. In Canada, over 97\% of petroleum products are shipped by pipeline alone.  Due to the mission critical nature of pipelines on society's success, ensuring its reliability and efficiency has global-scale impact.  Typical pipelines may contain hundreds of digital sensors littered across the pipeline.  Such information overload may be overwhelming for humans; however, ML methods benefit greatly from the abundance of data.  Here, an opportunity was discovered where ML methods can be applied to greatly increase the robustness and efficiency of the pipeline.  For phase one of the project, ML prediction models were built to create a digital twin of the pipeline for operator training programs and future optimization purposes.
@@ -299,12 +299,27 @@ A schematic of the pipeline is shown in Figure \ref{fig:02RM06A}.  The highly co
 Equipment wise, Line B boasts eight pumps spread across four pump stations. Two pumps are variable frequency drives (VFD), while the rest are on/off pumps. Additionally, there are four drag reducing agent (DRA) injection pumps situated at the second and third pump stations. Each pump station contains a heavy crude and light crude DRA pump because the different crudes use different types of DRA.  The DRA is injected based on the product present at the pump station. 
 
 \subsection{Data Pre-processing}
-The industry sponsors initially provided a data set containing 899 tags and 525,601 data points for each tag.  The data pre-processing step was deconstructed into three phases for this project: pre-processing by subject matter experts, automated data pre-processing, and manual data pre-processing. The first two phases are typical of any machine learning project.  The third phase contains methods introduced in this chapter. Upon completion, an on-going iterative data pre-processing procedure continued until the end of the project to ensure industrial sponsors were satisfied with the model performance. 
+The industry sponsors initially provided a data set containing 899 tags and 525,601 data points for each tag.  The data pre-processing step was deconstructed into three phases for this project: pre-processing by subject matter experts, automated data pre-processing, and manual data pre-processing. The first two phases are typical of any machine learning project.  The third phase contains methods introduced in this chapter. Upon completion, an on-going iterative data pre-processing procedure continued until the end of the project to ensure industrial sponsors were satisfied with the model performance. The objective of the prediction models were to predict the \textbf{output flow rate} as a function of process variables.
 
-The data was first pre-processed by experts within the sponsor's organization to remove useless tags such as alarm limits, fire detector status, and the sort.  After doing so, the amount of tags was reduced to 124.  The remaining data was sent into various automated data pre-processing algorithms to further remove redundant/insignificant tags.  The algorithms include: missing data removal, data imbalance analysis, and collinear analysis.  Missing data removal clears
+The data was first pre-processed by experts within the sponsor's organization to remove useless tags such as alarm limits, fire detector status, and the sort.  After doing so, the amount of tags was reduced to 124.  The remaining data was sent into various automated data pre-processing algorithms to further remove redundant/insignificant tags.  The algorithms include: missing data removal, data imbalance analysis, and collinear analysis.  Missing data removal cleans up any NaN or empty values in the data set.  Data imbalance analysis inspects all categorical variables and removes heavily imbalanced tags where one class significantly dominates all other classes.  Lastly, collinear analysis identify heavily correlated columns and removes all but one to prevent redundancy in the data set. Total tags reduced to 65 after the automated feature selection.
 
+Next, the manual pre-processing was conducted on the data set.  First, engineering knowledge was applied to the pre-processing step to remove segments of data where the process exhibits abnormal operating behaviour.  Then, the data at each pump station was shifted to incorporate time delays. In pipelines transporting incompressible fluids, pressure propagates down at the speed of sound (1480 km/h) \cite{fluid_mechanics}; therefore, all pressure variables were shifted with accordance to their distance to the output of the pipeline (shown in Table \ref{tab:02TimeToCC}.  Likewise, DRA also had time delay.  DRA must be transported down the entire pipeline to exhibit its full drag reducing nature.  ......... 10 hrs deleted
 
+\begin{table}[h]
+    \centering
+    {\setstretch{1.2}
+    \begin{tabular}{ p{6cm} | c | c | c | c}
+             & B1 & B2 & B3 & B4 \\
+        \hline
+        Time to refinery at speed of sound in liquids (1480 m/s) \cite{fluid_mechanics}
+        &  2.0 min  &  2.0 min  &  1.0 min  &  1.0 min  \\
+    \end{tabular}}
+    \caption{Time required for pressure changes at each pump station to be realized at refinery.}
+    \label{tab:08TimeToCC}
+\end{table}
 
+- ewma smoothing
+- transforming features to be representative of how its actually used.
 
 \subsection{Machine Learning Predictions}
 

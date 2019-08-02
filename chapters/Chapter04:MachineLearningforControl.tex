@@ -7,6 +7,9 @@
 % 2. Continuous control using deep reinforcement learning
 % 3. Comparison of results with MPC on simple systems
 % 4. Fault tolerant RL vs. traditional methods
+% 5. Control of a wastewater treatment process
+% 6. Optimization
+%  - Adaptive using model updates
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -636,6 +639,12 @@ Requires offline training        & Yes & No \\ \hline
     \label{tab:ftcAll}
 \end{table}
 
-
 \section{Concluding Remarks on the FTCS}
 Eventually, all process equipment will reach the end of their operational lifetime and fail.  Such failures are difficult to predict and may cause catastrophic damage; therefore, it is advantageous to proactively manage risks using a fault-tolerant control system (FTCS).  This study proposed a general FTCS for continuous MIMO systems using reinforcement learning (RL). The FTCS was placed in the supervisory control layer and gave operating recommendations to process control systems. The FTCS was simulated distillation tower, showing its fault tolerant nature, robustness to uncertainties, and disturbance rejection capabilities all while being adaptive. The system was also evaluated from an industrial implementation perspective and compared to traditional optimal control methods similar to RL.  Unsurprisingly, MPC was found to be the superior method if a perfect model was provided and sufficient computational time was given. However, MPC falls short during scenarios with model plant mismatch, or if the controller is poorly tuned. RL's performance is only slightly worse than MPC, and is robust to model plant mismatch due to its \textit{model-free} nature and velocity implementation style. Ultimately, RL may be the preferred method in an industrial environment where hardware is lacking, engineers being under time pressure to create solutions, and/or fast computational time is necessary.
+
+\section{Discussion: Cheaper, More Accurate, and Adaptive?}
+\begin{itemize}
+    \item \textbf{Cheaper: } training new operator - Training new operators - the first 6 months.
+    \item \textbf{More Accurate: } aa
+    \item \textbf{Adaptive: } aa
+\end{itemize}

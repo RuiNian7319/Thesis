@@ -284,4 +284,31 @@ To summarize, ML prediction applications are generally cheaper compared to their
 
 The methods and algorithms in this chapter were applied onto an industrial pipeline.  The highlights of the implementation will be shown in this section.  For a detailed project report, please refer to Appendix A.
 
+\subsection{Process Description}
 Pipelines are critical assets for the transport of fluids safely and efficiently across long distances. Fluids include petroleum products, clean water, natural gas, sewage, and even beer. In Canada, over 97\% of petroleum products are shipped by pipeline alone.  Due to the mission critical nature of pipelines on society's success, ensuring its reliability and efficiency has global-scale impact.  Typical pipelines may contain hundreds of digital sensors littered across the pipeline.  Such information overload may be overwhelming for humans; however, ML methods benefit greatly from the abundance of data.  Here, an opportunity was discovered where ML methods can be applied to greatly increase the robustness and efficiency of the pipeline.  For phase one of the project, ML prediction models were built to create a digital twin of the pipeline for operator training programs and future optimization purposes.
+
+A schematic of the pipeline is shown in Figure \ref{fig:02RM06A}.  The highly complex pipeline spans over 100 kms and carries two products, a lighter product and a heavier product. The two products are batched (i.e., rotate between sending each product) and each product is sent for approximately eight hours before switching to the other product. The American Petroleum Institute (API) gravity for the lighter and heavier products are roughly 40 and 20, respectively. For the rest of this chapter, the lighter and heavier product will be referred to as \textit{light crude} and \textit{heavy crude}, respectively. The pipeline is typically operated between 1800 bbl/h to 3050 bbl/h. 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.33]{images/suncor/08RM06A.png}
+    \caption{Schematic diagram of Line B.}
+    \label{fig:02RM06A}
+\end{figure}
+
+Equipment wise, Line B boasts eight pumps spread across four pump stations. Two pumps are variable frequency drives (VFD), while the rest are on/off pumps. Additionally, there are four drag reducing agent (DRA) injection pumps situated at the second and third pump stations. Each pump station contains a heavy crude and light crude DRA pump because the different crudes use different types of DRA.  The DRA is injected based on the product present at the pump station. 
+
+\subsection{Data Pre-processing}
+The industry sponsors initially provided a data set containing 899 tags and 525,601 data points for each tag.  The data pre-processing step was deconstructed into three phases for this project: pre-processing by subject matter experts, automated data pre-processing, and manual data pre-processing. The first two phases are typical of any machine learning project.  The third phase contains methods introduced in this chapter. Upon completion, an on-going iterative data pre-processing procedure continued until the end of the project to ensure industrial sponsors were satisfied with the model performance. 
+
+The data was first pre-processed by experts within the sponsor's organization to remove useless tags such as alarm limits, fire detector status, and the sort.  After doing so, the amount of tags was reduced to 124.  The remaining data was sent into various automated data pre-processing algorithms to further remove redundant/insignificant tags.  The algorithms include: missing data removal, data imbalance analysis, and collinear analysis.  Missing data removal clears
+
+
+
+
+\subsection{Machine Learning Predictions}
+
+
+
+
+\subsection{Implementation of USIS}

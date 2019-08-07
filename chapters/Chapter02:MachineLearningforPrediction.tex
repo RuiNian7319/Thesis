@@ -664,10 +664,11 @@ The hyper parameters for each linear model is identical to the values shown in T
 \subsection{Implementation of USIS}
 After the model accuracy was deemed acceptable by the industrial sponsors, the next phase of the project aimed to automate machine learning updates, creating a true self-learning system.  The USIS algorithm was applied to automate each update step, while avoiding outliers and catastrophic interference. 
 
-The hyper parameters for USIS are summarized in Table \ref{tab:02USISHP}. The model was set to update every 24 hours to avoid any significant changes in model weights. Each update step has a maximum of 1440 ($24 \times 60)$ data points per bin. There were ten bins for each model; each had a width of 200 bbl/h.  The bins ranged from 1200 - 3200 bbl/h.  The Euclidean distance was used to calculate the distance metric, $d$.  Moreover, the neglect parameter was selected to be 1.13, identical to $\epsilon$.  Finally, the replay buffer kept the last three months data in memory to avoid catastrophic interference.  Three months was recommended by the industrial sponsors to .
+The hyper parameters for USIS are summarized in Table \ref{tab:02USISHP}. The model was set to update every 24 hours to avoid any significant changes in model weights. Each update step has a maximum of 1440 ($24 \times 60)$ data points per bin. There were ten bins for each model; each had a width of 200 bbl/h.  The bins ranged from 1200 - 3200 bbl/h.  The Euclidean distance was used to calculate the distance metric, $d$.  Moreover, the neglect parameter was selected to be 1.13, identical to $\epsilon$.  Finally, each replay buffer had the capacity to keep three months data in memory to avoid catastrophic interference.  Three months was recommended by the industrial sponsors to ensure relevant information was used for model updates.
 
 \begin{table}[h]
     \centering
+    {\setstretch{1.2}
     \begin{tabular}{c|c}
     Hyper parameter & Value \\ \hline
     \# of models, $n$ & 2 \\
@@ -676,16 +677,21 @@ The hyper parameters for USIS are summarized in Table \ref{tab:02USISHP}. The mo
     Distance metric, $d$ & Euclidean \\
     Neglect parameter, $\eta$ & 1.13 \\
     Replay buffer & 129,600 (3 months) \\
-    \end{tabular}
+    \end{tabular}}
     \caption{USIS hyper parameters for the pipeline project.}
     \label{tab:02USISHP}
 \end{table}
 
-The overall USIS algorithm implemented onto the industrial pipeline is shown in Figure \ref{fig:02USISPipe}.
+The overall USIS algorithm implemented onto the industrial pipeline is shown in Figure \ref{fig:02USISPipe}.  Raw process data is first inputted into the data pre-processing step where data is smoothed (temperature, DRA), transformed (density data), and normalized.  The processed data is then sent into the model selection phase, where one of the two linear models will be selected to perform the prediction.  Then, the data is archived in the USIS architecture.  After every 24 hours, the models are updated using historical data.
 
-\begin{figure}
+\begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{}
+    \includegraphics[width=\textwidth]{images/ch2/02USISPipe.jpeg}
     \caption{An overall look at the USIS algorithm on the industrial pipeline}
     \label{fig:02USISPipe}
 \end{figure}
+
+\subsection{Concluding Remarks on the Pipeline Project}
+Pipelines are critical assets used to transport fluids across large distances.  Common transported fluids include petroleum products, water, sewage, and natural gas. Due to the mission critical nature of pipelines on society's success, ensuring its reliability and efficiency has global-scale impact. 
+
+The first phase of the pipeline project aimed to identify accurate, interpretable, and adaptive models to predict for the output flow rate of the pipeline.  To enhance model performance, the data was initially pre-processed vigorously through smoothing, feature selection, feature engineering, and other methods.  During model identification, the following models were tried: linear models, exponential models, neural networks with varying sizes, LPV models.  Ultimately, LPV models were selected due to their interpretability and predictive capabilities. Adaptability is another key topic of this project. The USIS algorithm was equipped onto the LPV models to allow for outlier-free model updates without suffering from catastrophic interference.

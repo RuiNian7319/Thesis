@@ -313,10 +313,10 @@ The resultant segregation created by DBSCAN using hyper parameters 1.13 and 10,0
     \label{fig:08DBSCAN}
 \end{figure}
 
-Average operating conditions of each cluster is shown in Figure \ref{fig:08cluster_variables}. The main differences are the flow rate, DRA usage, and pump usage.  Cluster 1 had 32\% higher average flow rate.  Cluster 1 also used substantially more DRA compared to cluster 2, where almost no DRA was used\footnote{Actual values masked to ensure confidentality}. Furthermore, the Station B1 booster pump, Station B3 booster pump 1, Station B4 boooster pump, and Station B4 VFD were only used in cluster 1.  Station B3 booster pump 2 was only used in cluster 2.
+Average operating conditions of each cluster is shown in Figure \ref{fig:08cluster_variables}. The main differences are the flow rate, DRA usage, and pump usage.  Cluster 1 had 32\% higher average flow rate.  Cluster 1 also used substantially more DRA compared to cluster 2, where almost no DRA was used\footnote{Actual values masked to ensure confidentiality}. Furthermore, the Station B1 booster pump, Station B3 booster pump 1, Station B4 boooster pump, and Station B4 VFD were only used in cluster 1.  Station B3 booster pump 2 was only used in cluster 2.
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{images/suncor/08AvgChar.png}
+    \includegraphics[width=0.8\textwidth]{images/suncor/08AvgChar.jpeg}
     \caption{Average operating variables for the two operating conditions.}
     \label{fig:08cluster_variables}
 \end{figure}
@@ -330,13 +330,13 @@ The data set was split into three sections for machine learning: training, valid
                             & \% of Data        &  Description \\
         \hline
         Training            &  90\%             
-        &  Used to identify the machine learning model        \\
+        &  Identify the ML model        \\
         
         Validation          &  5\%              
-        &  Validates the performance of the machine learning model         \\
+        &  Tune ML model performance on unseen data         \\
         
         Testing             &  5\%             
-        &  Used to test performance of machine learning model on unseen data       \\             
+        &  Test ML model performance on proxy live data       \\     
     \end{tabular}}
     \caption{Description of each data partition.}
     \label{tab:08datapart}
@@ -733,7 +733,7 @@ Table \ref{tab:08_nn} shows the performance assessment of the small, medium and 
 \multicolumn{1}{l|}{} & \multicolumn{3}{c|}{Training Data}                                               & \multicolumn{3}{c|}{Validation Data}                                             & \multicolumn{3}{c|}{Test Data}                                                   \\ \cline{2-10} 
 \multicolumn{1}{l|}{} & \multicolumn{1}{c|}{Sm.} & \multicolumn{1}{c|}{Med.} & \multicolumn{1}{c|}{Lar.} & \multicolumn{1}{c|}{Sm.} & \multicolumn{1}{c|}{Med.} & \multicolumn{1}{c|}{Lar.} & \multicolumn{1}{c|}{Sm.} & \multicolumn{1}{c|}{Med.} & \multicolumn{1}{c|}{Lar.} \\ \hline
 MAE                   & 48                       & 42                        & 38                        & 50                       & 45                        & 37                        & 87                       & 87                        & 91                        \\
-RMSE                  & 66                       & 58                        & 57                        & 69                       & 61                        & 56                        & 117                      & 107                       & 118                       \\
+RMSE                  & 66                       & 58                        & 57                        & 69                       & 61                        & 56                        & 107                      & 117                       & 118                       \\
 \end{tabular}}
     \caption{Performance assessment of the neural network models.}
     \label{tab:08_nn}

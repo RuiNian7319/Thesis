@@ -24,7 +24,7 @@ The \textit{k}-armed bandit problem provides the fundamentals to understanding m
 \end{equation}
 where $u$ is the action taken at time, $t$.  $R_t$ is a scalar reward returned to the agent after action $u$ was performed at time $t$. $R_t$ is drawn from a stationary distribution (typically Gaussian), $R_t \thicksim N(q_*(u), \sigma^2)$. Finally, $q_*(u)$ is the expected reward of taking action, $u$.
 
-The real value is unknown, however, an estimation can be computed and is denoted as $Q_t(a)$.  Given all $Q_t(a)$ is maintained, at any time, one $Q_t(a)$ will be greater than all others.  Picking the action that corresponds to the maximum $Q_t(a)$ is known as \textit{greedy}, and the agent is said to be \textit{exploiting}.  If a non-maximum action is picked, the agent is \textit{exploring} \cite{sutton}.
+The real value is unknown, however, an estimation can be computed and is denoted as $Q_t(u)$.  Given all $Q_t(u)$ is maintained, at any time, one $Q_t(u)$ will be greater than all others. Picking the action that corresponds to the maximum $Q_t(u)$ is known as \textit{greedy}, and the agent is said to be \textit{exploiting}.  If a non-maximum action is picked, the agent is \textit{exploring} \cite{sutton}.
 
 Action selection based on estimating the value of actions are called \textbf{Action-value methods} \cite{action_value_method}.  At time $t$, the estimate of the value is given by Equation \ref{eq: value_est} \cite{sutton}.
 

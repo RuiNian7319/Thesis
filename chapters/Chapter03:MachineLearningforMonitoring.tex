@@ -8,13 +8,27 @@
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+ML prediction applications are effective complements to existing infrastructure in the process industry through soft sensors, state estimation, and forecasting. However, they are limited in applications regarding safety and risk management.  In the process industry, safety is upheld as the greatest value; investing in a successful safety system is just good business.  
+
+\begin{quote}
+    "Safety is a value, not a priority.  Priorities change, but company values never do." \\
+    --- Rex Tillerson, ex-CEO of ExxonMobil
+\end{quote}
+
+Traditionally, process safety investments are frowned upon by management due to its high costs and \textit{invisible} returns. Indeed, a perfect safety and risk management system results in \textit{no change} in day-to-day activities because all the incidents are proactively mitigated.  However, if safety takes a back seat, the occurrence of the incident is not a matter of if, its a matter of \textit{when}. 
+
+
+
+
+
+
 Heavily unbalanced data:
 - SMOTE, ADASYN, Breaking time down into smaller segments and increasing sampling rate
 
-\subsection{Data Pre-processing for Monitoring}
+\section{Data Pre-processing for Monitoring}
 - take only the previous few data points..
 
-\subsubsection{Classification}
+\subsection{Classification}
 The model structure for logistic regression is given as:
 \begin{equation}
     \hat{y} = \frac{1}{1 + e^{-(W_1^Tx + W_2^Tu + b)}}
@@ -23,3 +37,9 @@ The model structure for logistic regression is given as:
 
 \subsection{Deep Learning Approaches}
 \subsubsection{DL - Classification}
+
+\section{Alarm Management}
+
+\subsection{Alarm Prioritization}
+
+\subsection{Alarm Reduction}

@@ -11,11 +11,13 @@
 ML prediction applications are effective complements to existing infrastructure in the process industry through soft sensors, state estimation, and forecasting. However, they are limited in applications regarding safety and risk management.  In the process industry, safety is upheld as the greatest value; investing in a successful safety system is just good business.  
 
 \begin{quote}
-    "Safety is a value, not a priority.  Priorities change, but company values never do." \\
+    "Safety is a \textbf{value}, not a priority.  Priorities change, but company values never do." \\
     --- Rex Tillerson, ex-CEO of ExxonMobil
 \end{quote}
 
-Traditionally, process safety investments are frowned upon by management due to its high costs and \textit{invisible} returns. Indeed, a perfect safety and risk management system results in \textit{no change} in day-to-day activities because all the incidents are proactively mitigated.  However, if safety takes a back seat, the occurrence of the incident is not a matter of if, its a matter of \textit{when}. 
+Traditionally, process safety investments are frowned upon by management due to its high costs and \textit{invisible} returns. Indeed, a perfect safety and risk management system results in \textit{no change} in day-to-day activities because all the incidents are proactively mitigated.  However, if safety takes a back seat, the occurrence of the next incident is not a matter of if, its a matter of \textit{when}. Therefore, safety must be proactively (not reactively) managed to safeguard people, the environment, company assets and production capabilities. Here, ML can be leveraged to proactively monitor process systems and create an additional layer of safety. In this chapter, ML algorithms will be applied to predict equipment failures, process abnormalities, process variability and also perform alarm management. Through these applications, ML will be used to create multi-variate alarm systems that explore multi-variable interaction effects and gives fewer false alarms. Additionally, a new alarm management system that specifically tackles alarm flood scenarios will be introduced.  The objectives of this system are twofold: 1) Reduce sheer number of alarms during a flooding scenario; 2) identify the most important alarms so operators can prioritize safety critical alarms.
+
+This chapter is organized as follows: Section 1 introduces 
 
 
 
@@ -35,8 +37,13 @@ The model structure for logistic regression is given as:
     \label{eq:02LogS}
 \end{equation}
 
+- Measure process variability?
+
 \subsection{Deep Learning Approaches}
-\subsubsection{DL - Classification}
+\subsection{DL - Classification}
+
+\subsection{Explanability}
+- Explanability through weights, through importance sampling
 
 \section{Alarm Management}
 

@@ -1,17 +1,42 @@
 \section{Introduction}
-Artificial intelligence (AI) has, without a doubt, 
+Artificial intelligence (AI) has set off a change in perspective in the various sectors around the globe, ranging from health care to manufacturing.  The previously arcane topic is now spreading wildly across countless academic and industrial minds alike. Quick progressions in computing power and declining prices in data storage combined with AI's self-learning abilities has transcended the elevated AI to become the go-to algorithm for many difficult worldwide problems such as natural language processing, predictive analytics, and computer vision.  PwC projected AI to contribute well over \$15 trillion USD to the global economy by 2030, while elevating GDP of local markets by 26\%  \cite{pwc}. Generally speaking, the field of AI is ever-expanding and contains many goals.
+
+Figure \ref{fig:AIGoals} shows the six major goals of AI.  Out of all the goals, machine learning (ML) is currently the most influential topic in industry.  The field of ML can be described as the study that develops algorithms to give machines explicit abilities to learn different tasks without being pre-programmed to do so \cite{AI}.  ML can be further decomposed into supervised learning, unsupervised learning, semi-supervised learning (a combination of supervised and unsupervised learning), and reinforcement learning.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/ch1/AIGoals.jpeg}
+    \caption{The major goals of artificial intelligence.}
+    \label{fig:AIGoals}
+\end{figure}   
+
+The sub-fields of ML are shown in Figure \ref{fig:MLGoals}.  In supervised learning, the algorithm learns the optimal input-output mapping, called the model, from a training data set pre-labeled by an external supervisor \cite{sutton}.  Be aware that not all labels provided are guaranteed to be correct. In fact, it is not uncommon to  have mislabeled data caused by noise in the original data set. For example, imagine trying to transcribe an interview with the audio playback heavily corrupted by noise.  In the process industry, the supervisor is typically a sensor measuring the current condition of the process (pressure, temperature, flow rate, etc.) and are often times unreliable. In the end, the performance of the supervised learning model is \textit{upper bounded} by the quality of the labels provided by the supervisor.  In the ideal case, the model can exactly replicate the right \textit{and wrong} labels of the supervisor. In unsupervised learning, the algorithms are typically used to optimally segregate data based on their similarity or to identify the principal components within large data sets \cite{Hinton, sutton}.  Objectively, unsupervised learning identifies hidden patterns within data sets through feature extraction and dimensional reduction. Semi-supervised learning is a hybrid between supervised and unsupervised learning where the models are trained on a small data set of labeled data and refined using features extracted from the unlabeled data set. For example, in the process industry, tasking an engineer to manually label data sets is a costly but required endeavor.  In many applications such as fault detection or root cause analysis, a well labeled data set is required to materialize any useful applications.  Using semi-supervised learning in these scenarios, the model can learn from the small labeled data set and extract additional helpful insights from the remaining unlabeled data to fine tune performance.  In this case, the final algorithm is vastly superior compared to its supervised or unsupervised learning counterpart \cite{machine_learning}.  Unfortunately, all the above methods exhibit one critical flaw: \textit{the inability to transcend the supervisor in terms of performance}. Although these methods may provide great cost reductions and/or greatly speed up production through automating trivial tasks, the methods fail to expand the current capabilities of modern methods.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/ch1/MLGoals.jpeg}
+    \caption{The sub-components of machine learning.}
+    \label{fig:MLGoals}
+\end{figure}   
+
+Reinforcement learning (RL) aims to overcome this dilemma by providing machines the ability to \textit{surpass all known methods}.  More specifically, reinforcement learning \textit{agents} learns the optimal actions to perform in different situations (also called optimal policy) through self-interaction with the environment.  After each interaction, the agent is provided feedback via a scalar reward signal; large positive rewards follow good actions while negative rewards follow bad actions.  In challenging circumstances, actions affect both the immediate reward signal and the subsequent rewards there-forth. In an intuitively context, pursing an University degree may yield negative immediate rewards; however, rewards years down the line may become significantly more positive due to the newly equipped knowledge.  These two characteristics---delayed feedback and guided trial-and-error search---differentiate RL from all other types of algorithms and ultimately permit RL to push the existing boundaries of known science \cite{sutton}.
 
 
 \section{Motivation and Challenges}
 
-Thinking out loud:
-- RL introduction (Chapter 3 atm)
-    - Introduce MDP in the middle of it (Chapter 2 atm)
 
-- MPC introduction (Chapter 4 atm)
+
+Four values: Functional, Monetary, Social, Psychological
+
+\section{Previous RL applications in process control}
+
+
+
 
 \section{Thesis Outline and Contributions}
-The thesis is organized as follows.  First, optimal control via RL and MPC will be compared on simple SISO, SIMO, MISO, and MIMO systems.  Then, both RL and MPC will be applied to an industrial waste water treatment plant for optimization and optimal control. Here, the advantages and disadvantages of each strategy will be comprehensively explored.
+The thesis is organized as follows: First, basic concepts of RL and MPC will be introduced.  In Chapter 2, applications of ML algorithms in prediction applications will be explored on an industrial pipeline.  Following that, ML for process safety applications will be shown in Chapter 3. Safety applications include topics such as anomaly detection, anomaly prediction, and alarm management. Up until Chapter 3, the projects will use exclusively traditional supervised, unsupervised, and semi-supervised learning methods because the applications are predictive in nature.  Towards the end of Chapter 3 until the end of the thesis, RL methods will be introduced because these applications are more control oriented. Chapter 4 contain various different RL applications in process control. Applications here include the optimal control of a waste water treatment plant, set point tracking control of small scale systems, and fault-tolerant control of an industrial distillation tower. Additionally, RL is also compared to MPC on simple small-scale systems in this chapter. Finally, this thesis is concluded in Chapter 5.  A comprehensive project report for the pipeline optimization project introduced throughout this thesis is shown in Appendix A.
+
+The contributions of this thesis is as follows: In Chapter 2, methods for identifying representative process models in an industrial settings are introduced. Additionally, an adaptive hands-free modelling method was built to significantly reduce the cost of ownership of machine learning models for the industrial partner. The adaptive method also overcomes catastrophic interference and can be retrofitted onto all model structures. Chapter 3 introduces novel data pre-processing approaches to anomaly detection and prediction.  Additionally, a new RL-powered alarm management method is introduced.  Chapter 4 provides comparisons between traditional optimal control methods with RL on many different systems.  Additionally, a new easy-to-implement continuous non-linear RL method is also shown here.  The last contribution in Chapter 4 is the application of RL onto a fault-tolerant control scheme where RL is used for both the fault detection algorithm and fault tolerant controller. 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

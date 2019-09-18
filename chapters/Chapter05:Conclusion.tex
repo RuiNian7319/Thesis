@@ -1,3 +1,9 @@
 - RL is excellent in an highly mathematical complex problem that you have a simulator for like games.  But such processes don't exist in real life.
 - MPC is the ideal outcome of RL everytime.
 - RL has more exotic applications than control, and its value is most likely not in control.
+
+\section{Concluding Remarks}
+
+\section{Future Extensions}
+\subsection{RL-MPC - An unified approach}
+In terms of control, one possible future project would be to combine RL and MPC into one unifying algorithm.  Currently, RL is a newer field of research and lacks industrial support. Therefore, most plant managers are skeptical of its performance in direct closed-loop control. On the other hand, linear MPCs have many applications in process control but the applications of its non-linear counterpart is still relatively scarce. From an engineering prospective, non-linear MPC is vastly superior because linear processes do not exist in the real world. One factor barring non-linear MPCs from implementation is its much higher computational burden. Mathematically, both linear and non-linear programming are solved in an iterative approach and the convergence is dependent on the initial guess.  By leveraging RL to provide initial guesses to the non-linear MPC, the computational time should be substantially faster, leading to the viability of non-linear MPCs. Theoretically, the initial guess provided by a perfectly trained RL should be exactly the optimal solution, greatly reducing the iterative procedure required by non-linear programming.  

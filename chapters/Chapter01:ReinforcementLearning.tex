@@ -29,17 +29,106 @@ The three main branches of reinforcement learning solutions are shown in Figure 
 
 
 \subsection{Dynamic Programming Methods}
-Dynamic programming algorithms identify the exact value functions through an iterative procedure using the system dynamics function. In real life applications, DP algorithms are rarely used due to their unreasonable computational cost for even trivial problems. Problems are solved using either policy iteration and value iteration in DP.  
+Dynamic programming algorithms identify the exact value functions through an iterative procedure using the system dynamics function. In real life applications, DP algorithms are rarely used due to their unreasonable computational cost for even trivial problems. Nevertheless, the ideas of DP serve as the fundamentals for modern approaches. Policy iteration and value iteration are two common techniques in DP.  
 
-As an overview, policy iteration searches for the optimal policy by iterating through infinitely many policies, $\pi \in \Pi$, keeping only the policy with the highest cumulative returns.  The optimal policy is found when the cumulative returns of $\pi$ can no longer be improved (convergence).  Policy iteration includes two steps: policy evaluation and policy improvement. \textbf{Policy evaluation} predicts the value functions for policy $\pi$ through an iterative approach. Value functions for each state are initialized as 0, and are updated using:
+As an overview, policy iteration searches for the optimal policy by iterating through infinitely many policies, $\pi \in \Pi$, storing only the policy corresponding to the highest cumulative returns.  The optimal policy is assumed to be found when $G_{\pi}$ can no longer be improved.  Policy iteration is comprised of two phases: policy evaluation and policy improvement. \textbf{Policy evaluation} computes the value functions and cumulative returns of the system under $\pi$ through an iterative approach. Value functions are initialized as 0, and are solved iteratively using:
 \begin{equation}
     v_{k+1, \pi}(x) = \mathbb{E}_{\pi}[R_{t+1} + \gamma v_{k, \pi} (x_{k+1})]
 \end{equation}
 $$ v_0(x) = 0, \; \forall x \in \mathcal{X}$$
-where $k$ is the $k^{th}$ update step.  Here, $v_{k+1, \pi}$ is the predicted value function for following policy $\pi$ after $k+1$ update steps.  As $k \rightarrow \infty$, $v_{k}(x) \rightarrow v_{\pi}(x)$ for all $x \in \mathcal{X}$ (i.e., the true value functions for $\pi$). However, there may exist a $\pi'$ where $v_{\pi'}(x) \geq v_{\pi}$, deeming $\pi$ sub-optimal. The goal of \textbf{policy improvement} is to identify situations where $v_{\pi'}(x) \geq v_{\pi}$ for any state.  Once identified, $\pi$ will violate the principle of optimality, hence disqualifying it from being optimal and $\pi'$ will be deemed the "new" optimal policy. This procedure will continue iteratively and infinitely until a policy where $v_{\pi^*}(x) \geq v_{\pi \neq \pi^*}(x)$ for all $x \in \mathcal{X}$ is found. 
+where $k$ denotes the $k^{th}$ update.  Here, $v_{k+1, \pi}(x)$ is the predicted value function for $x$ under policy $\pi$ after $k+1$ update steps.  As $k \rightarrow \infty$, $v_{k}(x) \rightarrow v_{\pi}(x)$ for all $x \in \mathcal{X}$ (i.e., the value functions converge to the true value functions under $\pi$). However, there often exists a $\pi'$ where $v_{\pi'}(x) \geq v_{\pi}$.  \textbf{Policy improvement} identifies such situations.  Once identified, current policy $\pi$ will violate the principle of optimality, hence deeming it ineligible for being the optimal policy. Then, the value functions of $\pi'$ will be identified in the next policy evaluation. This procedure will continue iteratively and infinitely until a policy where $v_{\pi^*}(x) \geq v_{\pi \neq \pi^*}(x)$ for all $x \in \mathcal{X}$ is found. After such a policy is identified, it is regarded as the optimal policy.
+
+Figure \ref{fig:policy_iteration} shows a visualization of the policy iteration algorithm.  It can also be described using the following \cite{sutton}:
+\begin{equation}
+    \pi_0 \xrightarrow{\text{E}} 
+    v_{\pi_0} \xrightarrow{\text{I}} 
+    \pi_1 \xrightarrow{\text{E}}
+    v_{\pi_1} \xrightarrow{\text{I}} 
+    \pi_2 \xrightarrow{\text{E}} ... \xrightarrow{\text{I}} 
+    \pi^* \xrightarrow{\text{E}}  v^*
+\end{equation}
+where $\xrightarrow{\text{E}}$ and $\xrightarrow{\text{I}}$ denotes the policy evaluation and policy improvement steps, respectively. From Figure \ref{fig:policy_iteration}, the agent starts with some arbitrary policy and performs policy evaluation. Initially, a large gap exists between $V_{\pi}$ and $\pi$.  As the iterative procedure proceeds, the gap is continuously reduced until $V_{\pi}, \pi \rightarrow V^*(x), \pi^*$. In industrial applications, the required iterative procedure for each policy evaluation is far too expensive for any non-trivial tasks.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.68\textwidth]{images/ch1/policy_iteration.jpeg}
+    \caption{A visualization of the policy iteration algorithm. Original image from \cite{silver_class}.}
+    \label{fig:policy_iteration}
+\end{figure}   
+
+To improve upon these computational issues, value iteration was proposed.  Value iteration finds the optimal policy through identifying the optimal value functions instead. Intuitively, value iteration is a special case of policy iteration where the policy evaluation is terminated after one step.  From the value functions of each state, $\pi^*$ can be found by traversing through the states corresponding to the highest values. Note that the optimal policy can only be found using $V(x)$ if a dynamics equation of the system is provided. Without it, $Q(x, u)$ must be identified instead to behave optimally. The policy evaluation for the value iteration algorithm is given as:
+\begin{equation}
+    v_{k+1}(x) = \argmax_u \mathbb{E}[R_{t+1} + \gamma v_k(x_{t+1})]
+\end{equation}
+\begin{equation}
+    q_{k+1}(x, u) = \mathbb{E}[R_{t+1} + \gamma \argmax_{u_{t+1}} q_k(x_{t+1}, u_{t+1})]
+\end{equation}
+Here, the $\argmax$ operation ensures that each $v_k(x)$ is updated using only the maximizing action so the \textit{optimal} value function can be identified. After all $v^*(x)$ are identified, an agent can behave optimally starting in any state assuming the agent takes the maximizing action at each time. Note that both policy and value iteration are \textit{bootstrap} methods. Bootstrapping in RL increases data efficiency while capturing long-term trajectory information; however, the method also introduces unintended biased. 
+
+In industry, both policy and value iteration have limited utility because their updates are far too computationally expensive. In high dimensional settings, even one iterative step may be intractable; therefore, even with value iteration's reduced computational complexity, it is still infeasible for most complex problems. Asynchronous dynamic programming methods further reduces computational complexity by only updating frequently visited states. However, agents are rendered hopeless in states that are rarely encountered. Although, such a methodology mimics human behaviour where encounters can be handled effectively and efficiently and more exotic situations may catch us by surprise. Nonetheless, such methods still require system models to be explicitly provided, a extremely rare case in industry.
 
 \subsection{Monte Carlo Methods}
+Monte Carlo methods no longer require explicit system models (a characteristic known as \textit{model-free}).  Instead, MC methods \textit{estimate} the average returns for different policies through sampling infinitely many sequences of states, actions, and rewards. As the samples increase, $v_k(x) \rightarrow v_{\pi}(x) \text{ for all } x \in \mathcal{X}$. Learning-wise, the average returns are updated at the end of each trajectory. Due to this, the finite tasks with explicit terminal states are typically solved using MC methods. For example, discrete manufacturing is an episodic task in process control. The system is reset after the assembly of each object (cars, toys, ...).  In episodic tasks, the value functions are updated naturally after each episode. However, most tasks in process control are continuous. Training a continuous agent using MC methods require additional modifications. One method is to pre-specify a length of time. After the time has elapsed, the agent will pause and update its value functions. 
+
+Notice that bootstrapping is not used in MC methods.  In fact, all value functions are estimated independently. As such, MC methods do not suffer from bias issues; however, MC methods may suffer from large variances instead caused by the noise in each sampled trajectory \cite{sutton}. Moreover, exploration is mandatory in MC methods because the dynamics of the system are unknown to the agent. Through exploration, the agent can discover the dynamics of the system and the value functions for each state.  Typically, exploration in MC methods is conducted by initiating the agent in a random state at the beginning of each episode. After infinite episodes, all states will be visited infinitely many times.
+
+Policy search in MC methods is similar to policy iteration. There exists three differences: 1) only visited states are updated; 2) updates use \textit{sampled} data instead of a model; 3) $q_{\pi}(x, u)$ is required and identified instead of $v_{\pi}(x)$. In MC methods, the action-value functions are identified because a model is not provided to the agent. Hence, the agent cannot behave optimally using only the value functions because the actions required to transition to the high value states are not known. Instead, action-values contain explicit information on the expected returns for each action in each state.  The iterative procedure of MC to compute the cumulative returns is given by: 
+\begin{equation}
+    \pi_0 \xrightarrow{\text{E}} 
+    q_{\pi_0} \xrightarrow{\text{I}} 
+    \pi_1 \xrightarrow{\text{E}}
+    q_{\pi_1} \xrightarrow{\text{I}} 
+    \pi_2 \xrightarrow{\text{E}} ... \xrightarrow{\text{I}} 
+    \pi^* \xrightarrow{\text{E}}  q_{\pi_*}
+\end{equation}
+Intuitively, the agent is initiated in an unknown system and follows a certain policy, $\pi$, to traverse throughout the state space while collecting rewards after each decision. Eventually, the agent will reach a terminal state and conclude the episode. Upon termination, a sequence of returns $G_1, G_2, ..., G_{n - 1}$ can be generated using the received reward signals:
+$$G_1 = R_{1} + \gamma R_{2} + \gamma^2 R_{3} + ... + \gamma^{n - 1}R_{n}$$
+$$G_2 = R_{2} + \gamma R_{3} + \gamma^2 R_{4} + ... + \gamma^{n - 2}R_{n}$$
+$$G_3 = R_{3} + \gamma R_{4} + \gamma^2 R_{5} + ... + \gamma^{n - 3}R_{n}$$
+$$\vdots$$
+$$G_{n - 1} = R_n$$
+or:
+\begin{equation}
+    G_m = \sum\limits_{i=0}^n \gamma^{i} R_{m + i}
+\end{equation}
+where $G_m$ denotes the discounted cumulative return received on the $m^{th}$ step. Using $G_m$, the action-values can be computed for each step by:
+\begin{equation}
+    Q_{k+1}(x, u) = Q_{k}(x, u) + \frac{1}{k} \left[G - Q_k(x, u) \right]
+    \label{eq:q_update_mc}
+\end{equation}
+where $Q_k(x, u)$ represents the $k^{th}$ action-value update and $G$ corresponds to the returns received after performing action $u$ in state $x$. Notice that as $k \rightarrow \infty$, $\frac{1}{k} \rightarrow 0$; therefore, this set-up is ineffective in non-stationary settings because the updates get infinitely small.  To extend Equation \ref{eq:q_update_mc} to non-stationary problems, $\frac{1}{k}$ is changed to a constant given by $\alpha$:
+\begin{equation}
+        Q_{k+1}(x, u) = Q_{k}(x, u) + \alpha \left[G - Q_k(x, u) \right]
+        \label{eq:01mcupdate}
+\end{equation}
+where $\alpha \in (0, 1]$ is known as the learning rate (also called step size). The lower bound prevents $\alpha$ from approaching 0; therefore, allowing for continually adaptation in non-stationary problems. After each update of Equation \ref{eq:01mcupdate}, a new episode starts and the procedures are repeated.  As $k, \text{ \# of episodes } \rightarrow \infty, Q(x, u) \rightarrow q(x, u)$. Once $Q(x, u)$ converge, online action selection can be conducted by:
+\begin{equation}
+    \pi(x) = \argmax_{u} q(x, u)
+    \label{eq:policy_extract}
+\end{equation}
+That is, $\pi^*$ is performing the greedy action in each state.  MC methods allow the agent to learn solely from sampled data; however, the action-values are updated only after each episode. Such a procedure is unnatural in continuous systems (most systems in process control), disadvantageous long episode systems, and is not intuitive to human behaviour. For example, humans learn immediately after feedback, not in pre-set increments. Temporal difference methods combine the best features of DP and MC methods into one unifying algorithm.
+
+
+
+
+
 \subsection{Temporal-Difference Methods}
+Temporal difference (TD) methods are the most widely used RL algorithm in industry today because of its simplicity and cheap computational cost. TD methods combine the ability to learn from experiences (like MC methods) with bootstrapping (like DP methods). TD methods do not require a model of the system, and will instead learn the dynamics from interactions. Moreover, TD methods do not need to wait until the termination of an episode before updating its value functions. Instead, TD methods can update immediately after $x_{t+1}$ and $R_{t+1}$ are received. The TD update for value and action-value functions are given by Equations \ref{eq:td_value} and \ref{eq:td_action_value}, respectively \cite{ref-td}:
+\begin{equation}
+    V(x_t) \leftarrow V(x_t) + \alpha \left[R_{t+1} + \gamma V(x_{t+1}) - V(x_t) \right]
+    \label{eq:td_value}
+\end{equation}
+\begin{equation}
+    Q(x_t, u_t) \leftarrow Q(x_t, u_t) + \alpha \left[R_{t+1} + \gamma Q(x_{t+1}, u_{t+1}) - Q(x_t, u_t) \right]
+    \label{eq:td_action_value}
+\end{equation}
+where $\leftarrow$ denotes the update operator. Intuitively, the old value functions are corrected using the \textit{TD errors} at each update by a fixed amount (dictated by $\alpha$).  The TD errors are given as:
+$$\delta_t = R_{t+1} + \gamma V(x_{t+1}) - V(x_t)$$
+$$\delta_t = R_{t+1} + \gamma Q(x_{t+1}, u_{t+1}) - Q(x_t, u_t)$$
+where $\delta_t$ denotes the TD error at time $t$.  The first two terms, $R_{t+1} + \gamma V(x_{t+1})$, denote what the agent \textit{thinks} the real value function is according to the last interaction.  $V(x_t)$ is the old value function. After the agent traverse through each state-action pair many times,  $V(x_t) \rightarrow v(x_t)$ (i.e., the estimated values converge to the true action values). The action-values follow a similar paradigm. After convergence, the optimal policy can be extracted via Equation \ref{eq:policy_extract}.
+
+
+
 
 \subsection{Summary of the different solution approaches}
 The main features of DP, MC and TD methods are summarized in Table \ref{tab:dc_mc_td}. Overall, DP requires a dynamics function of the system to compute the value functions while both MC and TD methods can learn directly from interactions with the system. Both DP and TD methods use bootstrapping to estimate value functions, that is, they estimate the current value function based on previously estimated values. Bootstrapping is data efficient, but introduces large bias to the estimated values, especially in the early episodes.  Conversely, MC methods estimate the value functions of each state independently through sampling many system trajectories.  However, this method, instead, introduces high variance. For extremely noisy systems, the reproducability of the results may be difficult. Comparing the computational cost, DP methods require much more compared to MC or TD since all value functions are simultaneously solved. In MC methods, only the value functions that were visited in the sampled trajectories are updated.  Additionally, updates are conducted at the end of each episode and not after each step. Similar to DP methods, TD methods update the value function immediately after an experience; however, only the value function corresponding to the last visited state is updated. In terms of exploration, DP methods do not explore the system model (both transition probabilities and expected reward) is explicitly provided. MC methods explore by being initiated in a random state after each episode termination. In TD methods, agents explore by occasionally performing a random action.
@@ -48,6 +137,7 @@ The main features of DP, MC and TD methods are summarized in Table \ref{tab:dc_m
 \caption{A comparison of DP, MC, and TD methods.}
 \label{tab:dc_mc_td}
 \centering
+{\scriptsize
 \begin{tabular}{c|c|c|c}
  & \textbf{Dynamic Programming}	& \textbf{Monte Carlo} & \textbf{Temporal Difference}\\
 \hline
@@ -57,7 +147,7 @@ Estimate variance	    & Low			& High   &  Low \\
 Computational cost		& High			& Medium &  Low \\
 $v(x)$ update      	& All states simultaneously   & After a trajectory  &  After an experience \\
 Exploration             & Not needed, all states update   & Random initialization  &  Performing a random action \\
-\end{tabular}
+\end{tabular}}
 \end{table}
 
 \subsection{Reinforcement Learning vs. Other "Learnings"}
@@ -156,6 +246,8 @@ Interestingly, integration operators are low-pass filters \cite{process_control_
 
 
 \subsection{Stabilization of Training}
+- initiate at close to 0s
+- normalization of the data
 \subsubsection{Experience Replay}
 \subsubsection{Target Network}
 \subsubsection{Adaptive Batch Gradient Descent}

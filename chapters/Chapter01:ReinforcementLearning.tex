@@ -9,54 +9,57 @@
 
 \section{The Reinforcement Learning Problem}
 
-In general terms, reinforcement learning is simply the learning an agent experiences through interactions with the environment.  For added intuition, Figure \ref{fig: simple_rl} shows the generic information flow of reinforcement learning. First, the agent observes some states, $x_t \in \mathcal{X}$, from the environment (some states may be unobservable).  Given $x_t$, the agent performs some actions, $u_t \in \mathcal{U}$ and receives a scalar reward signal, $r_{t+1} \in \mathcal{R}$.  Finally, the environment will transition to a new state, $x_{t+1}$, given probability $P(x_{t+1}, r_{t+1} | x, u)$.
+In general terms, reinforcement learning in an industrial setting is simply an agent undergoing meaningful interactions with the process to learn an optimal operating policy.  For added intuition, Figure \ref{fig: simple_rl} shows the information flow of an agent in process control. First, the agent observes some states, $x_t \in \mathcal{X}$, from the environment (some states may be unobservable).  Given $x_t$, the agent performs some controls actions, $u_t \in \mathcal{U}$ and receives a scalar reward signal, $r_{t+1} \in \mathcal{R}$.  Finally, the process will transition to some new states, $x_{t+1}$, given probability $P(x_{t+1}, r_{t+1} | x, u)$.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[scale=0.5]{images/RL.png}
-    \caption{Basic setup of reinforcement learning where an agent interacts with the environment}
+    \includegraphics[scale=0.5]{images/ch1/RL.png}
+    \caption{Basic setup of reinforcement learning where an agent interacts with the system.}
     \label{fig: simple_rl}
-
 \end{figure}
 
-Reinforcement learning consists of the following four elements:
+The three main branches of reinforcement learning solutions are shown in Figure \ref{fig:RL_methods}. Starting from the left, dynamic programming (DP) methods can identify the exact value functions, but require a \textit{perfect system model} and is extremely computationally expensive, even for trivial tasks.  Comparatively, both Monte Carlo (MC) and temporal difference (TD) methods are approximate DP methods.  As such, they are less computationally demanding.  Additionally, MC and TD methods do not assume the presence of a system model and identifies the value functions through interactions with the environment. MC methods find the value functions through averaging the returns generated over many sampled trajectories of states, actions, and rewards.  One drawback is the significant variance in the sampled trajectories. Consequently, this may lead to poor reproducability in highly noisy systems. TD methods combine the best characteristics of DP and MC methods into one unifying approach. Like MC methods, TD learn from sampled data.  Like DP methods, TD performs update steps after each step. However, TD methods typically exhibit large bias (especially during initial learning episodes) due to estimating values through previously estimated values (known as bootstrapping). The general details of each method will be shown throughout this section.  For a comprehensive introduction to each algorithm, see \cite{sutton}.
 
-\begin{itemize}
-    \item Policy, $\pi$
-    \item Reward, $R$
-    \item Value Function, $V(s)$
-    \item Model (optional), $\dot{x} = Ax + Bu$
-\end{itemize}
-
-The policy, $\pi$, of reinforcement learning is a direct mapping from $X \rightarrow U$.  To find the optimal policy, $\pi^*$, the agent is guided by an immediate scalar reward for each interaction (also called \textit{episode}). Policies resulting in higher rewards are more likely to be followed in the future, \textit{mutatis mutandis}.  However, reinforcement learning is concerned with the long term success rather than immediate pleasure. Often times, long term success require short term sacrifice.  Thus, the value function, $V^{\pi}(s)$, is used to describe the long term expected reward under each policy.  Initially, the value function for each state is initialized at zero.  After each episode, the value function will be updated to reflect the new knowledge obtained from the last episode through Equation \ref{eq: value_function}.
-
-\begin{equation}
+\begin{figure}[H]
     \centering
-    V(x_t) \leftarrow V(x_t) + \alpha [V(x_{t + 1}) - V(x_t)]
-    \label{eq: value_function}
-\end{equation}
+    \includegraphics[width=0.6\textwidth]{images/ch1/RL_methods.jpeg}
+    \caption{The sub-components of machine learning.}
+    \label{fig:RL_methods}
+\end{figure}   
 
-In Equation \ref{eq: value_function}, $\alpha$ represents the step-size parameter.  That is, how big each update step should be.  Once convergence is achieved for $V(x_t)$, the optimal policy can be described by Equation \ref{eq: opt_policy}.  
-
-\begin{equation}
-    \centering
-    \pi^*(x) = \argmax_u q_{\pi}(x, u), \; \forall x 
-    \label{eq: opt_policy}
-\end{equation}
-
-Lastly, reinforcement learning \textit{can} consist of a model. Such cases are called \textit{model-based} reinforcement learning.  The model will be used for planning, and is a way for the agent to plan a control trajectory before they are experienced.  Contrarily, \textit{model-free} reinforcement learning learns \textit{explicitly} through interactions with the environment.
-
-One key topic of reinforcement learning is: \textbf{exploration} vs. \textbf{exploitation}.  At first, the agent must explore to learn the state space, $\mathcal{X}$.  But the agent must know \textit{when} to stop exploring, and start exploiting (i.e., start taking advantage of what is known).  If the agent explores too much, lots of value is lost.  However, if the agent does not explore enough, the current policy may not be optimal and more value is lost long term.  Exploration vs. exploitation is one of the most important topics today in reinforcement learning, and the time to switch from exploration to exploitation will vary between problems.  In control theory, exploration vs. exploitation is known as the conflict between identification (or estimation) and control \cite{explorevexploitcontrol}.  
-
-Another important distinction between different reinforcement learning algorithms is \textbf{on-policy} vs. \textbf{off-policy}.  On-policy methods select actions that maximizes reward given the current knowledge of the agent.  Subsequently, off-policy methods perform exploratory actions for a chance that the explored action offers superior returns to the current best known action.
-
-In the next sub-sections, the three fundamental reinforcement learning methods (Dynamic Programming, Monte Carlo, Temporal-Difference) will be introduced.
 
 \subsection{Dynamic Programming Methods}
-\subsubsection{Value-Iteration}
-\subsubsection{Policy-Iteration}
+Dynamic programming algorithms identify the exact value functions through an iterative procedure using the system dynamics function. In real life applications, DP algorithms are rarely used due to their unreasonable computational cost for even trivial problems. Problems are solved using either policy iteration and value iteration in DP.  
+
+As an overview, policy iteration searches for the optimal policy by iterating through infinitely many policies, $\pi \in \Pi$, keeping only the policy with the highest cumulative returns.  The optimal policy is found when the cumulative returns of $\pi$ can no longer be improved (convergence).  Policy iteration includes two steps: policy evaluation and policy improvement. \textbf{Policy evaluation} predicts the value functions for policy $\pi$ through an iterative approach. Value functions for each state are initialized as 0, and are updated using:
+\begin{equation}
+    v_{k+1, \pi}(x) = \mathbb{E}_{\pi}[R_{t+1} + \gamma v_{k, \pi} (x_{k+1})]
+\end{equation}
+$$ v_0(x) = 0, \; \forall x \in \mathcal{X}$$
+where $k$ is the $k^{th}$ update step.  Here, $v_{k+1, \pi}$ is the predicted value function for following policy $\pi$ after $k+1$ update steps.  As $k \rightarrow \infty$, $v_{k}(x) \rightarrow v_{\pi}(x)$ for all $x \in \mathcal{X}$ (i.e., the true value functions for $\pi$). However, there may exist a $\pi'$ where $v_{\pi'}(x) \geq v_{\pi}$, deeming $\pi$ sub-optimal. The goal of \textbf{policy improvement} is to identify situations where $v_{\pi'}(x) \geq v_{\pi}$ for any state.  Once identified, $\pi$ will violate the principle of optimality, hence disqualifying it from being optimal and $\pi'$ will be deemed the "new" optimal policy. This procedure will continue iteratively and infinitely until a policy where $v_{\pi^*}(x) \geq v_{\pi \neq \pi^*}(x)$ for all $x \in \mathcal{X}$ is found. 
+
 \subsection{Monte Carlo Methods}
 \subsection{Temporal-Difference Methods}
+
+\subsection{Summary of the different solution approaches}
+The main features of DP, MC and TD methods are summarized in Table \ref{tab:dc_mc_td}. Overall, DP requires a dynamics function of the system to compute the value functions while both MC and TD methods can learn directly from interactions with the system. Both DP and TD methods use bootstrapping to estimate value functions, that is, they estimate the current value function based on previously estimated values. Bootstrapping is data efficient, but introduces large bias to the estimated values, especially in the early episodes.  Conversely, MC methods estimate the value functions of each state independently through sampling many system trajectories.  However, this method, instead, introduces high variance. For extremely noisy systems, the reproducability of the results may be difficult. Comparing the computational cost, DP methods require much more compared to MC or TD since all value functions are simultaneously solved. In MC methods, only the value functions that were visited in the sampled trajectories are updated.  Additionally, updates are conducted at the end of each episode and not after each step. Similar to DP methods, TD methods update the value function immediately after an experience; however, only the value function corresponding to the last visited state is updated. In terms of exploration, DP methods do not explore the system model (both transition probabilities and expected reward) is explicitly provided. MC methods explore by being initiated in a random state after each episode termination. In TD methods, agents explore by occasionally performing a random action.
+
+\begin{table}[H]
+\caption{A comparison of DP, MC, and TD methods.}
+\label{tab:dc_mc_td}
+\centering
+\begin{tabular}{c|c|c|c}
+ & \textbf{Dynamic Programming}	& \textbf{Monte Carlo} & \textbf{Temporal Difference}\\
+\hline
+Requires model	     	& Yes			& No     &  No \\
+Estimate bias           & High			& Low    &  High \\
+Estimate variance	    & Low			& High   &  Low \\
+Computational cost		& High			& Medium &  Low \\
+$v(x)$ update      	& All states simultaneously   & After a trajectory  &  After an experience \\
+Exploration             & Not needed, all states update   & Random initialization  &  Performing a random action \\
+\end{tabular}
+\end{table}
+
 \subsection{Reinforcement Learning vs. Other "Learnings"}
 
 Machine learning consists of the following four classes: i) Supervised learning, ii) Unsupervised learning, iii) Semi-supervised learning, iv) Reinforcement learning.  Supervised learning is fitting a model to map input data to output data.  The model is initially trained on a set of labeled training data provided by a subject matter expert.  Subsequently, unsupervised learning is used on unlabeled data sets.  The objective of unsupervised learning is to explore the data and identify hidden features. Semi-supervised learning combines the strengths of supervised and unsupervised learning, and is especially useful \cite{machine_learning}.  Often times, industrial data will be partially labelled due to the time and cost associated with data labelling.  For supervised and unsupervised learning, only the labeled and unlabeled data can be used, respectively.  However, all data can be used in semi-supervised learning which allows for maximized data efficiency and increased model performance. Finally, reinforcement learning is a goal-directed learning from interactions with the environment \cite{sutton}.
@@ -65,7 +68,7 @@ Reinforcement learning is a unique class of machine learning.  An ideal supervis
 
 Evolutionary methods, a family of optimization algorithms such as genetic algorithm, are most similar to reinforcement learning.  For a control problem, such methods can apply multiple static policies for different operating regimes \cite{sutton}.  Policy search is conducted by first initiating $k$ random input trajectories of length $N$, generating input matrix $\mathbb{U}_{[k, N]} \in \pi$.  Subsequently, the loss, $J_U$, of each $U$ is calculated based on the objective function.  Input trajectories with the lowest loss move onto the next generation and generates new pseudo-random input trajectories.  This process is repeated until optimal policy, $\pi^*$ is found for each operating regime \cite{ga_for_control}.
 
-Evolutionary methods work well when the policy space is sufficiently small, easy to find, or a lot of time is available for optimization.  The biggest advantage of such methods compared to reinforcement learning is that the whole state does not need to be known.  However, such methods does not capture the reinforcement learning fundamentals of mapping $X \rightarrow U$.  Unlike evolutionary methods, reinforcement learning keeps memory of each indvidual interaction making it a more data efficient approach \cite{sutton}.
+Evolutionary methods work well when the policy space is sufficiently small, easy to find, or a lot of time is available for optimization.  The biggest advantage of such methods compared to reinforcement learning is that the whole state does not need to be known.  However, such methods does not capture the reinforcement learning fundamentals of mapping $X \rightarrow U$.  Unlike evolutionary methods, reinforcement learning keeps memory of each individual interaction making it a more data efficient approach \cite{sutton}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% End Section Intro to RL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -73,15 +76,18 @@ Evolutionary methods work well when the policy space is sufficiently small, easy
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% Begin Section Tabular RL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Tabular Q-learning}
+
+A detailed numerical example is provided in Chapter 4 where a tabular $Q$-learning algorithm was applied onto a physical pump system.
+
 \subsection{Introduction to Q-learning}
 \subsubsection{Adaptation to Non-Stationary Problems}
-\subsubsection{Incremental Implementation}
-\subsubsection{Action Selection}
+- explanation
 \subsubsection{Exploration in Tabular Q-learning}
+- epsilon greedy, ucb
 \subsubsection{Reward Functions}
-\subsubsection{Expected Returns for Different MDPs}
+- mse, with action, etc
 
-\subsection{Overall Setup}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% End Section Tabular RL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -95,7 +101,7 @@ Evolutionary methods work well when the policy space is sufficiently small, easy
 \subsubsection{Gradient Descent Updating}
 \subsubsection{Mini-batch Gradient Descent}
 \subsubsection{Batch Normalization}
-\subsubsection{Regularizations}
+\subsubsection{Regularization}
 
 %%%%%%%%%%%%%%%%%%%%%%%%% End Section Function Approximation %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -110,9 +116,47 @@ Evolutionary methods work well when the policy space is sufficiently small, easy
 \newpage
 
 \subsection{Exploration in DDPG}
-\subsubsection{White Exploratory Noise}
+Traditionally, exploration in continuous action spaces are difficult because classical approaches, such as $\epsilon$-greedy, work only in a discrete action space.  DDPG explores through corrupting the action with exploratory noise \cite{ddpg}.  Throughout RL literature, many researchers conduct exploration using white noise. The noise corrupted action is given by:
+\begin{equation}
+    u'(x_t) = u(x_t|w_t) + \mathcal{N}
+    \label{eq:01noise_corrupt}
+\end{equation}
+where $u'(x_t)$ is the action corrupted by some noise, $\mathcal{N}$.
+
+\subsubsection{Exploration using White Noise}
+In Equation \ref{eq:01noise_corrupt}, $\mathcal{N}$ can bewhite noise drawn from $\mathcal{N}(0, \sigma^2)$; however, white noise is de-correlated and is ineffective for "deep" exploration (i.e., traversing far from the current state) due to the zero averaging effect \cite{white_noise}. Intuitively, white noise simply introduces oscillation into the process and does not create displacement in any particular direction. Therefore, it is more effective to corrupt the action using a temporally correlated process such as the Uhlenbeck-Ornstein (UO) process.
+
 \subsubsection{Ornstein-Uhlenbeck Exploratory Noise}
+
+The UO process is given as \cite{ornstein}:
+\begin{equation}
+    dx_t = \theta x_t dt + \sigma dW_t,
+\end{equation}
+where $\theta > 0$, $\sigma > 0$, and $W_t$ denotes the Wiener process. Mathematically, the Wiener process is a special case of a continuous time stochastic process. Detailed information regarding the Wiener process and its properties can be found in \cite{wiener}. The UO process is ideal for exploratory noise in RL because of its time correlated feature.
+
+Intuitively, actions $u_t$ from the RL agent can be understood as exerting an external force upon physical bodies and is given by Newton as \cite{physics}:
+\begin{equation}
+    u = m \ddot{x}
+\end{equation}
+where $m$ denotes mass and $\ddot{x}$ represents acceleration.  To obtain displacement, the force must be integrated twice:
+\begin{equation}
+    x = \frac{1}{m}\int \int u
+\end{equation}
+Interestingly, the integration operator acts as a low-pass filter and removes all high frequency noise contained in $u$ \ref{process_control_ref13}. Assuming that the noise is temporally correlated, such as the UO process, the displacement will typically be smooth and stay in the same direction for long durations. For example, Figure \ref{fig:01OU} 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.56\textwidth]{images/ch1/01OU.jpeg}
+    \caption{Change in position as a function of different}
+    \label{fig:01OU}
+\end{figure}   
+
+
+
+
+
 \subsection{Stabilization of Training}
+\cite{dqn1, dqn2, ddpg, ornstein, wiener}
 \subsubsection{Experience Replay}
 \subsubsection{Target Network}
 \subsubsection{Adaptive Batch Gradient Descent}

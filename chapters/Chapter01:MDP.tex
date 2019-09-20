@@ -97,27 +97,27 @@ System representations using FOMDPs and POMDPs work well in discrete tasks where
 
 
 \subsection{Semi Markov decision processes}
-Typical MDPs are discrete representations of the optimal control problem and are sub-optimal in continuous tasks. Semi-Markov decision processes (SMDP) are an extension of MDPs to continuing tasks with unknown transition times and system dynamics. In SMDPs, the transition dynamics of the system are explicitly captured using reward function \cite{continuous_rl_ref14}:
+Semi-Markov decision processes (SMDP) extend the concepts of MDPs to continuous time and can represent unknown transition times and system dynamics. In SMDPs, the transition dynamics of the system are explicitly captured using reward function \cite{continuous_rl_ref14}:
 \begin{equation}
 R(x_t, x_{t+1}, u_t) = \int\limits^\infty_0 \int\limits^t_0 e^{-\beta s} \rho(x_t, \pi (x_t))dsdF_{x_t, x_{t+1}}(t | \pi (x_t))
 \label{eq:reward_rate}    
 \end{equation}
-where $R(x_t, x_{t+1}, u_t)$ is the expected reward to be received when transitioning from $x_t$ to $x_{t+1}$ after action $u_t$. The rewards, $R$, are calculated at each time step in the transition period to explicitly capture transition information. Then, the average reward of the transition is used to update the agent. Here, $\rho(x_t, \pi(x_t))$ represents the average reward during the transition following policy, $\pi$. $F_{x, x_{t+1}}(t, u)$ denotes the probability distribution of the time required to transition from $x_t$ to $x_{t+1}$.  Finally, $\beta > 0$ denotes the \textit{constant} discount factor in SMDPs, where higher $\beta$ results in short-sighted agents. In SMDPs, the discount factor is corrected for transition time during each update step.  The corrected discount factor is given by:
+where $R(x_t, x_{t+1}, u_t)$ is the reward when transitioning from $x_t$ to $x_{t+1}$ after performing action $u_t$, adjusted for the unknown transition time. Here, $\rho(x_t, \pi(x_t))$ represents the mean reward during the transition following policy, $\pi$. To obtain $\rho$, intermediate rewards are calculated at each time step in the transition period to explicitly capture transition information. $F_{x, x_{t+1}}(t, u)$ denotes the probability distribution of the transition time from $x_t$ to $x_{t+1}$.  Finally, $\beta > 0$ is the \textit{constant} discount factor in SMDPs. High $\beta$ results in short-sighted agents. In SMDPs, the transition time is no longer constant.  Thus, the discount factor is corrected for transition time during each update step.  The corrected discount factor is:
 \begin{equation}
     \gamma(x_t, x_{t+1}, u) = \int\limits^{\infty}_0 e^{-\beta t} dF_{x_t, x_{t+1}}(t | \pi_t)
 \end{equation}
-where $\gamma (x_t, x_{t+1}, u_t)$ is the expected discount factor that will be applied to the value of state $x_{t+1}$ during the update step shown in Equation \ref{eq:bellman_eq}. The value function for SMDPs is obtained from combining Equations \ref{eq:reward_rate} and \ref{eq:value_func}:
+where $\gamma (x_t, x_{t+1}, u_t)$ is the transition time adjusted discount factor. The value function for SMDPs is obtained through combining Equations \ref{eq:reward_rate} and \ref{eq:value_func}:
 \begin{equation}
 v_{\pi}(x_t) = \frac{1 - e^{-\beta \tau}}{\beta} R(x_t, x_{t+1}, \pi(x_t)) + e^{-\beta \tau}v_{\pi}(x_{t+1})
 \end{equation}
-where $\tau$ is the unknown transition time.  Similarily, the action-value form is given by:
+where $\tau$ denotes the unknown transition time. The action-value variant is given by:
 \begin{equation}
     q_{\pi}(x_t, u_t) = \frac{1 - e^{-\beta \tau}}{\beta} R(x_t, x_{t+1}, \pi(x_t)) + e^{-\beta \tau}  q_{\pi}(x_{t+1}, u_{t+1})
 \end{equation}
-By representing control problems as SMDPs, control strategies resulting in large overshoot, inverse response, or any other undesirable dynamics behaviour can be minimized. Additionally, the system will be able to handle systems with unknown transition times.  An intuitive example illustrating the advantages of SMDPs in process control is as follows:
+By representing control environments as SMDPs, policies resulting in large overshoot, inverse response, or other undesirable dynamics will be minimized. Additionally, SMDPs can handle unknown transition times.  An intuitive example of SMDPs in process control is as follows:
 
 \begin{quote}
-    Suppose a refinery company is operating a continuously stirred tank reactor (CSTR). Objectively, the CSTR must maintain 200$^{\circ}$ C for optimal performance.  The temperature is controlled through a heat exchanger using cold water.  A RL agent was built to optimally control the flow of cold water to maintain the temperature set point. Suppose the CSTR starts at 220$^{\circ}$ C.  Agents using MDP representations may be overly aggressive and send large input signals because the reward is only calculated \textit{right before} the next evaluation step. Therefore, input signals resulting in large overshoot or inverse response may not be reflected in the reward. Contrarily, SMDP representation uses the average reward accumulated along the trajectory to provide feedback to the agent, allowing the transition dynamics to be explicitly captured. This way, input signals resulting in undesirable behaviour can be captured and mitigated. Furthermore, SMDP representations can have flexible evaluation times (traditional representations evaluate after a set time period), enabling re-evaluation during the transitional period and adjusts the discount factor in accordance to the elapsed time from last evaluation.
+Suppose a CSTR in a refinery must maintain a temperature of 200$^{\circ}$ C.  The temperature is regulated using cooling water via a heat exchanger.  A RL agent was tasked with maintaining the temperature set point. Suppose the CSTR is initiated at 220$^{\circ}$ C.  Agents using FOMDP representations may be overly aggressive and send large control actions because the reward is calculated \textit{right before} the next evaluation step. Therefore, input signals resulting in large overshoot or inverse response may be missed during the reward calculation. Contrarily, SMDPs consider the average reward accumulated throughout the transition to provide feedback to the agent, allowing the undesirable dynamics to be captured. Furthermore, the sampling time of SMDPs are not fixed (traditional representations evaluate after a set time period), enabling re-evaluation during the transitional period if unexpected events occur. In such scenarios, the discount factor will also be adjusted in accordance to the elapsed time from last evaluation.
 \end{quote}
 
 

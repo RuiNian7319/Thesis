@@ -58,19 +58,17 @@ where $\xrightarrow{\text{E}}$ and $\xrightarrow{\text{I}}$ denotes the policy e
 
 To improve upon these computational issues, value iteration was proposed.  Value iteration finds the optimal policy through identifying the optimal value functions instead. Intuitively, value iteration is a special case of policy iteration where the policy evaluation is terminated after one step.  From the value functions of each state, $\pi^*$ can be found by traversing through the states corresponding to the highest values. Note that the optimal policy can only be found using $V(x)$ if a dynamics equation of the system is provided. Without it, $Q(x, u)$ must be identified instead to behave optimally. The policy evaluation for the value iteration algorithm is given as:
 \begin{equation}
-    v_{k+1}(x) = \argmax_u \mathbb{E}[R_{t+1} + \gamma v_k(x_{t+1})]
+    v_{k+1}(x) = \max_u \mathbb{E}[R_{t+1} + \gamma v_k(x_{t+1})]
 \end{equation}
 \begin{equation}
-    q_{k+1}(x, u) = \mathbb{E}[R_{t+1} + \gamma \argmax_{u_{t+1}} q_k(x_{t+1}, u_{t+1})]
+    q_{k+1}(x, u) = \mathbb{E}[R_{t+1} + \gamma \max_{u_{t+1}} q_k(x_{t+1}, u_{t+1})]
 \end{equation}
-Here, the $\argmax$ operation ensures that each $v_k(x)$ is updated using only the maximizing action so the \textit{optimal} value function can be identified. After all $v^*(x)$ are identified, an agent can behave optimally starting in any state assuming the agent takes the maximizing action at each time. Note that both policy and value iteration are \textit{bootstrap} methods. Bootstrapping in RL increases data efficiency while capturing long-term trajectory information; however, the method also introduces unintended biased. 
+Here, the $max$ operation ensures that each $v_k(x)$ is updated using only the maximizing action so the \textit{optimal} value function can be identified. After all $v^*(x)$ are identified, an agent can behave optimally starting in any state assuming the agent takes the maximizing action at each time. Note that both policy and value iteration are \textit{bootstrap} methods. Bootstrapping in RL increases data efficiency while capturing long-term trajectory information; however, the method also introduces unintended biased. 
 
 In industry, both policy and value iteration have limited utility because their updates are far too computationally expensive. In high dimensional settings, even one iterative step may be intractable; therefore, even with value iteration's reduced computational complexity, it is still infeasible for most complex problems. Asynchronous dynamic programming methods further reduces computational complexity by only updating frequently visited states. However, agents are rendered hopeless in states that are rarely encountered. Although, such a methodology mimics human behaviour where encounters can be handled effectively and efficiently and more exotic situations may catch us by surprise. Nonetheless, such methods still require system models to be explicitly provided, a extremely rare case in industry.
 
 \subsection{Monte Carlo Methods}
 Monte Carlo methods no longer require explicit system models (a characteristic known as \textit{model-free}).  Instead, MC methods \textit{estimate} the average returns for different policies through sampling infinitely many sequences of states, actions, and rewards. As the samples increase, $v_k(x) \rightarrow v_{\pi}(x) \text{ for all } x \in \mathcal{X}$. Learning-wise, the average returns are updated at the end of each trajectory. Due to this, the finite tasks with explicit terminal states are typically solved using MC methods. For example, discrete manufacturing is an episodic task in process control. The system is reset after the assembly of each object (cars, toys, ...).  In episodic tasks, the value functions are updated naturally after each episode. However, most tasks in process control are continuous. Training a continuous agent using MC methods require additional modifications. One method is to pre-specify a length of time. After the time has elapsed, the agent will pause and update its value functions. 
-
-Notice that bootstrapping is not used in MC methods.  In fact, all value functions are estimated independently. As such, MC methods do not suffer from bias issues; however, MC methods may suffer from large variances instead caused by the noise in each sampled trajectory \cite{sutton}. Moreover, exploration is mandatory in MC methods because the dynamics of the system are unknown to the agent. Through exploration, the agent can discover the dynamics of the system and the value functions for each state.  Typically, exploration in MC methods is conducted by initiating the agent in a random state at the beginning of each episode. After infinite episodes, all states will be visited infinitely many times.
 
 Policy search in MC methods is similar to policy iteration. There exists three differences: 1) only visited states are updated; 2) updates use \textit{sampled} data instead of a model; 3) $q_{\pi}(x, u)$ is required and identified instead of $v_{\pi}(x)$. In MC methods, the action-value functions are identified because a model is not provided to the agent. Hence, the agent cannot behave optimally using only the value functions because the actions required to transition to the high value states are not known. Instead, action-values contain explicit information on the expected returns for each action in each state.  The iterative procedure of MC to compute the cumulative returns is given by: 
 \begin{equation}
@@ -103,17 +101,22 @@ where $Q_k(x, u)$ represents the $k^{th}$ action-value update and $G$ correspond
 \end{equation}
 where $\alpha \in (0, 1]$ is known as the learning rate (also called step size). The lower bound prevents $\alpha$ from approaching 0; therefore, allowing for continually adaptation in non-stationary problems. After each update of Equation \ref{eq:01mcupdate}, a new episode starts and the procedures are repeated.  As $k, \text{ \# of episodes } \rightarrow \infty, Q(x, u) \rightarrow q(x, u)$. Once $Q(x, u)$ converge, online action selection can be conducted by:
 \begin{equation}
-    \pi(x) = \argmax_{u} q(x, u)
+    \pi^*(x) = \argmax_{u} q(x, u)
     \label{eq:policy_extract}
 \end{equation}
-That is, $\pi^*$ is performing the greedy action in each state.  MC methods allow the agent to learn solely from sampled data; however, the action-values are updated only after each episode. Such a procedure is unnatural in continuous systems (most systems in process control), disadvantageous long episode systems, and is not intuitive to human behaviour. For example, humans learn immediately after feedback, not in pre-set increments. Temporal difference methods combine the best features of DP and MC methods into one unifying algorithm.
+That is, $\pi^*$ is performing the greedy action in each state.  
+
+\subsubsection{Exploration in MC}
+Notice that bootstrapping is not used in MC methods.  In fact, all value functions are estimated independently. As such, MC methods do not suffer from bias issues; however, MC methods may suffer from large variances instead caused by the noise in each sampled trajectory \cite{sutton}. Moreover, exploration is mandatory in MC methods because the dynamics of the system are unknown to the agent. Through exploration, the agent can discover the dynamics of the system and the value functions for each state.  Typically, exploration in MC methods is conducted by initiating the agent in a random state at the beginning of each episode. After infinite episodes, all states will be visited infinitely many times.
+
+MC methods allow the agent to learn solely from sampled data; however, the action-values are updated only after each episode. Such a procedure is unnatural in continuous systems (most systems in process control), disadvantageous long episode systems, and is not intuitive to human behaviour. For example, humans learn immediately after feedback, not in pre-set increments. Temporal difference methods combine the best features of DP and MC methods into one unifying algorithm.
 
 
 
 
 
 \subsection{Temporal-Difference Methods}
-Temporal difference (TD) methods are the most widely used RL algorithm in industry today because of its simplicity and cheap computational cost. TD methods combine the ability to learn from experiences (like MC methods) with bootstrapping (like DP methods). TD methods do not require a model of the system, and will instead learn the dynamics from interactions. Moreover, TD methods do not need to wait until the termination of an episode before updating its value functions. Instead, TD methods can update immediately after $x_{t+1}$ and $R_{t+1}$ are received. The TD update for value and action-value functions are given by Equations \ref{eq:td_value} and \ref{eq:td_action_value}, respectively \cite{ref-td}:
+Temporal difference (TD) methods are mathematically simple and cheap computationally compared to MC and DP methods. TD methods learn from experiences (like MC methods) and bootstraps (like DP methods). Furthermore, a dynamics model is not required in TD methods. Instead, the agent learns the dynamics from interactions. Moreover, TD methods update their value functions immediately after $x_{t+1}$ and $R_{t+1}$ are received. The TD update algorithm for value and action-value functions are given in Equations \ref{eq:td_value} and \ref{eq:td_action_value}, respectively \cite{td}:
 \begin{equation}
     V(x_t) \leftarrow V(x_t) + \alpha \left[R_{t+1} + \gamma V(x_{t+1}) - V(x_t) \right]
     \label{eq:td_value}
@@ -122,15 +125,75 @@ Temporal difference (TD) methods are the most widely used RL algorithm in indust
     Q(x_t, u_t) \leftarrow Q(x_t, u_t) + \alpha \left[R_{t+1} + \gamma Q(x_{t+1}, u_{t+1}) - Q(x_t, u_t) \right]
     \label{eq:td_action_value}
 \end{equation}
-where $\leftarrow$ denotes the update operator. Intuitively, the old value functions are corrected using the \textit{TD errors} at each update by a fixed amount (dictated by $\alpha$).  The TD errors are given as:
+where $\leftarrow$ is the update operator. At each update, the old value function is corrected as a function of the \textit{TD error} by a fixed amount determined by $\alpha$.  The TD errors are at each time $t$ is given as:
 $$\delta_t = R_{t+1} + \gamma V(x_{t+1}) - V(x_t)$$
 $$\delta_t = R_{t+1} + \gamma Q(x_{t+1}, u_{t+1}) - Q(x_t, u_t)$$
-where $\delta_t$ denotes the TD error at time $t$.  The first two terms, $R_{t+1} + \gamma V(x_{t+1})$, denote what the agent \textit{thinks} the real value function is according to the last interaction.  $V(x_t)$ is the old value function. After the agent traverse through each state-action pair many times,  $V(x_t) \rightarrow v(x_t)$ (i.e., the estimated values converge to the true action values). The action-values follow a similar paradigm. After convergence, the optimal policy can be extracted via Equation \ref{eq:policy_extract}.
+The first two terms, $R_{t+1} + \gamma V(x_{t+1})$, denote the predicted value function for $x$ in accordance with the last interaction.  $V(x_t)$ is the previously predicted value function for $x$. After infinitely many interactions with the system,  $V(x_t) \rightarrow v(x_t)$ (i.e., the estimated values converge to the true values). The action-values follow the same procedure. After convergence of the values and/or action-values, the optimal action selection is given in Equation \ref{eq:policy_extract}.
+
+\subsubsection{Exploration in TD}
+Like MC methods, TD methods are also \textit{model-free}; therefore, action-values are required for the agent to act optimally and exploration is mandatory. A simple and common exploration method used in TD methods is the $\epsilon$-greedy action selection. Here, the agent performs the greedy action with a $\epsilon \in [0, 1]$ probability of performing a random action. During training, $\epsilon$ is typically decayed throughout training.  At the beginning, $\epsilon$ starts at a high value because agent knows nothing. Eventually, $\epsilon$ decays to a low value when training is almost complete. 
+
+Unfortunately, random exploration is sample inefficient and may require the agent to undergo thousands of interactions before learning anything meaningful. Learning can typically be significantly accelerated through a heuristics function $\mathcal{H}: \mathcal{X} \times \mathcal{U} \rightarrow \mathbb{R}$ \cite{harl}.  One such heuristics approach is the upper confidence bound (UCB) action selection algorithm \cite{ucb}. Here, exploration is promoted on states that have high potential to be optimal and is given by:
+\begin{equation}
+    U_t = \argmax_u [Q_t(x, u) + \mathcal{H}] 
+    \label{ucb}
+\end{equation}
+The heuristics function here is given by:
+\begin{equation}
+    \mathcal{H} = c \sqrt{\frac{ln \; t}{N_t(x, u)}}
+\end{equation}
+where $c$ is the degree of exploration.  Large $c$ values promote greater degrees of exploration. Furthermore, $N_t$ is the number of times action $u$ was selected prior to time $t$. As $N_t(x, u) \rightarrow \infty$, the corresponding $Q(x, u)$ has been updated many times and becomes very accurate.  Hence, the heuristics function $\mathcal{H} \rightarrow 0$. 
+
+\subsubsection{Popular TD algorithms}
+The two most popular TD algorithms are \textbf{SARSA} and \textbf{$Q$-learning}.  \textbf{SARSA} is an \textit{on-policy} algorithm. In such algorithms, the \textit{behaviour policy} and \textit{target policy} are identical.  Target policy refers to the goal policy of the agent.  Typically, this is the optimal policy.  Conversely, the behaviour policy, $b(u|s)$, is the policy used by the agent for decision making. In cases where the target and behaviour policy are identical, the agent is \textit{on-policy}. One flaw with \textit{on-policy} agents (assuming the target policy is the optimal policy) is that during training, the agent may quickly converge to a local optimum and never explore (since any policies containing exploration is not the optimal policy).  Ultimately, this results in a sub-optimal solution.  Contrarily, \textit{off-policy} agents, like \textbf{$Q$-learning}, typically follow exploratory policies during training to conduct deep exploration.  Then in online applications, the policy is swapped to the optimal policy. Moreover, \textit{off-policy} agents are \textit{guaranteed} to find the optimal policy assuming each state-action pair is visited infinite times and $b(u^* | s) > 0$ (i.e., probability of picking the optimal action under the behaviour policy is not 0) \cite{td}.
+
+Since SARSA is \textit{on-policy}, the action-value function are updated using Equation \ref{eq:td_action_value} using the quintuple $(x_t, u_t, R_{t+1}, x_{t+1}, u_{t+1})$. $Q$-learning updates use only four parameters $(x_t, u_t, R_{t+1}, x_{t+1})$ through Equation \ref{eq:q_learning}:
+\begin{equation}
+    Q(x_t, u_t) \leftarrow Q(x_t, u_t) + \alpha \left[R_{t+1} + \gamma \argmax_{u_{t+1}} Q(x_{t+1}, u_{t+1}) - Q(x_t, u_t) \right]
+    \label{eq:q_learning}
+\end{equation}
+In $Q$-learning, $u_{t+1}$ is not required because the action taken might follow a different policy compared to the target policy since the algorithm is \textit{off-policy}. Instead, Equation \ref{eq:q_learning} uses the $max$ operation to ensure $Q$-values are still updated towards the optimal policy. Ultimately, TD methods unify DP and MC methods, allowing the agent to learn from experiences and perform inter-episode updates to exploit the most recent learnings.
+
+A detailed numerical example is provided in Chapter 4 where a tabular $Q$-learning algorithm was applied onto an industrial VFD system to conduct set-point tracking control.
+
+
+\section{Reward design for process control}
+The agent's reward function design for process control applications is similar to MPC.  For a regulation or set-point tracking problems, the MSE reward function can be used:
+\begin{equation}
+    r(x, u) = -(x_i - x_{sp})^2
+\end{equation}
+However, the agent may find it difficult to distinguish between small off-sets using this reward function.  For example, when the tracking error is 10, the reward is -100.  However, if the off-set was only 0.25 or 0.1, the agent would find it difficult to distinguish between the small rewards because the magnitude is significantly different compared to an error of 10.  One way to enhance the distinction is to use a Huber loss given as \cite{huber}:
+\begin{equation*}
+    r(x, u) = \begin{cases}
+    x_t - x_{sp} & \quad if \; |x_t - x_{sp}| > 1 \\
+    (x_t - x_{sp})^2 & \quad otherwise
+    \end{cases}
+\end{equation*}
+In this case, large errors are not squared to significantly reduce their magnitude.  In the tabular cases, this error works exceptionally well; however, not so much in deep RL.  Typically, the inputs to neural networks must be normalized for it to learn sufficiently \cite{NN}.  When normalizing the rewards, small errors will once again become indistinguishable.  In such a case, the following reward function can be used:
+\begin{equation*}
+    r(x, u) = \begin{cases}
+    x_t - x_{sp} & \quad if \; |x_t - x_{sp}| > 1, \\
+    (x_t - x_{sp})^2 & \quad if \; 1 > |x_t - x_{sp}| > \eta, \\
+    +1 & \quad otherwise
+    \end{cases}
+\end{equation*}
+where $\eta$ is the minimum acceptable tracking error. Here, as the agent achieves control within $\eta$, the reward is significantly increased, causing the agent to heavily favor that operating region.  Such an idea is similar to zone MPC, where the objective of the controller is to guide the trajectory within a zone \cite{zone_mpc}. Another flaw with deep RL is its variance in the output actions.  For example, if the temperature inside a house varies between $\ang{22.1}$ C or $\ang{22.2}$ C, a human would not go and change the air conditioning set-point because the two temperatures are relatively the same.  In deep RL's case, these are seen as two different states, and correspond to different actions.  One could design a filter to remove such small actions from being sent to the system; however, one natural way to mitigate this is to add another cost in the reward function:
+\begin{equation}
+    r(x, u) = -[(x_t - x_{sp})^2 + \nu \Delta u_t^2]
+\end{equation}
+where $\Delta u_t$ is the change in input in the last sampling time. The coefficient, $\nu$, is used to tune the effect of the action on the reward.  For example, if the system's input signals are typically small, a large $\nu$ would be used so the tracking error does not dominate the entire reward function.
+
+If the optimal input is known, the reward function can be designed as:
+\begin{equation}
+    r(x, u) = -[(x_i - x_{sp})^2 + (u_i + u_{ss})^2]
+\end{equation}
+Although such scenarios would be rare in industry. 
+
+Lastly, the reward is sometimes clipped to avoid large TD errors causing numerical issues during bootstrapping \cite{reward_clip}.  From Equation \ref{eq:q_learning}, it can be seen that if a large reward was obtained,
 
 
 
-
-\subsection{Summary of the different solution approaches}
+\section{Summary of the different solution approaches}
 The main features of DP, MC and TD methods are summarized in Table \ref{tab:dc_mc_td}. Overall, DP requires a dynamics function of the system to compute the value functions while both MC and TD methods can learn directly from interactions with the system. Both DP and TD methods use bootstrapping to estimate value functions, that is, they estimate the current value function based on previously estimated values. Bootstrapping is data efficient, but introduces large bias to the estimated values, especially in the early episodes.  Conversely, MC methods estimate the value functions of each state independently through sampling many system trajectories.  However, this method, instead, introduces high variance. For extremely noisy systems, the reproducability of the results may be difficult. Comparing the computational cost, DP methods require much more compared to MC or TD since all value functions are simultaneously solved. In MC methods, only the value functions that were visited in the sampled trajectories are updated.  Additionally, updates are conducted at the end of each episode and not after each step. Similar to DP methods, TD methods update the value function immediately after an experience; however, only the value function corresponding to the last visited state is updated. In terms of exploration, DP methods do not explore the system model (both transition probabilities and expected reward) is explicitly provided. MC methods explore by being initiated in a random state after each episode termination. In TD methods, agents explore by occasionally performing a random action.
 
 \begin{table}[H]
@@ -163,23 +226,6 @@ Evolutionary methods work well when the policy space is sufficiently small, easy
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% End Section Intro to RL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Begin Section Tabular RL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\section{Tabular Q-learning}
-
-A detailed numerical example is provided in Chapter 4 where a tabular $Q$-learning algorithm was applied onto a physical pump system.
-
-\subsection{Introduction to Q-learning}
-\subsubsection{Adaptation to Non-Stationary Problems}
-- explanation
-\subsubsection{Exploration in Tabular Q-learning}
-- epsilon greedy, ucb
-\subsubsection{Reward Functions}
-- mse, with action, etc
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%% End Section Tabular RL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%% Begin Section Function Approximation %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

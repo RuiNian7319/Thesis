@@ -126,8 +126,14 @@ Temporal difference (TD) methods are mathematically simple and cheap computation
     \label{eq:td_action_value}
 \end{equation}
 where $\leftarrow$ is the update operator. At each update, the old value function is corrected as a function of the \textit{TD error} by a fixed amount determined by $\alpha$.  The TD errors are at each time $t$ is given as:
-$$\delta_t = R_{t+1} + \gamma V(x_{t+1}) - V(x_t)$$
-$$\delta_t = R_{t+1} + \gamma Q(x_{t+1}, u_{t+1}) - Q(x_t, u_t)$$
+\begin{equation}
+    \delta_t = R_{t+1} + \gamma V(x_{t+1}) - V(x_t)
+    \label{eq:01td_error1}
+\end{equation}
+\begin{equation}
+    \delta_t = R_{t+1} + \gamma Q(x_{t+1}, u_{t+1}) - Q(x_t, u_t)
+    \label{eq:01td_error2}
+\end{equation}
 The first two terms, $R_{t+1} + \gamma V(x_{t+1})$, denote the predicted value function for $x$ in accordance with the last interaction.  $V(x_t)$ is the previously predicted value function for $x$. After infinitely many interactions with the system,  $V(x_t) \rightarrow v(x_t)$ (i.e., the estimated values converge to the true values). The action-values follow the same procedure. After convergence of the values and/or action-values, the optimal action selection is given in Equation \ref{eq:policy_extract}.
 
 \subsubsection{Exploration in TD}
@@ -157,41 +163,6 @@ In $Q$-learning, $u_{t+1}$ is not required because the action taken might follow
 A detailed numerical example is provided in Chapter 4 where a tabular $Q$-learning algorithm was applied onto an industrial VFD system to conduct set-point tracking control.
 
 
-\section{Reward design for process control}
-The agent's reward function design for process control applications is similar to MPC.  For a regulation or set-point tracking problems, the MSE reward function can be used:
-\begin{equation}
-    r(x, u) = -(x_i - x_{sp})^2
-\end{equation}
-However, the agent may find it difficult to distinguish between small off-sets using this reward function.  For example, when the tracking error is 10, the reward is -100.  However, if the off-set was only 0.25 or 0.1, the agent would find it difficult to distinguish between the small rewards because the magnitude is significantly different compared to an error of 10.  One way to enhance the distinction is to use a Huber loss given as \cite{huber}:
-\begin{equation*}
-    r(x, u) = \begin{cases}
-    x_t - x_{sp} & \quad if \; |x_t - x_{sp}| > 1 \\
-    (x_t - x_{sp})^2 & \quad otherwise
-    \end{cases}
-\end{equation*}
-In this case, large errors are not squared to significantly reduce their magnitude.  In the tabular cases, this error works exceptionally well; however, not so much in deep RL.  Typically, the inputs to neural networks must be normalized for it to learn sufficiently \cite{NN}.  When normalizing the rewards, small errors will once again become indistinguishable.  In such a case, the following reward function can be used:
-\begin{equation*}
-    r(x, u) = \begin{cases}
-    x_t - x_{sp} & \quad if \; |x_t - x_{sp}| > 1, \\
-    (x_t - x_{sp})^2 & \quad if \; 1 > |x_t - x_{sp}| > \eta, \\
-    +1 & \quad otherwise
-    \end{cases}
-\end{equation*}
-where $\eta$ is the minimum acceptable tracking error. Here, as the agent achieves control within $\eta$, the reward is significantly increased, causing the agent to heavily favor that operating region.  Such an idea is similar to zone MPC, where the objective of the controller is to guide the trajectory within a zone \cite{zone_mpc}. Another flaw with deep RL is its variance in the output actions.  For example, if the temperature inside a house varies between $\ang{22.1}$ C or $\ang{22.2}$ C, a human would not go and change the air conditioning set-point because the two temperatures are relatively the same.  In deep RL's case, these are seen as two different states, and correspond to different actions.  One could design a filter to remove such small actions from being sent to the system; however, one natural way to mitigate this is to add another cost in the reward function:
-\begin{equation}
-    r(x, u) = -[(x_t - x_{sp})^2 + \nu \Delta u_t^2]
-\end{equation}
-where $\Delta u_t$ is the change in input in the last sampling time. The coefficient, $\nu$, is used to tune the effect of the action on the reward.  For example, if the system's input signals are typically small, a large $\nu$ would be used so the tracking error does not dominate the entire reward function.
-
-If the optimal input is known, the reward function can be designed as:
-\begin{equation}
-    r(x, u) = -[(x_i - x_{sp})^2 + (u_i + u_{ss})^2]
-\end{equation}
-Although such scenarios would be rare in industry. 
-
-Lastly, the reward is sometimes clipped to avoid large TD errors causing numerical issues during bootstrapping \cite{reward_clip}.  From Equation \ref{eq:q_learning}, it can be seen that if a large reward was obtained,
-
-
 
 \section{Summary of the different solution approaches}
 The main features of DP, MC and TD methods are summarized in Table \ref{tab:dc_mc_td}. Overall, DP requires a dynamics function of the system to compute the value functions while both MC and TD methods can learn directly from interactions with the system. Both DP and TD methods use bootstrapping to estimate value functions, that is, they estimate the current value function based on previously estimated values. Bootstrapping is data efficient, but introduces large bias to the estimated values, especially in the early episodes.  Conversely, MC methods estimate the value functions of each state independently through sampling many system trajectories.  However, this method, instead, introduces high variance. For extremely noisy systems, the reproducability of the results may be difficult. Comparing the computational cost, DP methods require much more compared to MC or TD since all value functions are simultaneously solved. In MC methods, only the value functions that were visited in the sampled trajectories are updated.  Additionally, updates are conducted at the end of each episode and not after each step. Similar to DP methods, TD methods update the value function immediately after an experience; however, only the value function corresponding to the last visited state is updated. In terms of exploration, DP methods do not explore the system model (both transition probabilities and expected reward) is explicitly provided. MC methods explore by being initiated in a random state after each episode termination. In TD methods, agents explore by occasionally performing a random action.
@@ -213,9 +184,50 @@ Exploration             & Not needed, all states update   & Random initializatio
 \end{tabular}}
 \end{table}
 
-\subsection{Reinforcement Learning vs. Other "Learnings"}
 
-Machine learning consists of the following four classes: i) Supervised learning, ii) Unsupervised learning, iii) Semi-supervised learning, iv) Reinforcement learning.  Supervised learning is fitting a model to map input data to output data.  The model is initially trained on a set of labeled training data provided by a subject matter expert.  Subsequently, unsupervised learning is used on unlabeled data sets.  The objective of unsupervised learning is to explore the data and identify hidden features. Semi-supervised learning combines the strengths of supervised and unsupervised learning, and is especially useful \cite{machine_learning}.  Often times, industrial data will be partially labelled due to the time and cost associated with data labelling.  For supervised and unsupervised learning, only the labeled and unlabeled data can be used, respectively.  However, all data can be used in semi-supervised learning which allows for maximized data efficiency and increased model performance. Finally, reinforcement learning is a goal-directed learning from interactions with the environment \cite{sutton}.
+
+
+\section{Reward design for process control}
+The design of the reward function for process control applications is similar to MPC.  For regulation or set-point tracking problems, the MSE reward function can be used and is given by:
+\begin{equation}
+    r(x, u) = -(x_i - x_{sp})^2
+\end{equation}
+However, the agent may find it difficult to distinguish between small off-sets using this reward function.  For example, when the tracking error is 10, the reward is -100.  However, if the off-set is only 0.25 or 0.1, the agent would find it difficult to distinguish between the small rewards because the difference is miniscule compared to an error of 10.  To enhance this distinction, a Huber loss can be used \cite{huber}:
+\begin{equation*}
+    r(x, u) = \begin{cases}
+    x_t - x_{sp} & \quad if \; |x_t - x_{sp}| > 1 \\
+    (x_t - x_{sp})^2 & \quad otherwise
+    \end{cases}
+\end{equation*}
+In this case, large errors are not squared, significantly reduce their magnitude.  In the tabular cases, this error works exceptionally well; however, not so much in deep RL.  Typically, the inputs to neural networks are normalized for sufficient learning \cite{NN}.  When normalizing the rewards, small errors will once again become indistinguishable.  In such a case, the following reward function typically works better:
+\begin{equation*}
+    r(x, u) = \begin{cases}
+    x_t - x_{sp} & \quad if \; |x_t - x_{sp}| > 1, \\
+    (x_t - x_{sp})^2 & \quad if \; 1 \geq |x_t - x_{sp}| > \eta, \\
+    +1 & \quad otherwise
+    \end{cases}
+\end{equation*}
+where $\eta$ is the maximum acceptable tracking error. Here, as the agent achieves states within $\eta$, the rewards are significantly increased.  Such an idea is similar to zone MPC, where the objective of the controller is to guide the trajectory within a zone \cite{zone_mpc}. Another flaw with deep RL comes from the noisy action signals.  For example, a normal human would not go and continuously change the air conditioning set-point if the temperature inside a house varies between $\ang{22.1}$ C to $\ang{22.2}$ C because the two temperatures are relatively the same.  In the case of deep RL, these are seen as two completely different states, and correspond to (slightly) different actions.  One could design a filter to remove such small actions from being sent to the system; however, adding a cost to the change in inputs is a more natural way to mitigate this:
+\begin{equation}
+    r(x, u) = -[(x_t - x_{sp})^2 + \nu \Delta u_t^2]
+\end{equation}
+where $\Delta u_t$ is the change in input in the last sampling time. The coefficient, $\nu$, is used to tune the effect of the action on the reward.  For example, if the system's input signals are typically small, a large $\nu$ would be used so the tracking error does not dominate the entire reward function.
+
+In exotic scenarios where the optimal input is known, the reward function can become:
+\begin{equation}
+    r(x, u) = -[(x_i - x_{sp})^2 + (u_i + u_{ss})^2]
+\end{equation}
+Lastly, the rewards are sometimes clipped to avoid large TD errors causing numerical issues during bootstrapping \cite{reward_clip}.  From Equation \ref{eq:q_learning}, it can be seen that if $R(x, u) >>> Q(x, u), Q(x_{t+1}, u_{t+1})$, then the updated $Q(x, u)$ would be completely dominated by $R(x, u)$. Additionally, any future updates bootstrapping off $Q(x, u)$ would subsequently become dominated by its value. As such, rewards are clipped (bounded) within a range to prevent such issues. Unexpectedly large rewards may originate from incorrect sensor readings, which consequently leads to inaccurate reward signals being sent to the agent.  Reward clipping is conducted by:
+\begin{equation}
+    r(x, u) = min(max(r_t,\mu^- ), \mu^+)
+    \label{reward_clipping}
+\end{equation}
+where $\mu^-$ and $\mu^+$ denotes the minimum and maximum rewards, respectively. 
+
+
+
+
+\subsection{Reinforcement Learning vs. Other "Learnings"}
 
 Reinforcement learning is a unique class of machine learning.  An ideal supervised learning model can only be as good as the subject matter expert providing the labels to the data set, which may not be 100\%.  For example, in a complex control task, the control law is usually highly non-linear. Control experts can try to provide control strategies for such systems, but optimality may not be guaranteed for highly non-linear systems. Also, supervised learning is used to generalize responses for occurrences not present in the data \cite{sutton}.  Reinforcement learning works by directly interacting with the environment \textit{without labels}. Through adequate exploration, reinforcement learning will identify peculiar features to optimally control such problems [citation required].  Reinforcement learning is \textit{similar} to unsupervised learning in terms of identifying hidden structures within the environment.  However, reinforcement learning tries to maximize an internal scalar "reward" signal, rather than purely data mining.
 
@@ -232,12 +244,126 @@ Evolutionary methods work well when the policy space is sufficiently small, easy
 \section{Function Approximation}
 \subsection{Introduction to Function Approximations}
 - capture the data of large data set and condense it down into something smaller.
+
+
+
+
+
+
 \subsection{Neural Network Basics}
+
+
+
+
+
 \subsubsection{Neural Network Initialization}
-\subsubsection{Gradient Descent Updating}
-\subsubsection{Mini-batch Gradient Descent}
-\subsubsection{Batch Normalization}
+Neural networks can be initiated in many ways. Although neural networks can be initiated as all zeros, such an approach is not symmetry-breaking resulting in all neurons performing the same calculations \cite{NN}.  Ultimately, this results in all neurons outputting the same values rendering the whole network useless.  Therefore, a primitive approach to overcome this was to initialize the neural network weights as random near-zero values. This method was symmetry-breaking, but such networks required long training times, especially in deep learning \cite{xavier_init}. In 2010, Xavier and Bengio published one of the first papers to explicitly study neural network initialization.
+
+In \cite{xavier_init}, the the Xavier initializer was proposed to equalize the variance of the outputs of each layer with the variance of its inputs. More specifically, the biases of each layer was initialized as zero, but the weights were initialized as:
+\begin{equation}
+    W \thicksim U \left[-\frac{\sqrt{6}}{\sqrt{n_j + n_{j+1}}}, \frac{\sqrt{6}}{\sqrt{n_j + n_{j+1}}}  \right]
+    \label{eq:01xavier}
+\end{equation}
+where $U[-a, a]$ represents an uniform distribution bounded between $(-a, a)$.  Here, $n_j$ and $n_{j+1}$ denotes the size of the previous and current layers. The derivation of Equation \ref{eq:01xavier} assumed linear actions. When tested using sigmoid activation functions, the Xavier initialized neural networks showed substantially faster convergence times. Unfortunately, sigmoid activation functions were considered obsolete as time went on due to the exploding/vanishing gradients problem \cite{vanish_grad}.  
+
+By 2015, He et al. proposed a new initialization method specialized for ReLU activation functions, known as the He initializer \cite{he_init}. He extended upon previous work by assuming a ReLU activation function instead of a linear one and obtained the weight initialization function given by:
+\begin{equation}
+    W \thicksim \mathcal{N} \left(0, \frac{2}{n_j}  \right)
+\end{equation}
+where $\mathcal{N}$ denotes the Gaussian distribution and $\frac{2}{n_j}$ denotes its standard deviation.  Like in \cite{xavier_init}, the He initialization showed substantially faster convergence times for neural networks compared to previous methods when using the ReLU activation function.
+
+The advantages of each initialization are summarized in Table \ref{tab:01nn_init}
+
+\begin{table}[H]
+\caption{Comparing different neural network initialization methods.}
+\label{tab:01nn_init}
+\centering
+{\footnotesize
+\begin{tabular}{c|c|c|c}
+\textbf{Zero init.} & \textbf{Random init.}	& \textbf{Xavier init.} & \textbf{He init.}\\
+\hline
+Does not work	     	& Simple but slow			& Ideal for sigmoid activations &  Ideal for ReLU activations \\
+\end{tabular}}
+\end{table}
+
+
+
+
+
+
+
+
+
+\subsubsection{Gradient descent and the objective function}
+
+
+
+
+
+
+
+
+\subsubsection{Mini-batch gradient descent}
+
+
+
+
+
+
+
+
+
+\subsubsection{Data segregation}
+The data set was split into three sections for machine learning: training, validation, and testing.  The partition and description of each section is shown in Table \ref{tab:08datapart}. The training data set was used to identify the machine learning model(s).  Then, the model was validated on unseen data via the validation data set (sometimes called development data).  The error of the model on the validation data set, $e_{validation}$, was then evaluated and compared to the training data error, $e_{train}$.  If the difference is large, the model was rebuilt using different data pre-processing techniques and features. This step was repeated until $e_{train} \approx e_{validation}$ to ensure that the model did not overfit to the training data. Finally, the model was tested on the testing data to explore the performance of the model in live production.  Testing data was always the last 5\% of the data set.
+\begin{table}[h]
+    \centering
+    {\setstretch{1.2}
+    \begin{tabular}{ c | c | p{9cm}}
+                            & \% of Data        &  Description \\
+        \hline
+        Training            &  90\%             
+        &  Identify the ML model        \\
+        
+        Validation          &  5\%              
+        &  Tune ML model performance on unseen data         \\
+        
+        Testing             &  5\%             
+        &  Test ML model performance on proxy live data       \\     
+    \end{tabular}}
+    \caption{Description of each data partition.}
+    \label{tab:08datapart}
+\end{table}
 \subsubsection{Regularization}
+Objectively, supervised learning models attempt to generalize the learnings obtained from the training data set to predict for situations not seen before. For example, suppose there exists a data set that contains the height and weight of a species of dogs. Objectively, the model must predict the weight of the dog given its height.  After the model is trained, it should have sufficient capability to predict for the weight of a dog even if the exact height provided was not in the training data set.  Often times, the training data set is small and does not represent the whole population of the data set.  This ultimately leads to the model overfitting the training data set, resulting in poor generalization characteristics. In machine learning literature, the model error is often called the \textbf{bias}.  Similarily, the difference in the modelling error between the training and validation data set is called the \textbf{variance} \cite{NN}.  Models exhibiting high variance are typically overfit to the training data, and does not predict well in production.  Regularization aims to significantly reduce variance at only a slight cost to bias. Generally speaking, regularization reduces the likelihood of learning a complex model by penalizing large weights through the objective function.  One common method is called the L1 regularization (sometimes called Lasso regularization) where a linear penalty is applied to weights and is given by:
+\begin{equation}
+    J(W) = \frac{1}{n} \left[\sum\limits^n_{i=1}(\hat{y}_i - y_i)^2 + \lambda \sum\limits^p_{j=1} |W_j| \right]
+    \label{eq:01L1}
+\end{equation}
+where $\lambda$ is a hyper parameter to determine the aggressiveness of the penalty and $p$ denotes the number of parameters inside the model. The L2 regularization is another popular regularization technique and applies a quadratic instead:
+\begin{equation}
+    J(W) = \frac{1}{n} \left[\sum\limits^n_{i=1}(\hat{y}_i - y_i)^2 + \lambda \sum\limits^p_{j=1} W_j^2 \right]
+    \label{eq:01L2}
+\end{equation}
+Figure \ref{fig:01l1vsl2} shows the optimal solution space of the L1 and L2 regularizations for a two parameter model. Overall, L2 regularization is typically the preferred choice because of its unique, stable solution and invariance under rotation \cite{l1_l2}. Another key difference is that L1 regularizations cannot be used for gradient based approaches because it is not continuously differentiable \cite{l1_diff}. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.56\textwidth]{images/ch1/L1_vs_L2.JPG}
+    \caption{Solution space of the lasso (left) and ridge regularization (right). Original image from \cite{generic_stats}.}
+    \label{fig:01l1vsl2}
+\end{figure}   
+
+Two other popular, but specialized regularization techniques catered towards neural networks are drop-out and batch normalization \cite{dropout, batch_norm}. Figure \ref{fig:01dropout} shows a neural network with and without drop-out. On a high level, drop out randomly disable neurons during training to prevent major "co-adaptation" between adjacent neurons. Intuitively, the drop-out process introduces (significant) pseudo noise into the training step, forcing neurons to learn a more probabilistic mapping. Ultimately, the drop-out method was able to achieve state-of-the-art performance when tested on various data sets in computer vision, natural language processing, classification, and computational biology. A more detailed explanation of drop-out can be found in \cite{dropout}.   
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.56\textwidth]{images/ch1/dropout.jpg}
+    \caption{A neural network with (right) and without (left) drop-out.}
+    \label{fig:01dropout}
+\end{figure}  
+
+Batch normalization is another recently popularized regularization method in deep learning.  Neural networks are trained through backpropagation.  In this method, the accuracy of the neurons in the later layers are paramount for proper parameter updates in the earlier layers.  If not, the backpropagated errors are significant incorrect. Specifically, the distribution of different layer's inputs change during training due to the weight changes of the subsequent layers. This characteristic, called internal covariate shift, contains a significantly negative effect on the training time of neural networks.  Batch normalization aims to overcome internal covariate shift by normalizing layer inputs.  In doing so, deep neural networks are less sensitive to initializations and much larger learning rates can be used. Additionally, the method was shown to contain regularization effects and often times eliminate the need for drop-out.  In experiments, the authors found that neural networks using batch normalization can achieve previous accuracies with 14 times fewer training steps.  For more information on batch normalization, see \cite{batch_norm}.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%% End Section Function Approximation %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -245,11 +371,11 @@ Evolutionary methods work well when the policy space is sufficiently small, easy
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Begin Section DDPG %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Deep Deterministic Policy Gradient}
+- talk about target network
 \subsection{Actor-Critic Intuition}
 \subsection{Actor - Deterministic Policy Gradient}
 \subsection{Critic - Deep Q-learning}
 
-\newpage
 
 \subsection{Exploration in DDPG}
 Traditionally, exploration in continuous action spaces are difficult because classical approaches, such as $\epsilon$-greedy, work only in a discrete action space.  DDPG explores through corrupting the action with exploratory noise \cite{ddpg}.  Throughout RL literature, many researchers conduct exploration using white noise. The noise corrupted action is given by:
@@ -260,13 +386,14 @@ Traditionally, exploration in continuous action spaces are difficult because cla
 where $u'(x_t)$ is the action corrupted by some noise, $\mathcal{N}$.
 
 \subsubsection{Exploration using White Noise}
-In Equation \ref{eq:01noise_corrupt}, $\mathcal{N}$ can bewhite noise drawn from $\mathcal{N}(0, \sigma^2)$; however, white noise is de-correlated and is ineffective for "deep" exploration (i.e., traversing far from the current state) due to the zero averaging effect \cite{white_noise}. Intuitively, white noise simply introduces oscillation into the process and does not create displacement in any particular direction. Therefore, it is more effective to corrupt the action using a temporally correlated process such as the Uhlenbeck-Ornstein (UO) process.
+In Equation \ref{eq:01noise_corrupt}, $\mathcal{N}$ can be white noise drawn from $\mathcal{N}(0, \sigma^2)$; however, white noise is de-correlated and is ineffective for "deep" exploration (i.e., traversing far from the current state) due to the zero averaging effect \cite{white_noise}. Intuitively, white noise simply introduces oscillation into the process and does not create displacement in any particular direction. Therefore, it is more effective to corrupt the action using a temporally correlated process such as the Uhlenbeck-Ornstein (UO) process.
 
 \subsubsection{Ornstein-Uhlenbeck Exploratory Noise}
 
 The UO process is given as \cite{ornstein}:
 \begin{equation}
     dx_t = \theta x_t dt + \sigma dW_t,
+    \label{eq:01OU}
 \end{equation}
 where $\theta > 0$, $\sigma > 0$, and $W_t$ denotes the Wiener process. Mathematically, the Wiener process is a special case of a continuous time stochastic process. Detailed information regarding the Wiener process and its properties can be found in \cite{wiener}. The UO process is ideal for exploratory noise in RL because of its time correlated feature.
 
@@ -288,17 +415,18 @@ Interestingly, integration operators are low-pass filters \cite{process_control_
 \end{figure}   
 
 
-
-
-
 \subsection{Stabilization of Training}
-- initiate at close to 0s
-- normalization of the data
-\subsubsection{Experience Replay}
-\subsubsection{Target Network}
-\subsubsection{Adaptive Batch Gradient Descent}
-\subsubsection{Reward Clipping}
+Architecturally, DDPG contains two interacting neural networks that are trained upon each other.  To successfully train such a complicated system, careful parameter initialization and proper weight updates are paramount.  Although some initialization techniques were introduces in the above sections, the authors of \cite{ddpg} initiated the last layer of the networks with weights uniformly drawn from $[-3 \times 10^{-3}, 3 \times 10^{-3}]$ for low dimensional problems. Such an initialization ensures initial policy and value estimates were near zero \cite{ddpg}. The other layers were initialized using uniform distributions $[-\frac{1}{\sqrt{n_j}}, \frac{1}{\sqrt{n_j}}]$, where $n_j$ was the size of the previous layer.  Regularization-wise, batch normalization was used \cite{batch_norm}. For exploration, the UO noise given in Equation \ref{eq:01OU} with $\theta$ and $\sigma$ as 0.15 and 0.2 were used.
+
+\subsubsection{Experience replay}
+DDPG also uses experience replay (sometimes called replay buffer) to enhance data efficiency and prevent catastrophic interference during training.  Experience replay was first introduced in \cite{exp_replay} to provide temporally de-correlated training samples to agents in time-series settings. In DDPG, tuples of:
+$$(x_t, u_t, r_{t+1}, x_{t+1})$$
+are memorized and stored in the experience replay. During updates, random mini-batches of previous experiences are sampled from the replay buffer to update the agent. Consequently, the agent obtains the ability to learn the same experiences many times, a concept similar to cycling through many epochs in deep learning. Correlating to humans, experience replay is similar to hippocampal replay, where memories are sub-consciously replayed over and over.  Indeed, that is one theory explaining the efficiency of human learning \cite{hippocampal}. However, human memories are rarely replayed randomly. Instead, only the most important or unexpected memories are replayed. Prioritized experience replay mimics this concept and biases sampling to experiences with large TD errors \cite{p_exp}. Intuitively, such experiences are \textit{shocking} since the outcome was significantly different than what was expected. Using prioritized experience replay, the agent learned faster in 41 out of 49 ATARI games compared to the original experience replay.
+
 \subsection{Input and State Constraints}
+As with all RL methods, input constraints can be handled quite trivially; however, state constraints are much more difficult. Typically, \textit{soft} state constraints are implemented in RL by introducing large negative rewards when the agent arrives at an undesired states. Indeed, humans learn state constraints in such a way where guardians provide negative consequences when we venture into troubling situations.  In literature, constrained Markov decision processes (CMDPs) and safe RL are two fields that explore how RL can handle constraints explicitly; however, most modern methods either require explicit system models or are difficult to implement in industry. 
+
+
 \subsection{Training Algorithm}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% End Section DDPG %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

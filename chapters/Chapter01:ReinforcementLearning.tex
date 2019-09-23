@@ -504,5 +504,23 @@ As with all RL methods, input constraints can be handled quite trivially; howeve
 
 
 \subsection{Training Algorithm}
+The DDPG algorithm is trained as follows \cite{ddpg}:
+\begin{enumerate}
+    \item Initialize replay buffer and the actor and critic network weights corresponding to the previous subsection.
+    \item Observe some states from the system 
+    \item Map the states to some actions via the online actor network: $u_t = \mu (x_t | \theta ^{\mu} + \mathcal{N}_t$
+    \item Implement $u_t$ to the system, observing transition to $x_{t+1}$ and obtaining $r_{t+1}$
+    \item Store tuple $(x_t, u_t, r_{t+1}, x_{t+1})$ into the replay buffer
+    \item Sample a mini-batch of $N$ experiences $(x_t, u_t, r_{t+1}, x_{t+1})$ from the replay buffer
+    \item Using the target critic network, compute $y_t = r_t + \gamma Q'(x_{t+1}, \mu'(x_{t+1}|\theta^{\mu'})|\theta ^{Q'})$ for each experience
+    \item Update online critic parameters by minimizing: $J = \frac{1}{N}\sum(y_i - Q(x_t, u_t|theta^{\mu}))^2$
+    \item Update online actor parameters by:
+    $$\nabla_{\theta^{\mu}} J \approx \frac{1}{N}\sum \nabla_u Q(x, u|\theta^Q)|_{x = x_t, u = u_t}\nabla_{\theta^{\mu}}\mu (x | \theta^{\mu})|_{x_t}$$
+    \item Update both actor and critic target networks:
+    $$\theta^{Q'} \leftarrow \tau \theta^Q + (1 - \tau) \theta^{Q'}$$
+    $$\theta^{\mu'} \leftarrow \tau \theta^{\mu} + (1 - \tau) \theta^{\mu'}$$
+\end{enumerate}
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% End Section DDPG %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

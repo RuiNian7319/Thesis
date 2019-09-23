@@ -447,8 +447,8 @@ Batch normalization is another recently popularized regularization method in dee
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Begin Section DDPG %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Deep Deterministic Policy Gradient}
-- talk about target network
-\subsection{Actor-Critic Intuition}
+Deep deterministic policy gradient was introduced as one of the first RL architectures to handle both continuous states and continuous actions \cite{ddpg}. Additionally, it was shown to also work in massively large state and action space systems (one such system was $x \in R^{102}$ and $u \in R^{9}$). DDPG contains four neural networks and employs an actor-critic framework.  The actor is the deterministic policy gradient (DPG) algorithm and maps states to actions.  Similarily, the critic is the deep $Q$-learning network (DQN) algorithm and approximates the action-values of the state-action pairs. Intuitively, combining DPG and DQN into one unifying algorithm overcomes several shortcomings exhibited by each algorithm individual. For example, DPGs are trained using MC methods and cannot update mid-episode; however, DDPG trains the DPG using the gradient of the DQN, allowing for inter-episode updates. Furthermore, DQN cannot output continuous actions, but DDPG can by leveraging DPG to select actions.  Another advantage provided by DDPG is the mitigation of large variances in the DPG through the use of DQN.  Previously, DPG experiences high variance because similar action sequences may return different outcomes in stochastic environments; however, evaluating the action using the DQN (a deterministic function) will result in an unbiased estimate of performance \cite{ddpg}.  
+
 \subsection{Actor - Deterministic Policy Gradient}
 \subsection{Critic - Deep Q-learning}
 

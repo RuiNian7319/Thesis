@@ -17,11 +17,116 @@ Advanced process control and optimal control have traditionally used mathematica
 Comparatively, RL online computational times are significantly shorter even for long control horizons or large-scale MIMO systems because the optimal solutions are pre-computed and stored offline, a concept similar to explicit model predictive control (MPC) where parametric programming is used \cite{explicit_MPC}. Furthermore, RL finds the optimal policy through meaningful interactions with the environment.  After each interaction, values are assigned/updated for the visited state. The value functions are stored for future decision making.  Through this identification process, the value functions implicitly contain the uncertainty information of all $x \in \mathcal{X}$. From these unique features of RL in control applications, it is a natural curiosity to explore its potential in the process control industry.
 
 \section{An direct adaptive optimal control method}
-Objectively, optimal control methods extremize the functional equation of a system through MP methods. In literature, optimal control methods have shown to be less tractable both computationally and analytically compared to set-point tracking or regulations methods. Consequently, adaptive optimal control methods have received less academic attention, with most existing studies focused on indirect methods like model re-parameterization \cite{rl_control}.  In \cite{rl_control}, RL was shown to be a direct optimal control method as it adapts its control policy directly. Direct adaptive optimal control methods are especially useful for systems where accurate models are not identifiable and/or available.  In such scenarios, RL can update the control policy directly through interactions with the system, eventually adapting to the optimal policy.  This was shown in \cite{power_control}, where the authors applied an RL algorithm to a data-center cooling application where accurate system models are nearly impossible to identify even with sufficient data.  However, the agent was still able to find an optimal policy to control the system after online interactions which ultimately resulted in 22\% reduced power consumption compared to previous model-based methods.  Furthermore, \cite{power_control2} showed that RL was able to adapt to ever-changing load fluctuations in power systems, eventually resulting in optimal control after sufficient online interactions. Wireless networks is another system with non-identifiable dynamics. In \cite{power_control3}, authors achieved increased energy efficiency using deep RL by, again, allowing the agent to learn the optimal policy online instead of mathematically modelling the system.
+On a high level, optimal control methods extremize the functional equation of a system through MP methods. In literature, it was found that optimal control methods are less tractable both computationally and analytically compared to set-point tracking or regulations methods (due to non-convex optimization among factors). Consequently, adaptive optimal control methods have received less academic attention, with most existing studies focused on indirect methods like model re-parameterization \cite{rl_control}.  In \cite{rl_control}, RL was shown to be an effective \textit{direct} optimal control method as it adapts its control policy directly. Direct adaptive optimal control methods are especially useful for systems where accurate models are not identifiable and/or available.  In such scenarios, in-direct methods struggle because the accuracy of the model is paramount for successful control.  On the other hand, direct methods can update the control policy directly through interactions with the system, eventually arriving at the optimal policy. In \cite{power_control}, the authors showcased RL's directly adaptive nature by applying an agent onto the control system of a data-center cooling application. In such systems, accurate models are nearly impossible to identify due to complex non-linear relationships between thousands of variables. However, the agent here was able to adapt to the optimal policy directly after sufficient online interactions which ultimately resulted in 22\% reduced power consumption compared to model-based approaches.  Likewise, \cite{power_control2} applied RL onto power systems with ever-changing load fluctuations.  Again, such a system is nearly impossible to model through traditional means; however, the agent was still able to adapt its policy after sufficient online interactions. Wireless networks is a third system with nearly unidentifiable dynamics. The authors in \cite{power_control3} demonstrated deep RL's direct adaptive nature through its application onto wireless networks, ultimately resulting in superior control compared to all previous methods.
 
-\section{An introductory example: Controlling a VFD using $Q$-learning}
+\section{Controlling a VFD using $Q$-learning}
+A detailed quantitative example is provided in this section to serve as a gentle introduction of RL's applicability in process control systems \footnote{For further intuition, the supplementary code for all results generated in this section are located at: https://github.com/RuiNian7319/Research/tree/master/2.RL\_Codes/Mechatronix}. Here, the \textit{off-policy} tabular $Q$-learning algorithm with upper confidence bound (learning acceleration heuristics) was used for output pressure tracking of an industrial variable frequency drive (VFD) pump. 
 
+\subsection{System Description}
+The industrial VFD system is built by Turbine Technologies and is called the FLUIDMechatronix.  On the system, there exists thousands of different tags measuring countless states. For this control example, the output pressure, $P_{out}$, and pump RPM will be used. From the FLUIDMechatronix manual, the safe operating ranges of the pressure and pump RPM are:
+$$0 \; kPa \leq P  \leq 45 \; kPa$$
+$$0 \; Hz \leq RPM  \leq 60 \; Hz$$
+In terms of system representation, a FOMDP will be used because all system measurements are available and the system dynamics are fast. Initially, the system starts in:
+\begin{equation}
+    P_0 = 41 \; kPa
+    \label{eq:initial_p}
+\end{equation}
+\begin{equation}
+    u_0 = 60 \; RPM
+    \label{eq:initial_u}
+\end{equation}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.38\textwidth]{images/ch4/Mechatronix.jpeg}
+    \caption{The FLUIDMechatronix experiment from Turbine Technologies \cite{turbine}.}
+    \label{fig:mechatronix}
+\end{figure}
+
+Implementing RL for the control of an industrial process typically involves four steps: i) Model identification; ii) agent design; iii) initial training; iv) online calibration.  The details of each step are shown in \ref{fig:rl_implementation}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{images/ch4/RL_implementation.jpeg}
+    \caption{General procedure for implementing industrial reinforcement learning.}
+    \label{fig:rl_implementation}
+\end{figure}
+
+\subsection{Step 1: Model ID}
+One major drawback of RL is its unreasonable data efficiency.  In fact, it \textit{may} take thousands of interactions before anything meaningful is first learned.  As such, implementing RL to learn online is time-infeasible because decades may pass before the optimal policy is identified.  To overcome this flaw, a \textit{representative} simulation model can first be constructed to pre-train the agent offline.  After adequate performance is observed in simulation, the agent can be implemented online.  Initially, the agent will calibrate its policy to the live process to overcome any model-plant mismatches. The time required for calibration is heavily dependent on the accuracy of the simulation model.  For perfectly representative models, such as video games, a calibration time is not required. Afterwards, optimal control can commence.
+
+For model identification, pseudo-random input signals were used to provide excitation to the VFD for input-out data generation. The data collection process was terminated after 18,000 input-output signals were obtained. Then, a quadratic model was identified using least squares. The identified model is given as:
+\begin{equation}
+    P_{out} = 0.012 \cdot RPM^2 + 0.024 \cdot RPM - 2.073
+\end{equation}
+The mean squared error (MSE) of the identified model was 0.056 and the fitted model compared to the experimental data is shown in Figure \ref{fig:04model_fit}.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/ch4/model_fit.pdf}
+    \caption{Performance of the identified system model on a test data set.}
+    \label{fig:04model_fit}
+\end{figure}
+
+\subsection{Step 2: Agent design}
+The overall RL paradigm for this example is shown in Figure \ref{fig:04rl_system1}. Intuitively, the agent tracks a set-point for the output pressure by manipulating the pump RPM.  To allow for the tracking of a variable set-point, the state of the agent is the current tracking error:
+\begin{equation}
+    \varepsilon = P_t - P_{t, sp}
+\end{equation}
+and the action is the \textit{change} in pump RPM $\Delta u$. Here, $P_t$ is the pressure at time $t$ and $sp$ denotes the set-point. This \textit{velocity} based implementation is a requirement for tracking multiple set-points. If the action was the pump RPM instead (and not $\Delta u$), then the agent would fail to track multiple set-points since it simply maps different tracking errors to one pump RPM that corresponds to \textit{one} set-point. For example, suppose the current set-point is $10 \; kPa$ and $P_t = 0$ resulting in a -10 tracking error. Here, suppose the optimal RPM is $u = 20$. After implementing $u = 20$, the system reaches steady state and achieves a tracking error of 0. After some time, the machine operator may then decide to change the set-point to $20 \; kPa$. Now again, the tracking error is -10; however, the RPM from the agent would still be $u = 20$ because the state-action is a 1 to 1 mapping; thus, unable to track any changes in set-points. 
+
+The reward function of the agent is given by:
+\begin{equation}
+    r(x, u) = max(-\varepsilon^2 - \Delta u, -200)
+\end{equation}
+where $\Delta u$ is the change in input to discourage the agent from making unnecessary actions. Additionally, the reward is clipped to -200 for convergence properties and to avoid numerical issues as explained in the reward clipping section. The upper reward limit is not clipped because the function is naturally capped at 0. Here, the agent evaluates every five seconds to guarantee that steady state has been reached before consecutive actions are made. Five seconds was chosen because it was identified to be the longest transition time required. Moreover, the decision making would not be Markovian (i.e., observed states are not independent of the past because the states do not provide the transition information to the agent) if the agent evaluates during the transition period. In such scenarios, the agent will fail to learn anything meaningful. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/ch4/rl_system1}
+    \caption{The RL set-up for the FLUIDMechatronix experiment.}
+    \label{fig:04rl_system1}
+\end{figure}
+
+All hyper parameters of the agent are shown in Table \ref{tab:rl_system1_params}. The states and actions of the agent are discretized as:
+\begin{equation}
+    x = [-20, -19, ..., 20]_{1 \times 41}
+\end{equation}
+\begin{equation}
+    u = [-10, -9, ..., 10]_{1 \times 21}
+\end{equation}
+totalling 861 different action-values to identify. Furthermore, the $Q$-matrix storing all the action-value functions is shown in Figure \ref{fig:q_matrix_system1}.  The agent is initiated with all action-values as 0, a condition known as \textit{tabula rasa}.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/ch4/q_matrix_system1.jpeg}
+    \caption{$Q$-matrix of the Mechatronix system.}
+    \label{fig:q_matrix_system1}
+\end{figure}
+The states and actions, $x$ and $u$, correspond to $\varepsilon$ and $\Delta u$, respectively.  The discount factor, $\gamma$, of the agent was 0.9. Overall, the agent was trained for 2,000,000 update steps corresponding to 115.7 days of continuous operating experience. After every 400$^{th}$ update step, the agent is reset back to the initial states given in Equations \ref{eq:initial_p} and \ref{eq:initial_u} to prevent controller saturation during initial episodes. 
+
+Exploration-wise, the agent starts with a equiprobable random policy ($\epsilon$ = 1), which decays linearly until $\epsilon = 0.1$ by the 500,000$^{th}$ update. Likewise, the learning rate, $\alpha$, is initiated at 0.7 and decays linearly until 0.001.
+
+\begin{table}[H]
+\caption{Summary of the agent's hyper parameters in the Mechatronix experiment.}
+\label{tab:rl_system1_params}
+\centering
+%% \tablesize{} %% You can specify the fontsize here, e.g.,  \tablesize{\footnotesize}. If commented out \small will be used.
+\begin{tabular}{c|c}
+\textbf{Hyper Parameter}     & Value  \\
+\hline
+States, $x$	             	& $\varepsilon = [-20, -19, ..., 20]_{1 \times 41} $		 \\
+Actions, $u$               & $\Delta u = [-10, -9, ..., 10]_{1 \times 21}$		\\
+Reward, $r$	               & max($-(\varepsilon^2 + \Delta u)$, -200)		\\
+Learning rate, $\alpha$		& [0.001, 0.7]		 \\
+Discount factor, $\gamma$      	& 0.9  \\
+Exploratory factor, $\epsilon$             & [0.1, 1]  \\
+Evaluation time                 & 5 seconds \\
+System representation           & FOMDP \\
+\end{tabular}
+\end{table}
+
+\subsection{Step 3: Initial training}
+
+\subsection{Step 4: Online calibration}
 
 
 
@@ -36,11 +141,9 @@ Then compare these methods with MPC. MPC usually wins.
 
 Then do fault tolerant control where RL beats MPC in some systems
 
-\section{Tabular Q-learning and Process Control}
-- Position implementation
-- Velocity implementation
-
 \section{Continuous Control using Deep Reinforcement Learning}
+
+\section{Control of waste water treatment plant}
 
 \section{A Comparison of Optimal Control Techniques}
 
@@ -82,7 +185,7 @@ where $x(t) \in {\mathbb{R}}^m$ denotes the state vector at time $t$, $u(t)$ den
 
 \subsection{The Reinforcement Learning Problem}
 Fig. \ref{fig:MDP_Setup} shows the RL paradigm. The overall RL problem was stated in detail in Chapter 1, and will only be briefly explained here. Starting from the top, the \textbf{environment} includes all factors the agent cannot arbitrarily change (the system in this study). The \textbf{agent} observes the \textbf{states} of the environment and performs control \textbf{actions} that transition the environment to new states while outputting a \textbf{reward} based on a desired performance metric. The reward guides the agent to the optimal policy. In control, reward is typically a function of the tracking error. The agent's decision making process is formalized in the Markov decision process.
-\begin{figure}[h]
+\begin{figure}[H]
     \begin{center}
         \includegraphics[width=11cm]{images/ftc/MDP_Setup.png}
         \caption{\label{fig:MDP_Setup} Paradigm of the reinforcement learning problem.}
@@ -109,7 +212,7 @@ where $G_t$ is the total discounted return along the sequence.  Here, the discou
 
 Fig. \ref{fig:inv_overshoot_pid} shows different cases of poorly designed controllers in the process industry. Controllers resulting in oscillations, large overshoot, or severe inverse response lead to faster equipment deterioration and are detrimental to process safety \cite{process_control_ref13}. Additionally, transition time is often determined by the magnitude of change in the set-point in non-linear systems. Controllers typically require more time to track higher magnitude changes compared to ones of lower magnitude.  One could design a controller that evaluates seldomly to guarantee successful transitions, though such excessively conservative designs may lead to economic disadvantages.
 
-\begin{figure}[h]
+\begin{figure}[H]
     \begin{center}
         \includegraphics[width=9.5cm]{images/ftc/inv_overshoot_pid.png}
         \caption{\label{fig:inv_overshoot_pid} Symptoms of poorly designed controllers.}
@@ -136,7 +239,7 @@ Fig. \ref{fig:ftc_setup} shows the proposed FTCS for an arbitrary industrial pro
 
 For high dimensional industrial processes equipped with modern hardware, both scalability and discreteness can be eliminated by using deep Q-network (DQN) and deep deterministic policy gradient (DDPG) for the FDS and FTC, respectively.  DQN with $\gamma = 0$ is an ideal algorithm for the FDS due to its continuous state space and discrete action space. Likewise, DDPG is ideal for control due to its ability to handle large continuous states and action systems. For the remainder of this study, the contextual bandit agent used for fault detection and the RL agent used for FTC will be denoted as the \textit{prediction agent} and \textit{control agent}, respectively.
 
-\begin{figure}[h]
+\begin{figure}[H]
     \begin{center}
         \includegraphics[width=11cm]{images/ftc/FTC_Setup.png}
         \caption{\label{fig:ftc_setup} Overall set-up of the fault-tolerant control system.}
@@ -144,7 +247,7 @@ For high dimensional industrial processes equipped with modern hardware, both sc
 \end{figure}
 In Fig. \ref{fig:ftc_setup}, the information flow is as follows.  Initially, the industrial process is operating fault-free while the prediction agent is actively monitoring real time measurements for faults.  When a fault is detected, the prediction agent will immediately activate the control agent to receive real time measurements from the process.  Given the current process off-set, the control agent gives recommendations to the operators regarding solutions to mediate the situation.  Recommendations can be new set-points for the regulatory controllers not at fault.
 Fig. \ref{fig:ftc_pid_setup} shows the information flow of the control agent. 
-\begin{figure}[h]
+\begin{figure}[H]
     \begin{center}
         \includegraphics[width=9.5cm]{images/ftc/ftc_pid_setup.png}
         \caption{\label{fig:ftc_pid_setup} Information flow from the FTCS to the process.}
@@ -257,7 +360,7 @@ During training, exploration of the environment is mandatory to avoid locally op
 where $ln \; t$ and $c$ are the natural logarithm of $t$ and the exploratory factor, respectively. Large $c$ values result in more exploration. $N_t(x, u)$ is the number of times $u$ is picked in $x$ prior to $t$.  The square root term is the measure of uncertainty in the current $Q$ values.  Uncertainty is reduced each time $u$ is selected by increasing $N_t(x, u)$.
 
 The control agent is trained using a high-fidelity simulator for the system.
-\begin{table}[h]
+\begin{table}[H]
     \begin{center}
 	\def\arraystretch{1.05}
 	\begin{tabular}{p{9cm}}
@@ -309,7 +412,7 @@ Fig. \ref{fig:08RL_implementation} shows the steps to implementing the control a
     \item \textbf{Online monitoring:} After sufficient performance is achieved, exploration will be terminated, and the control agent is ready to mediate process faults.
 \end{itemize}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=12cm]{images/ftc/rl_implementation.png}
     \caption{Steps on implementing the control agent.}
@@ -332,7 +435,7 @@ Flooding is a common and costly problem in industrial distillation towers.  Floo
 Distillation is the process of separating a liquid or vapour mixture of two or more components into desirable purities through the addition or removal of heat. The fundamental theory of distillation is that low boiling point components are richer in the vapour of a boiling mixture, while the liquids would contain more of the less volatile components \cite{distillation_intro}.  Liquids exit the bottom of the distillation tower and is sent to a reboiler, where heat is added to vaporize any straggling high volatility product to ensure maximum separation. Similarly, vapour from the top of the tower is sent to a condenser, where heat is removed and additional low volatility components may be recovered. The condensed vapour is collected in the reflux drum, and will be recycled back into the distillation tower. Typically, distillation columns are large vertical drums with evenly spaced trays to enhance separation of the vapour and liquid components \cite{mpc_for_distillation_tower}.  The tower is separated into two sections.  The rectifying section is located between the feed tray and the top of the column and aims to concentrate light components in the vapour phase.  Moreover, the stripping section is located between the feed tray and the column bottom and is used to concentrate the heavier components in the liquid phase \cite{henry_distillation}.
 
 The Wood-Berry distillation tower, shown in Fig. \ref{fig:woodberry}, contains one feed stream and two outlet streams. The feed stream containing methanol and water is characterized by the inlet mass composition $Z_f$. Methanol has a boiling point of 64.7 \textdegree C whereas pure liquid water has a boiling point of 100 \textdegree C \cite{sonntag_thermo}. Thus, making methanol the distillate and water is the bottoms product. The control inputs are the reflux and steam flow rates, $R \; (lb/min)$ and $S \; (lb/min)$. Furthermore, the outputs are characterized by the distillate and bottoms methanol mass fraction, $X_D$ and $X_B$, respectively. Objectively, the distillation column aims to achieve 100\% $X_D$, while maintaining $X_B$ at 0\%. Additional detailed information about the operation and inner workings of distillation towers can be found in \cite{henry_distillation}.  
-\begin{figure}[h]
+\begin{figure}[H]
     \begin{center}
         \includegraphics[width=9cm]{images/ftc/woodberry.png}
         \caption{\label{fig:woodberry} Wood-Berry distillation tower schematic.}
@@ -454,7 +557,7 @@ where $K_p$ and $K_i$ are the proportional and integral parameters that must be 
 Integral wind-up is a common problem in PI controllers during actuator saturation or faults.  Amid these events, the integral term accumulates a larger error, often resulting in excessive overshooting and irresponsiveness to errors in the opposite direction \cite{process_control_ref13}. In this study, the prediction agent learned faults through large integral wind-ups.  The states of the prediction agent is ${\mathcal{X}} = [\Delta y_1, \Delta y_2, \Delta u_1, \Delta u_2]$. The prediction agent will learn typical $\Delta y_{1, 2}$ pairings with $\Delta u_{1, 2}$; if large $\Delta u_{1, 2}$ are observed without an equal change in $\Delta y_{1, 2}$, a fault is deemed active.
 
 Fig. \ref{fig:FDS} shows the normal and faulty controller input-output pairing for $u_1$ and $X_D$. Points within the dashed circles are expected states from the closed-loop system. Any points residing outside are faulty. A similar relation exists with all other input-output pairings. The prediction agent will deemed a fault active when ten consecutive points fall outside the boundaries. This condition was imposed to prevent false alarms caused by noisy process data.
-\begin{figure}[h]
+\begin{figure}[H]
     \begin{center}
         \includegraphics[width=10cm]{images/ftc/Boundaries.png}
         \caption{\label{fig:FDS} Relationship between $X_D$ and $u_1$.}
@@ -501,7 +604,7 @@ Table \ref{tab:case_studies} shows the four case studies that were explored.  Th
 
 The case study simulation results are shown in Figs. \ref{fig:case_study1}, \ref{fig:case_study2}, \ref{fig:case_study3}, and \ref{fig:case_study4}. In case 1, the operator changed the set-point from $100\%$ to $90\%$ for $X_D$ at $t = 350$; however, the reflux valve became stuck. The FDS detected ten consecutive anomalous $( \Delta y_{1, 2}, \Delta u_{1, 2})$ pairs and activated the FTC which guided the system to the desired set-point successfully within 60 minutes. The FTC can also reject disturbances as shown at $t = 1400$. Without the FTCS, the system would have been stuck at $X_D = 76$.  Additionally, the system is robust to large process uncertainty (as shown in the noisy measurements). Likewise, Fig. \ref{fig:case_study2} shows a similar scenario for $X_B$ where the steam valve became stuck.  By training the FTCS for faults in $X_B$, the system can be easily re-stabilized using the \textit{same} algorithm and hyper parameters.
 
-\begin{figure}[h]
+\begin{figure}[H]
     \begin{center}
     \begin{subfigure}[b]{0.49\textwidth}
         \includegraphics[width=\textwidth]{images/ftc/Case1_Plot.eps}
@@ -517,7 +620,7 @@ The case study simulation results are shown in Figs. \ref{fig:case_study1}, \ref
 
 In case 3, both $X_D$ and $X_B$ are considered at different degrees, with $X_D$ being valued at four times greater than $X_B$.  During operations, an actuator fault occurred in the reflux valve, significantly impacting both $X_D$ and $X_B$.  With the remaining actuator, the system cannot be guided to the optimal set-points for both $X_D$ and $X_B$. Here, the agent found an operating condition to minimize the overall loss.
 
-\begin{figure}[h]
+\begin{figure}[H]
     \begin{center}
         \includegraphics{images/ftc/Case3_Plot.eps}
         \caption{Trade-off between conflicting objectives (Case 3).}
@@ -527,7 +630,7 @@ In case 3, both $X_D$ and $X_B$ are considered at different degrees, with $X_D$ 
 
 Case 4 was used to explore adaptability of the FTCS. A pre-trained control agent for regulating $X_D$ to 100 was re-tasked to regulate $X_B$ to 0.  In Fig. \ref{fig:case_study4}, a fault occurred at $t = 300$ in the reflux valve. Originally, the control agent was tasked with using the steam valve to regulate $X_D$ back to 100; however, the operating objective changed to regulating $X_B$ to 0. Here, the control agent was able to completely adapt to the new operating objective in 90,000 training steps by solely experiencing the new reward function. Adaptation speed can also be controlled by tuning learning rate $\alpha$.  
 
-\begin{figure}[h]
+\begin{figure}[H]
     \begin{center}
         \includegraphics{images/ftc/Case4_Plot.eps}
         \caption{\label{fig:case_study4} Adaptation of the FTCS (Case 4).}
@@ -540,7 +643,7 @@ Fig. \ref{fig:time_to_mediate} shows the time required to mediate faults of diff
 From Fig. \ref{fig:time_to_mediate}, the time required to mediate a fault increased linearly with magnitude; however, this was caused by larger magnitude faults requiring additional actions from the control agent.  Moreover, the mediation time became constant after being normalizing by the minimum number of actions required to mediate the fault; the expected behaviour for linear systems. The control agent's actions can be increased to reduce mediation time during high magnitude faults.  Variance was higher at smaller magnitudes due to noise being more dominant.
 
 Fig. \ref{fig:training_time} shows the control agent's performance for mediating a constant fault after different training steps. It can be seen that the mean performance does not greatly increase after 160,000 training steps; however, variance of results reduce significantly until 320,000  training steps.
-\begin{figure}[h]
+\begin{figure}[H]
     \begin{center}
     \begin{subfigure}[b]{0.49\textwidth}
         \includegraphics[width=\textwidth]{images/ftc/training_time.pdf}
@@ -576,7 +679,7 @@ For the MPC control strategies, the internal states of the system are all assume
 $$   x_{i} = x_i - x_i^{sp}$$
 where $i$ denotes the stage number.  $\gamma = 0.9$ is the discount factor to decay future costs; a strategy RL uses to emphasize near-term performance. Here, it was added to the MPC's cost function to ensure the objective of both controllers are identical.  The control and prediction horizons for the MPCs are $\infty$; however, stage costs beyond $i = 50$ are decayed by 99.5\% due to $\gamma$. The MPC weighting matrix, $Q_{m \times m}$, is an identity matrix.  In the un-tuned MPC case, $Q_{m \times m}$ is a random diagonal matrix. Furthermore, the inputs of the MPC are bounded by $|u_i| \leq 10$, an identical condition imposed on the RL controller. Overall, the MPC's objective was designed to be an exact replica of the RL's reward function to ensure both controllers are solving identical problems.
 
-\begin{figure}[h]
+\begin{figure}[H]
     \begin{center}
     \begin{subfigure}[b]{0.49\textwidth}
         \includegraphics[width=\textwidth]{images/ftc/FTC_Comparison.pdf}
@@ -597,7 +700,7 @@ In this simulation, a fault occurred in the reflux valve at $t = 350$, causing a
 Here, RL can overcome this problem through the velocity implementation style and its \textit{model-free} nature.  The RL in Fig. \ref{fig:ftcComparison} is trained on the 5\% offset model. But, RL uses the model only for an initial policy.  Afterwards, real-time feedback for RL is obtained in terms of an tracking error, $e_t$ from the plant, and does not rely on the initial model for any control purposes. Taking $e_t$, RL will perform control action $\Delta u$ with accordance to its current policy. Through this, RL was able to reject faults, even when trained on inaccurate models.  Additionally, RL will update its policy online to adapt to process drift, and continue to improve.
 
 Table \ref{tab:08fault_performance} contains the performance metrics for the controllers shown in Fig. \ref{fig:ftcComparison}. MPC with a perfect model is still the superior choice, resulting in the lowest RMSE and fault mediation time.  On the contrary, if the weighting matrix is improperly tuned, the MPC's performance can suffer even using the perfect model.  RL (trained on the 5\% offset model) has higher RMSE and fault mediation time compared to MPC with a perfect model; however, RL performs better than all other MPC implementations, and will continue to improve when implemented online.
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \def\arraystretch{1.1}
 \begin{tabular}{ll|c|c}
@@ -614,7 +717,7 @@ Table \ref{tab:08fault_performance} contains the performance metrics for the con
 
 RL is also less prone to poor tuning as shown in Figs. \ref{fig:ftcAlpha} and \ref{fig:ftcBeta}, and only requires the output of the system for control.  For RL, the only hyper parameters that require tuning are $\alpha_{min}$ and $\beta$.  But from Figs. \ref{fig:ftcAlpha} and \ref{fig:ftcBeta}, it can be seen that RL is quite robust to poor hyper parameter tuning; a trait not exhibited by traditional optimal controllers. For $\alpha_{min}$, any values below 0.25 results in relatively the same performance.  Likewise for $\beta$, any values under 0.5 results in similar performance, with higher values only slightly depreciating performance.  Nevertheless, higher values result in significantly higher variance.
 
-\begin{figure}[h]
+\begin{figure}[H]
     \begin{center}
     \begin{subfigure}[b]{0.49\textwidth}
         \includegraphics[width=\textwidth]{images/ftc/ftcAlpha.pdf}
@@ -635,7 +738,7 @@ The computational time of RL was also compared to MPC using IPOPT's linear progr
 
 Table \ref{tab:ftcAll} summarizes the performance of RL-FTC compared to traditional optimal controllers under actuator faults.
 
-\begin{table}[h]
+\begin{table}[H]
     \centering
     {\setstretch{1.1}
     \begin{tabular}{L|L|L}

@@ -434,7 +434,7 @@ Two other popular, but specialized regularization techniques catered towards neu
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.56\textwidth]{images/ch1/dropout.jpg}
-    \caption{A neural network with (right) and without (left) drop-out.}
+    \caption{A neural network with (right) and without (left) drop-out \cite{dropout}.}
     \label{fig:01dropout}
 \end{figure}  
 
@@ -455,7 +455,7 @@ The DDPG leverages the DPG algorithm to deterministically map \textit{continuous
 Like all experience driven RL algorithms, exploration is required in DPG; thus, requiring some stochastic behaviour policy (ironically making it non-deterministic). To this end, DPG can be trained using an \textit{off-policy} actor-critic method where a deterministic policy is identified while following a separate exploratory policy.  Such a concept is analogous to $Q$-learning, where a deterministic greedy policy is identified while following a noisy behaviour policy (typically $\epsilon$-greedy) during training. For a detailed explanation of DPG, please refer to \cite{dpg}.
 
 
-\subsection{Critic - Deep Q-learning}
+\subsection{Critic - Deep Q-learning Network}
 In DDPG, DQN is used to reduce variance and provide off-policy training to the DPG. DQN is a deep $Q$-learning approach to map from states to action-value functions \cite{dqn1, dqn2}. Historical methods to train deep $Q$-learning were unstable and data inefficient. Authors of DQN introduced two important concepts in the DQN algorithm---the experience replay and target networks---to significantly improve convergence rate. The \textit{experience replay} is a dictionary of tuples $(x, u, r, x')$.  During training, random mini-batch of experience tuples are sampled to enhance data efficiency (same experiences used many times) and to provide the agent with temporally de-correlated training examples. The target network solves the "moving target problem".  In all deep $Q$-learning approaches, supervised learning models are used to predict for the action-values.  Initially, the model is trained using:
 \begin{equation}
     y_i(x, u, r, x') = r + \gamma \max_u Q_{\theta}(x', u')

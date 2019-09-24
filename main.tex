@@ -113,9 +113,9 @@
 \chapter*{Abstract}
 
 \chapter*{Preface}
-This thesis is an original work by Rui Nian. Some of the research conducted was an collaborative effort between different organizations.  For Chapters 2 and 3, the machine learning project was partially funded by Mitacs through the Mitacs Accelerate Program.  Additionally, the project was a joint effort between the University of Alberta, Suncor Pipelines, Willowglen Systems Inc., and Alberta Machine Intelligence Institute (AMII). While all the algorithms were developed by myself, Suncor and Willowglen's management team provided feedback regarding the complexity and accuracy of the algorithms desired. Additionally, AMII provided the optimization packages and code used in the final deployment of the product. In Chapter 4, the waste water treatment plant and alarm management projects were conducted in collaboration with NTwist, a start-up AI company based in Edmonton, Alberta. Here, all algorithms were also developed by myself, but NTwist provided weekly feedback regarding what is feasible and infeasible in industry. Also in Chapter 4, the fault-tolerant control system project was completed in collaboration with Imperial Oil. The work here was also completed by myself, but the original research topic was provided by Imperial Oil. 
+This thesis is an original work by Rui Nian. Some of the research conducted was an collaborative effort between different organizations.  For Chapters 2 and 3, the machine learning project was partially funded by Mitacs through the Mitacs Accelerate Program.  Additionally, the project was a joint effort between the University of Alberta, an unnamed large energy company \footnote{The company management team preferred to stay anonymous within this thesis, and would like to be referred to as "an unnamed large energy company".}, Willowglen Systems Inc., and Alberta Machine Intelligence Institute (AMII). While all the algorithms were developed by myself, the unnamed large energy company and Willowglen's management team provided feedback regarding the complexity and accuracy of the algorithms desired. Additionally, AMII provided the optimization packages and code used in the optimization portions of the product. As of the completion of this thesis, the original tool was cloned onto a second project for similar optimization purposes. In Chapter 4, the waste water treatment plant and alarm management projects were conducted in collaboration with NTwist, a start-up AI company based in Edmonton, Alberta. Here, all algorithms were also developed by myself, but NTwist provided weekly feedback regarding what is feasible and infeasible in industry. Also in Chapter 4, the fault-tolerant control system project was completed in collaboration with Imperial Oil. The work here was also completed by myself, but the original research topic was provided by Imperial Oil. 
 
-Parts of Chapter 1 and Chapter 5 of this thesis were submitted as R. Nian, J. Liu, B. Huang, \textit{"A Review and Tutorial on Reinforcement Learning: Introduction and Applications in Industrial Process Control", Processes}.  I obtained layout suggestions from my supervisors, Dr. Liu and Dr. Huang.  The manuscript was written by myself. The alarm management section in Chapter 3 was presented at the INFORMS Data Mining conference.  Additionally, the fault-tolerant control work was published in \textit{SICE 2019} by R. Nian, J. Liu, B. Huang, and T. Mutasa titled \textit{"Fault-tolerant Control System: A Reinforcement Learning Approach"}.
+Parts of Chapter 1 and Chapter 5 of this thesis were submitted as R. Nian, J. Liu, and B. Huang, \textit{"A Review and Tutorial on Reinforcement Learning: Introduction and Applications in Industrial Process Control", Processes}.  I obtained layout suggestions from my supervisors, Dr. Liu and Dr. Huang.  The manuscript was written by myself. The alarm management section in Chapter 3 was presented at the INFORMS Data Mining conference as R. Nian, J. Liu, B. Huang, and C. Meenavilli, \textit{"An Adaptive Alarm Prioritization, Reduction, and Optimization Algorithm for Enhanced Process Safety", INFORMS 2019}.  Additionally, the fault-tolerant control work was published in \textit{SICE 2019} by R. Nian, J. Liu, B. Huang, and T. Mutasa titled \textit{"Fault-tolerant Control System: A Reinforcement Learning Approach"}.
 
 \tableofcontents
 \listoffigures
@@ -130,7 +130,7 @@ And of course I cannot forget about my research groups for all the continued gui
 
 Another critical part that made my experience as a graduate student much more complete was the chance to work directly with large industrial sponsors through NTwist and Mitacs.  Here, I would like to express my thanks to Chowdary Meenavilli, NTwist, and Mitacs.  Because of them, I had the opportunity to work directly on real industrial issues and formulating innovative new ways to solve them.
 
-Additionally, I would like to extend a warm appreciation to Professor John Cocchio and Dr. Lisa White, and Dr. Xunyuan Yin for allowing me to be the teaching assistant for ENGG404 and Ch E 358, respectively.  Being a teaching assistant allowed me to see the other side of the table; the hardships and difficulty in teaching courses fairly and effectively.
+Additionally, I would like to extend a warm appreciation to Professor John Cocchio and Dr. Lisa White, and Dr. Xunyuan Yin for allowing me to be the teaching assistant for ENGG 404 and Ch E 358, respectively.  Being a teaching assistant allowed me to see the other side of the table; the hardships and difficulty in teaching courses fairly and effectively.
 
 But not all collaborators helped me in the technical aspect.  Some of my most critical collaborators supported me emotionally and provided for my social needs.  These individuals are, of course, my mom and dad, Ling Yan Gai, Hong Hui Nian.  My grandpa, Dou Shu Gai, my younger brother, Sunny Nian, and my girlfriend, Vivian Tran.  Without them, my mental aptitude would not have been resilient enough to allow me to push towards my limits.
 
@@ -152,43 +152,49 @@ DQN & Deep $Q$-learning network \\
 FOMDP & Fully observable Markov decision process \\
 MC & Monte Carlo \\
 MDP & Markov decision process \\
+MIMO & Multiple-input multiple-output \\
 ML & Machine learning \\
 MP & Mathematical programming \\
 MPC & Model predictive control \\
 NP & Non-deterministic polynomial time \\
+OU & Ornstein-Uhlenbeck \\
 PID & Proportional Integral Derivative controller \\
 POMDP & Partially observable Markov decision process \\
 RL & Reinforcement learning \\
 RNN & Recurrent neural network \\
 RTO & Real time optimization \\
+\end{tabular}
+
+\newpage
+\begin{tabular}{@{}ll}
 SGD & Stochastic gradient descent \\
+SISO & Single-input single-output \\
 SMDP & Semi Markov decision process \\
 sp & Set-point \\
 ss & Steady state \\
 TD & Temporal difference \\
 TITO & Two-input two-output \\
 UCB & Upper confidence bound \\
-UO & Ornstein-Uhlenbeck \\
 \end{tabular}
 
-\chapter{Introduction}
+% \chapter{Introduction}
 \pagenumbering{arabic}
-\input{chapters/Chapter01:Introduction.tex}
+% \input{chapters/Chapter01:Introduction.tex}
 
-\chapter{Machine Learning for Prediction Applications}
-\input{chapters/Chapter02:MachineLearningforPrediction.tex}
+% \chapter{Machine Learning for Prediction Applications}
+% \input{chapters/Chapter02:MachineLearningforPrediction.tex}
 
-\chapter{Machine Learning for Process Monitoring}
-\input{chapters/Chapter03:MachineLearningforMonitoring.tex}
+% \chapter{Machine Learning for Process Monitoring}
+% \input{chapters/Chapter03:MachineLearningforMonitoring.tex}
 
 \chapter{Machine Learning for Control Applications}
 \input{chapters/Chapter04:MachineLearningforControl.tex}
 
-\chapter{Process Control Reinforcement Learning Applications in Literature}
-\input{chapters/Chapter05:ProcessControlRL.tex}
+% \chapter{Process Control Reinforcement Learning Applications in Literature}
+% \input{chapters/Chapter05:ProcessControlRL.tex}
 
-\chapter{Concluding Remarks}
-\input{chapters/Chapter06:Conclusion.tex}
+% \chapter{Concluding Remarks}
+% \input{chapters/Chapter06:Conclusion.tex}
 
 \printbibliography
 

@@ -16,6 +16,15 @@ Advanced process control and optimal control have traditionally used mathematica
 
 Comparatively, RL online computational times are significantly shorter even for long control horizons or large-scale MIMO systems because the optimal solutions are pre-computed and stored offline, a concept similar to explicit model predictive control (MPC) where parametric programming is used \cite{explicit_MPC}. Furthermore, RL finds the optimal policy through meaningful interactions with the environment.  After each interaction, values are assigned/updated for the visited state. The value functions are stored for future decision making.  Through this identification process, the value functions implicitly contain the uncertainty information of all $x \in \mathcal{X}$. From these unique features of RL in control applications, it is a natural curiosity to explore its potential in the process control industry.
 
+The contributions made in this chapter are as follows:
+\begin{enumerate}
+    \item Introduction of a simple, cost-effective, and explainable RL algorithm for process control.  The method is also continuous and non-linear.
+    \item Compared RL and deep RL to traditional optimal control methods such as MPC.
+    \item Applied RL to an industrial grade waste water treatment plant (WWTP) for optimal control.  Results were compared to MPC, economic MPC, and distributed MPC frameworks.
+    \item Applied RL for fault prediction and fault tolerant control applications.
+\end{enumerate}
+
+
 \section{An direct adaptive optimal control method}
 On a high level, optimal control methods extremize the functional equation of a system through MP methods. In literature, it was found that optimal control methods are less tractable both computationally and analytically compared to set-point tracking or regulations methods (due to non-convex optimization among factors). Consequently, adaptive optimal control methods have received less academic attention, with most existing studies focused on indirect methods like model re-parameterization \cite{rl_control}.  In \cite{rl_control}, RL was shown to be an effective \textit{direct} optimal control method as it adapts its control policy directly. Direct adaptive optimal control methods are especially useful for systems where accurate models are not identifiable and/or available.  In such scenarios, in-direct methods struggle because the accuracy of the model is paramount for successful control.  On the other hand, direct methods can update the control policy directly through interactions with the system, eventually arriving at the optimal policy. In \cite{power_control}, the authors showcased RL's directly adaptive nature by applying an agent onto the control system of a data-center cooling application. In such systems, accurate models are nearly impossible to identify due to complex non-linear relationships between thousands of variables. However, the agent here was able to adapt to the optimal policy directly after sufficient online interactions which ultimately resulted in 22\% reduced power consumption compared to model-based approaches.  Likewise, \cite{power_control2} applied RL onto power systems with ever-changing load fluctuations.  Again, such a system is nearly impossible to model through traditional means; however, the agent was still able to adapt its policy after sufficient online interactions. Wireless networks is a third system with nearly unidentifiable dynamics. The authors in \cite{power_control3} demonstrated deep RL's direct adaptive nature through its application onto wireless networks, ultimately resulting in superior control compared to all previous methods.
 
@@ -101,15 +110,14 @@ totalling 861 different action-values to identify. Furthermore, the $Q$-matrix s
     \caption{$Q$-matrix of the Mechatronix system.}
     \label{fig:q_matrix_system1}
 \end{figure}
-The states and actions, $x$ and $u$, correspond to $\varepsilon$ and $\Delta u$, respectively.  The discount factor, $\gamma$, of the agent was 0.9. Overall, the agent was trained for 2,000,000 update steps corresponding to 115.7 days of continuous operating experience. After every 400$^{th}$ update step, the agent is reset back to the initial states given in Equations \ref{eq:initial_p} and \ref{eq:initial_u} to prevent controller saturation during initial episodes. 
+The states and actions on the axis of the $Q$-matrix correspond to $\varepsilon$ and $\Delta u$, respectively.  The discount factor, $\gamma$, was 0.9. Altogether, 2,000,000 time steps were used to train the agent (corresponding to 115.7 days of continuous operating experience). After every 400$^{th}$ time step, the agent's state and action was reset back to Equations \ref{eq:initial_p} and \ref{eq:initial_u} to prevent extreme controller saturation. 
 
-Exploration-wise, the agent starts with a equiprobable random policy ($\epsilon$ = 1), which decays linearly until $\epsilon = 0.1$ by the 500,000$^{th}$ update. Likewise, the learning rate, $\alpha$, is initiated at 0.7 and decays linearly until 0.001.
+The agent uses a equiprobable random exploratory policy ($\epsilon$ = 1) to conduct initial exploration. Throughout training, $\epsilon$ is slowly and linearly decayed until $\epsilon = 0.1$ by the 500,000$^{th}$ update. Likewise, the learning rate is initiated at 0.7 and also linearly decay until 0.001.
 
 \begin{table}[H]
 \caption{Summary of the agent's hyper parameters in the Mechatronix experiment.}
 \label{tab:rl_system1_params}
 \centering
-%% \tablesize{} %% You can specify the fontsize here, e.g.,  \tablesize{\footnotesize}. If commented out \small will be used.
 \begin{tabular}{c|c}
 \textbf{Hyper Parameter}     & Value  \\
 \hline
@@ -125,15 +133,207 @@ System representation           & FOMDP \\
 \end{table}
 
 \subsection{Step 3: Initial training}
+The agent behave as follows: the agent observes some initial tracking error $\varepsilon_t$ and performs a random action $\Delta u_t$ with accordance to its behaviour policy (initially equiprobable random).  Next, the pump RPM corresponding to $u_t = u_{t-1} + \Delta u_t$ is sent to Mechatronix.  After five seconds, the agent receives reward $R_{t+1}$ and then observes new tracking error, $\varepsilon_{t+1}$. Using the tuple $(x_t, u_t, r_{t+1}, x_{t+1})$, the agent updates its current knowledge via Equation \ref{eq:q_learning}. This step is repeated many times until the optimal policy, $\pi^*$, is identified. A numerical walk-through of the calculations is shown below:
+
+\begin{quote}
+    Suppose another simpler agent was constructed for this system. For this agent, the system was discretized into five states and three actions:
+    $$x = [-21, -10, 0, 10, 21]_{1 \times 5}$$
+    $$u = [-1, 0, 1]_{1 \times 3} $$
+    Consequently, the $Q$-matrix was initialized as:
+    
+    $$ Q(x, u) = \left(\begin{matrix}   0 & 0 & 0 \\
+                                        0 & 0 & 0 \\
+                                        0 & 0 & 0 \\
+                                        0 & 0 & 0 \\
+                                        0 & 0 & 0 \end{matrix}\right) $$
+    
+    where the rows and columns correspond to the different states and actions, respectively. The system's set-point was initially at 30 kPa. The agent was initiated at steady state with 15 kPa and 37 RPM, resulting in $\varepsilon=-15$. At $t = 0$, the agent receives the error and rounds it to the nearest discretized value, $x = -10$.  Given this state, the agent uses the $Q$-table and picks the action that corresponds to the highest $Q$ value (note if a equiprobable random policy was initially followed, a random action would be selected instead):
+
+        $$Q(-10, u) = [0, 0, 0]$$
+
+    where the three values correspond to the predicted action-values for selecting actions $\Delta u = -1, 0, -1$, respectively. Since the agent is inexperienced and have not been provided with prior information about the system, it thinks that all three actions are indifferent; therefore, the agent will pick an arbitrarily action to learn more about the system. Moreover, during scenarios where $Q^{max} = Q_1 = Q_2 = ... = Q_n$, ties \textit{must} be broken arbitrarily to avoid biasing one action over all others.
+    
+    Assuming that $u = -1$ was picked, the system will transition to 13.8 kPa. After five seconds, the new observed tracking error would be -16.2. Clearly, this was a sub-optimal action; if the pressure was already lower than the set-point, it would be intuitive to increase pump RPM instead. However, a \textit{tabula rasa} agent is not aware of such a phenomenon, humans only know this through prior experience. Here, the agent would also receive reward:
+    $$max(-16.2^2 - 1, -200) = -200$$ 
+    and be in new state $x_1 = -21$.  From this interaction, the agent would then update the $Q$-matrix using Equation \ref{eq:q_learning}:
+    $$Q(-10, -1) \leftarrow Q(-10, -1) + 0.7 [-200 + \gamma Q(-21, 0) - Q(-10, -1)]$$
+    $$Q(-10, -1) \leftarrow 0 + 0.7 [-200 + 0.9 \cdot 0 - 0]$$
+    $$Q(-10, -1) \leftarrow -140 $$
+    and the updated $Q$-matrix would be given as:
+    
+    $$ Q(x, u) = \left(\begin{matrix}   0  &  0  & 0 \\
+                                        -140 & 0 & 0 \\
+                                        0 & 0 & 0 \\
+                                        0 & 0 & 0 \\
+                                        0 & 0 & 0 \end{matrix}\right) $$
+                                        
+    In this case, all three $u$'s for $Q(x_{t+1}, u_{t+1})$ are also reward maximizing; therefore, the ties are here must also be broken randomly to avoid unnecessary bias. Suppose the system was reset, initiating at $x_0 = -10$.  This time, the $Q$-matrix provides:
+    
+    $$Q(-10, u) = [-140, 0, 0]$$
+    
+    telling the agent that $\Delta u = -1$ is a sub-optimal compared to $\Delta u = 0 \text{ or } 1$.  For a reward maximizing agent, either $\Delta u = 0 \text{ or } 1$ would be picked instead.  
+    
+    After many interactions with the system, the $Q$-matrix now becomes:
+    
+        $$ Q(x, u) = \left(\begin{matrix}   -152  &  -133  & -120 \\
+                                        -149 & -121 & -99 \\
+                                        -31 & -22 & -33 \\
+                                        -102 & -142 & -162 \\
+                                        -152 & -162 & -177 \end{matrix}\right) $$
+    
+    Now, the agent has vastly more knowledge about the system and can begin acting optimally. After resetting the agent back to $x_0 = -10$, the decision making of the agent is now deterministic.  The corresponding action-values given $x_0 = -10$ are:
+    
+    $$Q(-10, u) = [-149, -121, -99]$$
+    
+    Here, the agent would pick $\Delta u = 1$ corresponding to $Q(-10, 3) = -99$ (greedy action) and the system would transition to $P_1 = 16 \; kPa$.  Although the error is still closest to -10 (set-point is 30 kPa), the reward obtained is much better compared to actions -1 or 0.  The new update step is given as:
+    
+    $$Q(-10, 1) \leftarrow Q(-10, 1) + 0.001 [-197 + \gamma Q(-10, 1) - Q(-10, 1)]$$
+    $$Q(-10, 1) \leftarrow -99 + 0.001 [-197 + 0.9 \cdot -99 + 99]$$
+    $$Q(-10, 1) \leftarrow -99 + 0.001 [-187.1]$$
+    $$Q(-10, 1) \leftarrow -99.19 $$
+    
+    Here, $\alpha$ is much lower compared to previously due to the continuous decay throughout the training process. The currently TD error is -187.1, still quite a high value.  Eventually, all TD errors will approach near-zero and the agent's policy will become optimal.
+\end{quote}
+
+The reward obtained across the 2 million training steps is shown in Figure \ref{fig:loss_curve}. Ultimately, the reward was unable to become zero because the lower bound of $\epsilon$ was set to 0.1, forcing exploratory moves even when the agent had the capability of acting optimally. During training, the set-point was drawn from a Gaussian distribution $N(30, 5)$. 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.66\textwidth]{images/ch4/loss_curve.pdf}
+    \caption{Loss curve of the agent during training.}
+    \label{fig:loss_curve}
+\end{figure}
 
 \subsection{Step 4: Online calibration}
 
+The agent was then applied onto the real process to track pressure set-points of 35 and 5.  The output pressure trajectory of the Mechatronix is shown in \ref{fig:system1_highsp} and \ref{fig:system1_lowsp}. Performance-wise, the MSE was $14.2$ and $15.5$ for set-points 35 and 5, respectively. To ensure a fair comparison, both cases started with initial pressures approximately 5.5 kPa above the desired set-point. In this simple set-up, the agent behaves much like a PID where the RL maps tracking errors to changes in input and is linear in nature. Unfortunately, such a set-up only works well locally for non-linear systems. Moreover, the performance decreases significantly as the agent ponders away from the linear region, as shown in Figure \ref{fig:system1_lowsp}. In this experiment, the agent's performance is significantly better when tracking $P=35$ because the training set-points were heavily biased towards $P=35$.  From Figure \ref{fig:04model_fit}, it can be seen quite obviously that the controller gain changes significantly at lower pressures, resulting in the optimal policy for the higher pressure range being completely sub-optimal at lower pressures. Furthermore, the large off-set seen in these trajectories are caused by the discretization error; there exists no action $\Delta u \in \mathcal{U}$ that can obtain exactly $P = 35 \; or \; 5 \; kPa$. To overcome this, one option is to discretize the action space more finely, but this will unavoidably the increase the training time and space complexity required by the agent (perhaps by a massive margin).  A simpler way will be introduced in the latter half of this example.
+
+\begin{figure}[H]
+     \centering
+     \begin{subfigure}{0.49\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/ch4/35SP_normal.pdf}
+         \caption{Tracking $P_{sp} = 35 \; kPa$}
+         \label{fig:system1_highsp}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}{0.49\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/ch4/5SP_normal.pdf}
+         \caption{Tracking $P_{sp} = 5 \; kPa$}
+         \label{fig:system1_lowsp}
+     \end{subfigure}
+     \caption{Pressure trajectory of the Mechatronix experiment.  Solid line represents the average of 10 runs to ensure reproducability. Shaded area correspond to one standard deviation.}
+\end{figure}
+
+\subsection{Extension to Non-linear Systems}
+A simple, cost effective way for the agent's capabilities to extend to non-linear systems is to model the system using a linear parameter-varying model as shown in Figure \ref{fig:model_fit_approx}. This way, each sub-piece of the model is linear, allowing even linear control laws to be optimal.  To create a Markovian setting, the agent will receive this information through a \textit{second state} given by:
+\[
+    x^{(2)}= 
+\begin{cases}
+    1,              & \text{if } P  \leq 10 \\
+    2,              & \text{if } 10 <  P  \leq 20 \\
+    3,              & \text{if } 20 <  P  \leq 30 \\
+    4,              & \text{if } 30 <  P  \leq 50 \\
+    5,              & P > 50 \\
+\end{cases}
+\]
+The new state space for the agent is given by:
+\begin{equation}
+    x = [(-20, 1), (-20, 2), (-20, 3), ..., (-19, 1), ..., (20, 5)]_{1 \times 205}
+\end{equation}
+where the first value denotes the error and the second value correspond to the region the agent is currently in. Here, the $Q$-matrix will be initialized as $0_{(41 \cdot 5) \times 3}$ to accommodate for the second state. Intuitively, the agent now observes both the magnitude and the context of the incurred tracking error; intrinsically, allowing the agent to change its policy depending on the region it is currently in.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.62\textwidth]{images/ch4/model_fit_approx.jpeg}
+    \caption{Approximating the non-linear Mechatronix system.}
+    \label{fig:model_fit_approx}
+\end{figure}
+
+The new agent was implemented onto Mechatronix after 2,000,000 time steps of training.  The new agent's output pressure trajectories for tracking $P=35$ and 5 are shown in Figures \ref{fig:system1_highsp2} and \ref{fig:system1_lowsp2}.  Performance-wise, the agent achieved  MSEs of 14.2 and 12.5 for the higher and lower set-point; a massive improvement for the lower set-point.  Nevertheless, the offset still exists.
+
+\begin{figure}[H]
+     \centering
+     \begin{subfigure}{0.49\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/ch4/35SP_2state.pdf}
+         \caption{Tracking $P_{sp} = 35 \; kPa$}
+         \label{fig:system1_highsp2}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}{0.49\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/ch4/5SP_2state.pdf}
+         \caption{Tracking $P_{sp} = 5 \; kPa$}
+         \label{fig:system1_lowsp2}
+     \end{subfigure}
+     \caption{Pressure trajectory using the non-linear agent. Solid line represents the average of 10 runs to ensure reproducability. Shaded area correspond to one standard deviation.}
+\end{figure}
 
 
 
+\subsection{Extension to continuous states and actions}
+Because the non-linear system was approximated using a LPV model, the control law for the system should be always linear. Because of this, linear interpolation can be used to find the optimal control action using \cite{interpolation}:
+\begin{equation}
+    u = u_{low} + (x - x_{low})\frac{u_{high} - u_{low}}{x_{high} - x_{low}}
+    \label{eq:interpolation}
+\end{equation}
+where $x$ is the actual tracking error; typically, the exact value of $x$ is not included in the discretized state space $\mathcal{X}$.  Instead, $x$ is typically between $x_{high}$ and $x_{low}$, where $x_{high}$ and $x_{low}$ correspond to the state that is higher and lower than $x$, respectively.  For example, if the discretized state space is given as $x = [0, -5, -10]$ and the current state is -3, $x_{high}$ and $x_{low}$ would be 0 and -5, respectively.  Similarily, $u_{high}$ and $u_{low}$ are the greedy actions for $x_{high}$ and $x_{low}$, respectively. For example, given the action space $u=[-5, 0, 5]$ and $Q-$matrix:
+
+    $$ Q(x, u) = \left(\begin{matrix}   -5  &  2  & 1 \\\
+                                        4 & 1 & -2 \\
+                                        -2 & 0 & 3 \end{matrix}\right), $$
+                                        
+$u_{high}$ and $u_{low}$ are 0 and -5 (actions corresponding to the index of the highest $Q$-value), respectively. Moreover, the optimal action for $x = -3$ would be:
+$$u = -5 + (-3 + 5) \frac{0 + 5}{0 + 5}$$
+$$u = -3$$
+
+With the addition of interpolation action selection, the 2-state RL agent (without re-training the agent) achieved pressure trajectories shown in Figures \ref{fig:system1_highsp3} and \ref{fig:system1_lowsp3} with MSEs of 13.6 and 11.7, respectively. Additionally, it can be seen that the off-set is completely eliminated.
+
+\begin{figure}[H]
+     \centering
+     \begin{subfigure}{0.49\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/ch4/35SP_interpolation.pdf}
+         \caption{Tracking $P_{sp} = 35 \; kPa$}
+         \label{fig:system1_highsp3}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}{0.49\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/ch4/5SP_interpolation.pdf}
+         \caption{Tracking $P_{sp} = 5 \; kPa$}
+         \label{fig:system1_lowsp3}
+     \end{subfigure}
+     \caption{Pressure trajectory of the non-linear agent using interpolation action selection. Solid line represents the average of 10 runs to ensure reproducability. Shaded area correspond to one standard deviation.}
+\end{figure}
+
+The RL methods introduced in this section along with their respective characteristics are summarized in Table \ref{tab:system1_info}. Throughout this tutorial, a simple RL agent was implemented onto an industrial VFD system. It was shown that the vanilla algorithm was unable to handle neither non-linear systems or achieve off-set free control; therefore, simple, implementable techniques that extended the agent's ability to non-linear systems and for off-set free control were introduced. Each state trajectory in this study was replicated on the live systems 10 times to ensure reproducability; the standard deviation for every algorithm was very narrow, representing highly reproducible results (indirectly, less risk).
+
+\begin{table}[H]
+\caption{A comparison between RL, MPC in literature, and industrial MPC software.}
+\label{tab:system1_info}
+\centering
+{\scriptsize
+\begin{tabular}{c|c|c|c}
+ & \textbf{Normal $Q$-learning}	& \textbf{2-state $Q$-learning} & \textbf{2-state interpolated $Q$-learning}\\
+ \hline
+MSE (High/Low SP)   & 14.2 \& 15.5	& 14.2 \& 12.5   &  13.6 \& 11.7 \\
+Offset		& Yes			&  Yes   &  No \\
+Non-linear		& No			& Yes   &  Yes \\
+\end{tabular}}
+\end{table}
+
+In the implementation above, the agent only provided the input for the \textit{immediate} future. A concept very similar to MPC where only the next input is used; however, MPC is considered receding horizon control, where an input trajectory for future steps is also calculated.  Using this trajectory, MPC is viable for short horizon open-loop control.  Comparatively, RL can also conduct receding horizon control. Such RL methods typically employ a model of the system and are called planning methods.  In receding horizon RL, the agent still only outputs the immediate control action; however, it then uses the model to identify the next state and its corresponding optimal control action. The cycle continues until the set control horizon is met.  Additionally, like MPC, the trajectory is heavily inaccurate for long control horizons.
+
+The example shown here is simple, has a pre-set sampling time and does not consider transition dynamics or unobservable states. For systems containing dynamic transition times and to consider systems dynamics, semi-MDPs must be used.  The semi-MDP variant of Q-learning algorithm is \cite{continuous_rl_ref14}:
+\begin{equation}
+    Q(x, u) \leftarrow Q(x, u) + \alpha \left[\frac{1 - e^{-\beta \tau}}{\beta}r(x, x_{t+1}, u) + e^{-\beta \tau} \max_{u_{t+1}}Q(x_{t+1}, u_{t+1}) - Q(x, u) \right]
+\end{equation}
+where $r(x_t, x_{t+1}, u)$ is the reward rate and is provided in Equation \ref{eq:reward_rate}. For systems with unmeasurable states, concepts of POMDPs provided in Chapter 1 should be used.
 
 
-Introduce adaptive control with Q-learning.  Weakness is discretization, so then extend to continuous with interpolation for linear systems, and show extension to that.
+
 
 To completely overcome discretization, introduce DDPG.
 

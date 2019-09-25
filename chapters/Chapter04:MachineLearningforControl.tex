@@ -345,7 +345,22 @@ Then do fault tolerant control where RL beats MPC in some systems
 
 \section{Control of waste water treatment plant}
 
-\section{A Comparison of Optimal Control Techniques}
+\section{A Comparison of Optimal Control Frameworks}
+A typical control framework is shown in Figure \ref{fig:rto_mpc_pid}. Real-time optimization (RTO) situates in the top layer and solves complex steady state optimization problems to find the optimal steady states with respect to a desired performance metric \cite{ref-rto}. Typically, this layer evaluates on the hourly time scale. The optimal steady states are then communicated to the MPC layer, where dynamic optimization is performed on a minutes scale to identify the optimal state and input trajectories to arrive at the optimal steady states.  Typically, the objective function in this layer is given by:
+\begin{equation}
+    J = \sum\limits_{i = 1}^{H}x_i^TQ_{mpc}x_i + u_i^TR_{mpc}u_i
+    \label{eq:mpc}
+\end{equation}
+due to its convex nature \cite{ref-rawlings}. Here, $H$ denotes the control horizon.  $Q_{mpc}$ and $R_{mpc}$ are the tuning matrices for the state and input costs, respectively.  Often times, plant managers do not allow for direct manipulation of the process actuators due to safety concerns.  In these scenarios, the state trajectories are computed from the process model using the ideal input trajectory from the MPC and are sent to the regulatory control layer. Here, PIDs are typically used to track the set points.  On a simplified level, RTO identifies the optimal set points for economic objectives to be met while MPC finds the optimal trajectory to achieve the desired set points.  More recently, researchers began to intertwine RTO with MPC where the economic objective of RTO are placed directly into the MPC objective function.  Such a strategy is now known as economic model predictive control (EMPC) \cite{ref-empc1, ref-empc2}. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/rto_mpc_pid.jpeg}
+    \caption{The traditional control architecture.}
+    \label{fig:rto_mpc_pid}
+\end{figure}
+
+The gain in optimality after the addition of each control layer is shown in Figure \ref{fig:economics}.  The objective of each additional layer is to increase the control \textit{optimality} with respect to performance metrics. In typical process, an optimal operating condition exists at a boundary.  Typically, the optimal operating point cannot be achieved because of losses due to friction, heat, and other factors.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Fault-Tolerant Control System

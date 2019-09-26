@@ -341,26 +341,53 @@ Then compare these methods with MPC. MPC usually wins.
 
 Then do fault tolerant control where RL beats MPC in some systems
 
-\section{Continuous Control using Deep Reinforcement Learning}
+\section{Continuous Control using Deep RL}
 
-\section{Control of waste water treatment plant}
+\section{Control of Wastewater Treatment Plant}
 
-\section{A Comparison of Optimal Control Frameworks}
-A typical control framework is shown in Figure \ref{fig:rto_mpc_pid}. Real-time optimization (RTO) situates in the top layer and solves complex steady state optimization problems to find the optimal steady states with respect to a desired performance metric \cite{ref-rto}. Typically, this layer evaluates on the hourly time scale. The optimal steady states are then communicated to the MPC layer, where dynamic optimization is performed on a minutes scale to identify the optimal state and input trajectories to arrive at the optimal steady states.  Typically, the objective function in this layer is given by:
+\section{Comparison of Optimal Control Frameworks}
+The control framework of a typical process was first introduced in Chapter 1, and is shown again here in Figure \ref{fig:rto_mpc_pid2}. As a brief refresher: RTO evaluates seldomly (hourly basis) and is used to find the optimal steady states with accordance to a desired performance metric \cite{rto}. These optimal steady states are then passed onto the MPC layer, where the optimal input trajectories are identified.  A typical MPC objective function is:
 \begin{equation}
     J = \sum\limits_{i = 1}^{H}x_i^TQ_{mpc}x_i + u_i^TR_{mpc}u_i
     \label{eq:mpc}
 \end{equation}
-due to its convex nature \cite{ref-rawlings}. Here, $H$ denotes the control horizon.  $Q_{mpc}$ and $R_{mpc}$ are the tuning matrices for the state and input costs, respectively.  Often times, plant managers do not allow for direct manipulation of the process actuators due to safety concerns.  In these scenarios, the state trajectories are computed from the process model using the ideal input trajectory from the MPC and are sent to the regulatory control layer. Here, PIDs are typically used to track the set points.  On a simplified level, RTO identifies the optimal set points for economic objectives to be met while MPC finds the optimal trajectory to achieve the desired set points.  More recently, researchers began to intertwine RTO with MPC where the economic objective of RTO are placed directly into the MPC objective function.  Such a strategy is now known as economic model predictive control (EMPC) \cite{ref-empc1, ref-empc2}. 
+due to its convexity \cite{mpc}. In recent advanced control literature, researchers intertwined the concepts of RTO and MPC into one unifying algorithm that is now known as economic model predictive control (EMPC) \cite{empc1, empc2}. Here, the objective function of EMPC explicitly contains the economic objectives of the process.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{images/rto_mpc_pid.jpeg}
-    \caption{The traditional control architecture.}
-    \label{fig:rto_mpc_pid}
+    \includegraphics[width=0.5\textwidth]{images/ch1/rto_mpc_pid.jpeg}
+    \caption{A typical industrial control architecture.}
+    \label{fig:rto_mpc_pid2}
 \end{figure}
 
-The gain in optimality after the addition of each control layer is shown in Figure \ref{fig:economics}.  The objective of each additional layer is to increase the control \textit{optimality} with respect to performance metrics. In typical process, an optimal operating condition exists at a boundary.  Typically, the optimal operating point cannot be achieved because of losses due to friction, heat, and other factors.
+In control literature, there typically exists very distinct algorithms for each layer presented in \ref{fig:rto_mpc_pid2}. For example, PID controllers are typically used for the regulatory layers whereas the supervisory layers typically employ predictive controls. Due to RL's general nature, it is highly flexible and can used in \textit{any} control layer. For example, a MPC RL agent's reward function is simply the negative of Equation \ref{eq:mpc}, with the actions being the control actions or recommended set points.  For a regulatory layer agent, the reward function remains the same, but the actions would involve direct actuation of the system's hardware.  Lastly, an EMPC based RL agent would have an economic objective as the reward function.
+
+The \textit{biggest difference} between RL and other advanced control methods is the computation time. Typical MPCs have a computational complexity of $O(H(n^2 + m^2))$, where $H$, $n$, and $m$ are the control horizon and the dimensions of the states and actions, respectively \cite{mpc_comp_time}. By exploiting prior information, MPCs' computational complexity can further decrease to $O(H(n + m)^3)$ \cite{mpc_comp_time2, mpc_comp_time3, mpc_comp_time4}. Even then, the online computation time scales exponentially with states and actions, ultimately becoming infeasible for large systems and/or for systems with exceptionally long prediction/control horizons. Comparatively, RL's optimal policy is first pre-computed \textit{offline} through a training process.  Consequently, this makes online evaluation exceptionally quick.  In control theory, the concepts of RL are very similar to parametric programming from explicit MPCs \cite{explicit_MPC}.  Some may see the training requirement of RL as extremely unattractive; however, offline computation time is typically very flexible (i.e., offline computations can be done anywhere, anytime, on any machine) and does not matter so long as it is not unreasonably long (e.g., 1 month).
+
+Another major difference between RL and MP-based methods is RL's \textit{model-free} nature.  In RL, a (representative) model is only required for initial training of the agent; online implementations are \textit{model-free}. Conversely, the system model is almost exclusively used in MPC. Inaccurate models are detrimental to control performance. In literature, a technique known as off-set free control overcomes this issue through online parameter re-adjustment \cite{offset_free_control}; however, the re-identification process does not work well for extremely noisy processes. Moreover, most plants experience process drift, where the processes slowly changes as a function of wear and tear.  RL can inherently adapt to such an issue through a gradual and smooth process.  MPCs, however, adapt using off-set free control or other model re-identification methods.  For such methods, the updates directly and completely change the model parameters at each sampling time.  For processes heavily corrupted by noise, the parameters at each update is most certainly incorrect. 
+
+Lastly, tabular RL has very few hyper parameters. As long as reasonable learning rates are used, RL would work for most cases. Deep RL methods contain much more hyper parameters and are much more mathematically complex.  Without a doubt, the tuning of deep RL require many parameter sweeps; however, such details will be omitted here because deep RL may not be economically viable to implement in its current state. For MPC, adequate tuning of the $Q_{mpc}$ and $R_{mpc}$ matrices are often times paramount for optimal process control.  
+
+A comparison between RL and MPC on various important categories is shown in Table \ref{tab:rl_mpc_dmc}. In addition to comparing RL and MPC in literature, RL was also compared to industrial-grade MPCs currently implemented onto many processes world wide. One popular MPC product in industry is AspenTech's signature DMCplus and DMC3 products \cite{aspen_dmcplus, aspen_dmc3}. When implementing such products in real life, the system model will never be perfect; therefore, only a near-optimal solution is possible. Additionally, the computation time for DMC is exceptionally high and is unviable for many non-linear systems. Comparatively, RL is not concerned with the structure of the system; however, identifying an optimal policy for noisy systems will be more difficult. Adaptation-wise, RL performs random actions to calibrate to the real system (an idea that \textit{sounds} dangerous for online processes). Interestingly, AspenTech's technology also performs such random actions for model calibration.  During commissioning, the controller is typically initialized in the \textit{smart step} mode, where the system  performs random step tests \textit{online} to calibrate the system model to the real process.  Afterwards, operators often switch the system to \textit{calibrate} mode.  In this mode, the system continues to perform step tests in a much more infrequent and lower in magnitude fashion. Such an adaptation paradigm is identical to RL, where exploration is initially plentiful, but is eventually annealed to near zero.  For an more mathematical comparison between RL and MPC, see \cite{rl_vs_mpc}.
+
+The features of RL, academic MPC, and industrial MPC is shown in Table \ref{tab:rl_mpc_dmc}.
+
+\begin{table}[H]
+\caption{A comparison between RL, MPC in literature, and industrial MPC software.}
+\centering
+{\scriptsize
+\begin{tabular}{c|c|c|c}
+& \textbf{Reinforcement Learning}	& \textbf{Model Predictive Control} & \textbf{AspenTech DMC}\\
+\hline
+Performance             & Close to optimal			& Optimal with perfect model   &  Close to optimal \\
+Online comp. cost		& Low			& High   &  High \\
+Offline comp. cost		& Policy \& model identification			& Model identification   &  Model identification \\
+Reliance on model         	& Only for training			& At all times   &  At all times \\
+Online calibration		& Exploratory moves			&  Various methods   &  Exploratory moves \\
+Sensitivity to tuning   & Low			& High   &  High \\
+\label{tab:rl_mpc_dmc}
+\end{tabular}}
+\end{table}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Fault-Tolerant Control System

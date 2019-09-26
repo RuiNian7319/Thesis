@@ -150,7 +150,7 @@ The heuristics function here is given by:
 \end{equation}
 where $c$ is the degree of exploration.  Large $c$ values promote greater degrees of exploration. Furthermore, $N_t$ is the number of times action $u$ was selected prior to time $t$. As $N_t(x, u) \rightarrow \infty$, the corresponding $Q(x, u)$ has been updated many times and becomes very accurate.  Hence, the heuristics function $\mathcal{H} \rightarrow 0$. 
 
-\subsubsection{Popular TD algorithms}
+\subsubsection{Popular TD Algorithms}
 The two most popular TD algorithms are \textbf{SARSA} and \textbf{$Q$-learning}.  \textbf{SARSA} is an \textit{on-policy} algorithm. In such algorithms, the \textit{behaviour policy} and \textit{target policy} are identical.  Target policy refers to the goal policy of the agent.  Typically, this is the optimal policy.  Conversely, the behaviour policy, $b(u|s)$, is the policy used by the agent for decision making. In cases where the target and behaviour policy are identical, the agent is \textit{on-policy}. One flaw with \textit{on-policy} agents (assuming the target policy is the optimal policy) is that during training, the agent may quickly converge to a local optimum and never explore (since any policies containing exploration is not the optimal policy).  Ultimately, this results in a sub-optimal solution.  Contrarily, \textit{off-policy} agents, like \textbf{$Q$-learning}, typically follow exploratory policies during training to conduct deep exploration.  Then in online applications, the policy is swapped to the optimal policy. Moreover, \textit{off-policy} agents are \textit{guaranteed} to find the optimal policy assuming each state-action pair is visited infinite times and $b(u^* | s) > 0$ (i.e., probability of picking the optimal action under the behaviour policy is not 0) \cite{td}.
 
 Since SARSA is \textit{on-policy}, the action-value function are updated using Equation \ref{eq:td_action_value} using the quintuple $(x_t, u_t, R_{t+1}, x_{t+1}, u_{t+1})$. $Q$-learning updates use only four parameters $(x_t, u_t, R_{t+1}, x_{t+1})$ through Equation \ref{eq:q_learning}:
@@ -164,7 +164,7 @@ A detailed numerical example is provided in Chapter 4 where a tabular $Q$-learni
 
 
 
-\section{Summary of the different solution approaches}
+\section{Summary of DP, MC, and TD}
 The main features of DP, MC and TD methods are summarized in Table \ref{tab:dc_mc_td}. Overall, DP requires a dynamics function of the system to compute the value functions while both MC and TD methods can learn directly from interactions with the system. Both DP and TD methods use bootstrapping to estimate value functions, that is, they estimate the current value function based on previously estimated values. Bootstrapping is data efficient, but introduces large bias to the estimated values, especially in the early episodes.  Conversely, MC methods estimate the value functions of each state independently through sampling many system trajectories.  However, this method, instead, introduces high variance. For extremely noisy systems, the reproducability of the results may be difficult. Comparing the computational cost, DP methods require much more compared to MC or TD since all value functions are simultaneously solved. In MC methods, only the value functions that were visited in the sampled trajectories are updated.  Additionally, updates are conducted at the end of each episode and not after each step. Similar to DP methods, TD methods update the value function immediately after an experience; however, only the value function corresponding to the last visited state is updated. In terms of exploration, DP methods do not explore the system model (both transition probabilities and expected reward) is explicitly provided. MC methods explore by being initiated in a random state after each episode termination. In TD methods, agents explore by occasionally performing a random action.
 
 \begin{table}[H]
@@ -187,7 +187,7 @@ Exploration             & Not needed, all states update   & Random initializatio
 
 
 
-\section{Reward design for process control}
+\section{Reward Design for Process Control}
 The design of the reward function for process control applications is similar to MPC.  For regulation or set-point tracking problems, the MSE reward function can be used and is given by:
 \begin{equation}
     r(x, u) = -(x_i - x_{sp})^2
@@ -330,7 +330,7 @@ Does not work	     	& Simple but slow			& Ideal for sigmoid activations &  Ideal
 
 
 
-\subsection{Cost function for neural networks}
+\subsection{Cost Function for Neural Networks}
 MSE is the typical cost function for regression tasks and is given by \cite{NN}:
 \begin{equation}
     J(\theta) = \frac{1}{n}\sum\limits^n_{i=1}(\hat{y}_i - y_i)^2
@@ -339,7 +339,7 @@ MSE is the typical cost function for regression tasks and is given by \cite{NN}:
 where $J$ represents the loss.  Here, $n$ denotes the number of samples in the current optimization step. $\hat{y}_i$ and $y_i$ are the $i^{th}$ predicted and actual labels, respectively. The MSE cost function is typically selected due to its convex nature \cite{deeplearning_course}.
 
 
-\subsubsection{Gradient descent}
+\subsubsection{Gradient Descent}
 Given the cost function, the model parameters are updated using gradient descent. The general gradient descent formulation is given by Equation \ref{eq:08GradientDescent}.  
 \begin{equation}
     \theta_j^{m+1} \leftarrow \theta_j^{m} - \alpha \frac{\partial J}{\partial \theta_j}
@@ -384,12 +384,12 @@ Combining the above equations, the weights and biases are updated by:
 \end{equation}
 where $\epsilon$ is a small scalar to avoid division by zero. The authors proposed values of 0.9, 0.999 and $10^{-8}$ for $\beta_1$, $\beta_2$, and $\epsilon$, respectively \cite{ADAM}.  Next, the amount of data that will be used to compute the loss gradient will be explored.
 
-\subsubsection{Mini-batch gradient descent}
+\subsubsection{Mini-batch Gradient Descent}
 Classically, the gradient of the loss function was computed using all data available. Furthermore, this method (called batch gradient descent) guarantees monotonic improvements in performance after each update step \cite{deeplearning_course}. However, BGD suffers from space complexity and is infeasible in big data applications.  Thus, mini-batch gradient descent was used for the work in this thesis. Mini-batch gradient descent fits between stochastic gradient descent (SGD) and BGD, where small batches of data sampled from the original data set are used to perform stochastic updates at each step \cite{sgd}. Mini-batch gradient descent offers three benefits over the previous methods: i) less computationally demanding compared to batch gradient descent; ii) more accurate loss function gradient for parameter updates compared to SGD; iii) requires less steps compared to SGD.
 
 
 
-\subsubsection{Data segregation}
+\subsubsection{Data Segregation}
 The data set was split into three sections for machine learning: training, validation, and testing.  The partition and description of each section is shown in Table \ref{tab:08datapart}. The training data set was used to identify the machine learning model(s).  Then, the model was validated on unseen data via the validation data set (sometimes called development data).  The error of the model on the validation data set, $e_{validation}$, was then evaluated and compared to the training data error, $e_{train}$.  If the difference is large, the model was rebuilt using different data pre-processing techniques and features. This step was repeated until $e_{train} \approx e_{validation}$ to ensure that the model did not overfit to the training data. Finally, the model was tested on the testing data to explore the performance of the model in live production.  Testing data was always the last 5\% of the data set.
 \begin{table}[h]
     \centering
@@ -509,7 +509,7 @@ Interestingly, integration operators are low-pass filters and will remove high f
 \subsection{Stabilization of Training}
 Architecturally, DDPG contains two interacting neural networks that are trained upon each other.  To successfully train such a complicated system, careful parameter initialization and proper weight updates are paramount.  Although some initialization techniques were introduces in the above sections, the authors of \cite{ddpg} initiated the last layer of the networks with weights uniformly drawn from $[-3 \times 10^{-3}, 3 \times 10^{-3}]$ for low dimensional problems. Such an initialization ensures initial policy and value estimates were near zero \cite{ddpg}. The other layers were initialized using uniform distributions $[-\frac{1}{\sqrt{n_j}}, \frac{1}{\sqrt{n_j}}]$, where $n_j$ was the size of the previous layer.  Regularization-wise, batch normalization was used \cite{batch_norm}. For exploration, the UO noise given in Equation \ref{eq:01OU} with $\theta$ and $\sigma$ as 0.15 and 0.2 was used.
 
-\subsubsection{Experience replay}
+\subsubsection{Experience Replay}
 DDPG also uses experience replay (sometimes called replay buffer) to enhance data efficiency and prevent catastrophic interference during training.  Experience replay was first introduced in \cite{exp_replay} to provide temporally de-correlated training samples to agents in time-series settings. In DDPG, tuples of:
 $$(x_t, u_t, r_{t+1}, x_{t+1})$$
 are memorized and stored in the experience replay. During updates, random mini-batches of previous experiences are sampled from the replay buffer to update the agent. Consequently, the agent obtains the ability to learn the same experiences many times, a concept similar to cycling through many epochs in deep learning. Correlating to humans, experience replay is similar to hippocampal replay, where memories are sub-consciously replayed over and over.  Indeed, that is one theory explaining the efficiency of human learning \cite{hippocampal}. However, human memories are rarely replayed randomly. Instead, only the most important or unexpected memories are replayed. Prioritized experience replay mimics this concept and biases sampling to experiences with large TD errors \cite{p_exp}. Intuitively, such experiences are \textit{shocking} since the outcome was significantly different than what was expected. Using prioritized experience replay, the agent learned faster in 41 out of 49 ATARI games compared to the original experience replay.

@@ -22,11 +22,6 @@ This chapter is organized as follows: Section 1 introduces data pre-processing m
 The main contributions of this chapter are the data pre-processing methods used to prepare data sets for anomaly detection/prediction.  Additionally, it was shown that using synthetic data was able to enhance accuracy.  Lastly, a novel alarm management approach based on reinforcement learning was introduced to filter nuisance alarms and sort alarms based on their priority.  
 
 
-
-
-Heavily unbalanced data:
-- SMOTE, ADASYN, Breaking time down into smaller segments and increasing sampling rate
-
 \section{Data Pre-processing for Monitoring}
 Data containing anomalous and/or incident events are extremely rare---thankfully---in the process industry. \begin{quote}
     Anomaly or anomalous activity: An abnormal or unexpected event given other variables (often multivariate).  For example, a person walking in a t-shirt when it is -$\ang{30}$ C outside.
@@ -35,9 +30,11 @@ Data containing anomalous and/or incident events are extremely rare---thankfully
 In fact, it is not uncommon to have just one incident in a data set containing hundreds of thousands of records.  Under such circumstances, building ML models to identify incidents is extremely difficult.  Remember, ML models are nothing more than statistical models with training formulated in an incremental updating fashion. In the scenario where the training data set contains 999,999 non-anomalous activities with 1 anomalous activity, the model will simply learn to return non-anomalous for all inputs; such a model would still achieve 99.9999\% accuracy on the training data!  When a human is provided with this data set, the human would instead focus most of its attention on the one anomalous activity, studying how it is different from all the other points.  A \textit{tabula rasa} machine is simply not equipped with such cognitive abilities, and will treat every data point equally; however, humans can artificially provide cognition to the machine.
 
 \subsection{Data Prep for Anomaly Detection}
-Anomaly \textit{detection} tasks are quite simple compared to anomaly \textit{prediction} tasks that will be discussed later on in this section. In anomaly detection, the model simply has to classify if there is an anomaly at current time. For example, given some states of a reactor, is the output temperature anomalous? That is, is the measured output temperature expected given the states?  Of course, such questions are difficult for humans to answer, especially in multi-variate environments; however, such questions can easily be answered by machines. Unfortunately, the events that are of interest to us (anomalies) are, often times, significantly more rare compared to normal process data. Hence, the leading reason for poor model performance in imbalanced data sets (i.e., distribution of different classes are vastly different) is the \textit{imbalanced} nature.  There exists two traditional ways to tackle the data imbalance issue: \textbf{undersampling} and \textbf{oversampling}.  Objectively, both methods aim to re-balance the data set so that the positive and negative data are in harmony.
+Anomaly \textit{detection} tasks are quite simple compared to anomaly \textit{prediction} tasks that will be discussed later on in this section. In anomaly detection, the model simply has to classify if there is an anomaly at current time. For example, given some states of a reactor, is the output temperature anomalous? That is, is the measured output temperature expected given the states?  Of course, such questions are difficult for humans to answer, especially in multi-variate environments; however, such questions can easily be answered by machines. Unfortunately, the events that are of interest to us (anomalies) are, often times, significantly more rare compared to normal process data. Hence, the leading reason for poor model performance in imbalanced data sets (i.e., distribution of different classes are vastly different) is the \textit{imbalanced} nature.  There exists two traditional ways to tackle the data imbalance issue: \textbf{undersampling} and \textbf{oversampling} \cite{under_over_sampling}.  Objectively, both methods aim to re-balance the data set so that the positive and negative data are in harmony.
 
-A visual description of undersampling and oversampling is shown in Figure \ref{fig:03under_over_sampling}. In undersampling, 
+A visual description of undersampling and oversampling is shown in Figure \ref{fig:03under_over_sampling}. In undersampling, the majority class(es) are significantly down-sampled to be the same size as the minority class.  The obvious flaw with this technique is the significant data in-efficiency.  In this method, the majority of the data that may contain critical features and information are simply discarded.  To take advantage of the whole data set, oversampling is sometimes used.  In oversampling, the minority class data is copied $n$ times until is approximately equivalent to the majority class.  Although oversampling allows the whole data set to be used, the models built typically overfit to the minority data simply because it was copied so many times.  During deployment, anomalies that are even slightly different from the ones in the training minority data set are often times misclassified.
+
+Another more mathematical way to tackle this data imbalance issue is to bias the cost function to \textbf{heavily} discourage misclassification of positive samples.  However, such a methods requires tuning of the cost function, and is often times difficult.
 
 \begin{figure}[H]
     \centering
@@ -46,10 +43,128 @@ A visual description of undersampling and oversampling is shown in Figure \ref{f
     \label{fig:03under_over_sampling}
 \end{figure}
 
+Luckily, normal process data are typically plentiful and lack "increasing" information (i.e., data is typically from steady state processes that hover around the same value for weeks) in the process industry.  Therefore, discarding large bulks of data in certain processes do not affect the ultimate accuracy of the model.  For anomaly detection, the majority class data was first undersampled to be comparable to the minority class. Undersampling should uniformly sample the data set to ensure all operating regimes are sufficiently captured. Then, a label column is generated; all anomalous events were given a value of 1 and normal process data had labels of 0.  An example of undersampling is shown below.  In this example, the process is deemed anomalous when $x_1 + x_2 > 3$.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{ c | c | c }
+        $x_1$ & $x_2$ & label \\
+        \hline
+        2 & -1 & 0 \\
+        3 & 0 & 0 \\
+        2 & 5 & 1 \\
+        2 & -2 & 0 \\
+        5 & -1 & 1 \\
+        -2 & -1 & 0 \\
+        1 & -3 & 0 \\
+        2 & -4 & 0 \\
+        -2 & 2 & 0 \\
+        -2 & 4 & 0 \\
+    \end{tabular}
+    \caption{Original data set before undersampling.}
+    \label{tab:03undersampling}
+\end{table}
+
+Notice that in Table \ref{tab:03undersampling}, the majority class dominates the minority class 5:1.  After downsampling, the data set becomes:
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{ c | c | c }
+        $x_1$ & $x_2$ & label \\
+        \hline
+        2 & 5 & 1 \\
+        2 & -2 & 0 \\
+        5 & -1 & 1 \\
+        -2 & -1 & 0 \\
+    \end{tabular}
+    \caption{Original data set before undersampling.}
+    \label{tab:03undersampling2}
+\end{table}
+Note that the majority and minority class do not have to be perfectly balanced, especially in cases where perfectly balancing the classes require discarding unique information from the majority class.
+
 \subsection{Data Prep. for Anomaly Prediction}
+Anomaly prediction is a much more difficult problem compared to anomaly detection.  In anomaly prediction, the model must \textit{predict} if an anomaly is going to happen \textit{before} it happens.  Compared to anomaly detection, this task is much more difficult, and how far in advance an anomaly can be detected is heavily dependent on the speed of dynamics of the system.  For example, in cat classification, anomaly detection simply has to identify if the picture is a cat or not.  However, anomaly prediction has to predict if the animal in each picture will eventually grow up to become a cat.
+
+In anomaly prediction, the data is first labelled as in anomaly detection. Afterwards, the data is augmented as follows:
+\begin{equation}
+    x = [x_{t - l - L}, ...,  x_{t - l - 3}, x_{t - l - 2},  x_{t - l - 1},  x_{t - l}]
+    \label{eq:03prediction}
+\end{equation}
+where $l > 0$ denotes the minimum number of sampling time the model should predict in advance.  $L$ represents the amount of previous information to be provided to the model. Note that even though an $l$ of 10 is chosen, this does not guarantee that the model will always predict anomalies 10 time steps in advance. Moreover, if the model predicts positive, it does not mean that an anomaly will occur exactly 10 time steps later. Merely, it just biases the algorithm to be more effective around that time range. How early an anomaly can be detected is purely dependent upon the dynamics of the system.  For example, if the degradation of an equipment is slow and gradual, the anomaly might be detected days in advance; however, an instantaneous failure offers no time for any early detection.
+
+Like in anomaly detection, the data is heavily skewed towards normal process data; therefore, the majority class must also be downsampled to be comparable to the minority data set. Downsampling occurs last to ensure no temporal relationships are broken. A quantitative example for the augmentation of an anomalous data is shown below.  Here, suppose downsampling is not required (since an example is already shown above) and $l = 1; L = 2$.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{ c | c | c }
+        $time$ & $x_2$ & label \\
+        \hline
+        0 & 5 & 0 \\
+        1 & 3 & 0 \\
+        2 & 7 & 0 \\
+        3 & 6 & 0 \\
+        4 & 4 & 0 \\
+        5 & 2 & 0 \\
+        6 & -1 & 1 \\
+        7 & -3 & 0 \\
+        8 & -1 & 0 \\
+        9 & 2 & 0 \\
+    \end{tabular}
+    \caption{An arbitrary time-series data set.}
+    \label{tab:03aug}
+\end{table}
+
+From Table \ref{tab:03aug}, the time series augmented data point for the anomalous event would be:
+$$x = [x_3, x_4, x_5]$$
+$$x = [6, 4, 2]$$
+
 
 \subsection{Synthetic Data Generation}
+In the above methods, the assumption of plentiful data was made.  In industry, this is not always true, especially for the anomalous data.  Here, three different \textit{synthetic} data generation methods will be introduced, with each method generating fake, yet similar, minority class data.  This topic is an especially popular research topic for the computer vision field where good, labeled data are rare. In fact, many "Completely Automated Public Turing test to tell Computers and Humans Apart" (CAPTCHAs) use traffic signs to force potential users of the website to first label some data, before being allowed to proceed. Most likely, the labeled data are then sold to computer vision companies. The main idea of synthetic data generation is to construct fake data that is \textit{exactly equivalent} to the real data that even a subject matter expert cannot tell them apart.  Indeed, that was exactly the structure of one of the most advanced generative methods, the generative adversarial network (GAN) \cite{gan}. Here, a generative neural network Synthetic data research in time-series data are unfortunately more primitive compared to GANs, but still provide valuable accuracy gains in the final model. 
 
+The first method caters to time-series data. This method simply oversamples the data leading up to an event.  Notice that this method is different from oversampling because it does not directly copy the data.  Instead, the sampling rate is increased for periods leading up to an anomalous event (for anomaly prediction) or during the anomalous event (for anomaly detection).  For example, the normal sampling time of a process might be one per minute. But to obtain more data, the resolution might be greatly enhanced to one per 10 seconds to increase anomalous data.
+
+The second method for synthetic data generation is the Synthetic Minority Over-sampling Technique (SMOTE). As a high level overview, SMOTE generates synthetic minority data through combining features of real minority data points. Suppose we plotted a 2-class data set with 2 features.  Most likely, data points corresponding to the two classes will be segregated (at least slightly).  To generate synthetic data on either class: 
+\begin{enumerate}
+    \item Start with an arbitrary point within that class
+    \item Identify the distance between that point and it's closest neighbour (within the same class).  Typically, Euclidean distance is used for the distance metric and is given by:
+    \begin{equation}
+        d(p, q) = \sqrt{(p_1 - q_1)^2 + (p_2 - q_2)^2 + ... + (p_n + q_n)^2}
+    \end{equation}
+    where $p$ and $q$ denotes two arbitrary points belonging to the same class.  Here, $n$ denotes the total number of features for $p$ and $q$.
+    \item Multiply the Euclidean distance by an arbitrary number, $r$, between 0 - 1.
+    \item Place a new data point $r \times d$ from the original point
+\end{enumerate}
+
+A visual representation of SMOTE is shown in Figure \ref{fig:03smote}. For more information regarding SMOTE, see \cite{smote}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/ch3/smote.jpeg}
+    \caption{A visual representation of SMOTE.}
+    \label{fig:03smote}
+\end{figure}
+
+
+The last method is an adaptive version of SMOTE called ADASYN. ADASYN offers "targeted" data generation---more synthetic data is generated for neighbourhoods where the minority class is heavily dominated by the majority class.  For example, suppose the minority class is distributed into two distinct clusters, with one cluster having significantly more minority data compared to the other.  When training a ML model on such a data set, the model will perform significantly better on the minority-dense cluster.  ADASYN can be applied here to target more data generation on the less dense cluster, resulting in comparable model performance for both clusters.  However, ADASYN does not work for sparsely distributed minority classes where only one data point is present.  Additionally, some less dense clusters are a result of noise.  When ADASYN is applied on such clusters, inaccurate minority data will be created which greatly decrease model accuracy during deployment. A more detailed explanation of ADASYN can be found in \cite{adasyn}.
+
+
+\section{Model Performance Assessment}
+Often times, accuracy (i.e., \% of times the model predicted accurately) is a poor performance metric for heavily imbalanced data sets.  For example, a model that only predicts false for a classification data set where 99\% of the data is false will still result in a 99\% accuracy even though the model has no predictive capabilities. In such data sets, \textbf{precision} and \textbf{recall} are more proper evaluations of model performance \cite{prec_recall}.
+
+\textbf{Precision:} Percent of time the model successfully predicted a true positive and is given as:
+\begin{equation}
+    Precision = \frac{TP}{TP + FP}
+\end{equation}
+where $TP$ and $FP$ denotes the true and false positives, respectively. A model with poor precision results in excessive false alarms and lead to operator complacency quickly.  
+
+\textbf{Recall:} Percent of total events detected, given as:
+\begin{equation}
+    Recall = \frac{TP}{TP + FP}
+\end{equation}
+A poor recall model misses many anomalous events.
+
+Typically, there is a trade-off between precision and recall for traditional methods. This could be eliminated, to an extent, using deep learning models trained on a large repository of data \cite{deeplearning_course}.  An acceptable precision and recall depends on the particular application.  For example, highly safety critical systems would require a near perfect recall because even missing one event could lead to catastrophic damage; therefore, a degree of false alarms is acceptable.  On the other hand, safety non-critical applications may favor a high precision model where every alarm should be guaranteed to correspond to an actual event. In non-safety critical applications, false alarms may lead to operator complacency. There do exist models with both high precision and recall; however, such models require vastly more data to identify.
 
 \section{Anomaly detection and prediction}
 
@@ -64,9 +179,12 @@ where $e$ denotes the exponential operator.
 - Measure process variability?
 
 \subsection{Deep Learning Classification and Prediction}
+Referring back to the neural network basics section in Chapter 1, a deep learning classification simply replaces the activation function of the last layer to a sigmoid function.  
 
-\subsection{Explanability}
-- Explanability through weights, through importance sampling
+\subsection{The Greatest Influencers}
+Another critical requirement of the safety models is that it must provide \textbf{real value} to the operators.  The algorithms presented here create value in two ways: 1) Provide explainability to the models which can increase intuition and gain addition buy-in from project shareholders and potential users; 2) provide actionable recommendations to operators.  It is almost useless to tell the operators that the plant will blow up in 10 minutes if no details on how to avoid such a fate is not provided.
+
+The model weights can be analyzed to provide explainability for the logistic model.
 
 \section{Alarm Management}
 

@@ -122,8 +122,10 @@ $$x = [6, 4, 2]$$
 \subsection{Synthetic Data Generation}
 In the above methods, the assumption of plentiful data was made.  In industry, this is not always true, especially for the anomalous data.  Here, three different \textit{synthetic} data generation methods will be introduced, with each method generating fake, yet similar, minority class data.  This topic is an especially popular research topic for the computer vision field where good, labeled data are rare. In fact, many "Completely Automated Public Turing test to tell Computers and Humans Apart" (CAPTCHAs) use traffic signs to force potential users of the website to first label some data, before being allowed to proceed. Most likely, the labeled data are then sold to computer vision companies. The main idea of synthetic data generation is to construct fake data that is \textit{exactly equivalent} to the real data that even a subject matter expert cannot tell them apart.  Indeed, that was exactly the structure of one of the most advanced generative methods, the generative adversarial network (GAN) \cite{gan}. Here, a generative neural network Synthetic data research in time-series data are unfortunately more primitive compared to GANs, but still provide valuable accuracy gains in the final model. 
 
+\subsubsection{Time-series oversampling}
 The first method caters to time-series data. This method simply oversamples the data leading up to an event.  Notice that this method is different from oversampling because it does not directly copy the data.  Instead, the sampling rate is increased for periods leading up to an anomalous event (for anomaly prediction) or during the anomalous event (for anomaly detection).  For example, the normal sampling time of a process might be one per minute. But to obtain more data, the resolution might be greatly enhanced to one per 10 seconds to increase anomalous data.
 
+\subsubsection{SMOTE}
 The second method for synthetic data generation is the Synthetic Minority Over-sampling Technique (SMOTE). As a high level overview, SMOTE generates synthetic minority data through combining features of real minority data points. Suppose we plotted a 2-class data set with 2 features.  Most likely, data points corresponding to the two classes will be segregated (at least slightly).  To generate synthetic data on either class: 
 \begin{enumerate}
     \item Start with an arbitrary point within that class
@@ -145,8 +147,53 @@ A visual representation of SMOTE is shown in Figure \ref{fig:03smote}. For more 
     \label{fig:03smote}
 \end{figure}
 
-
+\subsubsection{ADASYN}
 The last method is an adaptive version of SMOTE called ADASYN. ADASYN offers "targeted" data generation---more synthetic data is generated for neighbourhoods where the minority class is heavily dominated by the majority class.  For example, suppose the minority class is distributed into two distinct clusters, with one cluster having significantly more minority data compared to the other.  When training a ML model on such a data set, the model will perform significantly better on the minority-dense cluster.  ADASYN can be applied here to target more data generation on the less dense cluster, resulting in comparable model performance for both clusters.  However, ADASYN does not work for sparsely distributed minority classes where only one data point is present.  Additionally, some less dense clusters are a result of noise.  When ADASYN is applied on such clusters, inaccurate minority data will be created which greatly decrease model accuracy during deployment. A more detailed explanation of ADASYN can be found in \cite{adasyn}.
+
+
+\section{Anomaly Detection and Prediction}
+One of the simplest, yet very effective, classification machine learning algorithm is the logistic regression \cite{log_reg}. Logistic regression is a binary \textit{classification} algorithm (although called "regression") that outputs a value between 0 - 1, denoting the probability of a certain event occurring.  For example, the output value to a logistic regression model trained on pump failure data denotes the probability of the pump failing. The model structure of the logistic regression is given as:
+\begin{equation}
+    \hat{y} = \frac{1}{1 + e^{-(W_1^Tx_1 + W_2^Tx_2 + ... + b)}}
+    \label{eq:02LogS}
+\end{equation}
+where $e$ denotes the exponential operator.  For multi-class classification, softmax functions are typically used and are given by:
+\begin{equation}
+    y = \frac{e^{z_i}}{\sum\limits^k_{j=0}e^{z_j}}
+    \label{eq:03softmax}
+\end{equation}
+where $z_i$ is given as:
+$$z_i = W_{i, 1}^Tx_1 + W_{i, 2}^Tx_2 + ... + b_i$$
+The dimensions of the parameter matrices are $W_{j \times k}$ and $b_{j \times 1}$.  Here, $j$ amd $k$ denote the number of classes and the number of features for each data point, respectively.  Lastly, softmax are typically used because the function is continuously differentiable, thus allowing for gradient methods to be viable.
+
+\subsection{Deep Learning Classification and Prediction}
+A deep learning binary classification model simply modifies the regression neural network (introduced in the neural networks basic section in Chapter 1) by replacing the last layer's activation function to a sigmoid function. More specifically, the following is the mathematical procedure of the regression neural network model:
+\begin{center}
+    $z^{[1]}_j = W^{[1]}x + b^{[1]}$ \\
+    $a^{[1]}_j = ReLU(z^{[1]}_j)$ \\
+    $z^{[2]}_j = W^{[2]}a^{[1]}_j + b^{[2]}$ \\
+    $a^{[2]}_j = ReLU(z^{[2]}_j)$ \\
+    ... \\
+    $z^{[r]}_j = W^{[r]}a^{[r - 1]}_j + b^{[r]}$ \\
+    $a^{[r]}_j = ReLU(z^{[r]}_j)$ \\
+    $y = W^{[o]}a^{[r]}_j + b^{[o]}$ \\  
+\end{center}
+In classification, the last step is simply replaced with:
+$$z = W^{[o]}a^{[r]}_j + b^{[o]}$$
+\begin{equation}
+    y = \frac{1}{1 + e^{-z}}
+    \label{eq:03sigmoidact}
+\end{equation}
+For multi-class deep learning classification, the output activation layer is replaced with the softmax function given in Equation \ref{eq:03softmax}.
+
+\subsection{Cost Function for Classification}
+The classification models are trained using the following convex cost function:
+\begin{equation}
+    J = \frac{1}{N}\sum\limits^N_{i=1} y_i \cdot log(f(x_i)) + (1 - y_i) \cdot log(1 - f(x_i))
+    \label{eq:03maxentropy}
+\end{equation}
+where $N$ denotes the total number of training data used for this update step (i.e., the size of the mini-batch).  Here, $y_i$ is the label of the $i^{th}$ training data and $f(x_i)$ is the probability output of the classification model.  Intuitively, the cost function penalizes incorrect misclassifications.  For example, if $y_i = 1$ and $f(x_i) = 1$, then the cost function would be zero.  Likewise, if $y_i = 1$ and $f(x_i) = 0$, the cost function would instead return 1.
+
 
 
 \section{Model Performance Assessment}
@@ -166,28 +213,59 @@ A poor recall model misses many anomalous events.
 
 Typically, there is a trade-off between precision and recall for traditional methods. This could be eliminated, to an extent, using deep learning models trained on a large repository of data \cite{deeplearning_course}.  An acceptable precision and recall depends on the particular application.  For example, highly safety critical systems would require a near perfect recall because even missing one event could lead to catastrophic damage; therefore, a degree of false alarms is acceptable.  On the other hand, safety non-critical applications may favor a high precision model where every alarm should be guaranteed to correspond to an actual event. In non-safety critical applications, false alarms may lead to operator complacency. There do exist models with both high precision and recall; however, such models require vastly more data to identify.
 
-\section{Anomaly detection and prediction}
 
 
-The model structure for logistic regression is given as:
-\begin{equation}
-    \hat{y} = \frac{1}{1 + e^{-(W_1^Tx + W_2^Tu + b)}}
-    \label{eq:02LogS}
-\end{equation}
-where $e$ denotes the exponential operator.
+\section{Industrial Product Design}
 
-- Measure process variability?
+\subsection{Anomaly Detection}
 
-\subsection{Deep Learning Classification and Prediction}
-Referring back to the neural network basics section in Chapter 1, a deep learning classification simply replaces the activation function of the last layer to a sigmoid function.  
 
-\subsection{The Greatest Influencers}
-Another critical requirement of the safety models is that it must provide \textbf{real value} to the operators.  The algorithms presented here create value in two ways: 1) Provide explainability to the models which can increase intuition and gain addition buy-in from project shareholders and potential users; 2) provide actionable recommendations to operators.  It is almost useless to tell the operators that the plant will blow up in 10 minutes if no details on how to avoid such a fate is not provided.
 
-The model weights can be analyzed to provide explainability for the logistic model.
+\subsection{Anomaly Prediction}
+
+
+\subsection{Interpreting ML Models}
+Another critical requirement of ML models is that it must provide \textbf{real value} to the operators.  The algorithms presented here create value in two ways: 1) Provide explainability to the models which can increase intuition and gain addition buy-in from project shareholders and potential users; 2) provide actionable recommendations to operators.  It is almost useless to tell the operators that the plant will blow up in 10 minutes if no details on how to avoid such a fate is not provided.
+
+The model weights can be analyzed to provide explainability for the logistic regression model.
+
+The explainability of neural networks are significantly more difficult compared to logistic regression.  Indeed, even providing a rough explanation is extremely difficult. Some simple approaches include permutation importance, partial dependence plots, and SHAP.  
+
+\textbf{Permutation importance:} Permutation importance identifies the importance of each input feature to the ML model and is applied \textit{after} the model is identified.  In permutation importance, the columns of the features are shuffled, one at a time.  After each shuffle, the model is re-evaluated with  one incorrect feature data.  Here, if the model's performance significantly reduces after the shuffling of a feature, that shuffled feature is deemed to have high predictive power.  On the other hand, if the model performance is unaffected, then the shuffled feature is assumed to have little to no predictive power. This step is repeated for all features in the feature space. More details regarding permutation importance can be found in \cite{perm_imp}, an example of feature shuffling is shown in Figure \ref{fig:03perm_imp}.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/ch3/perm_imp.jpeg}
+    \caption{A visual example of permutation importance. Original image from \cite{img_perm_imp}.}
+    \label{fig:03perm_imp}
+\end{figure}
+
+
+\textbf{Partial dependence plots:} Partial dependence plots (PDPs) are also evaluated after a model is identified and are used to show how each feature affects the final model prediction.  On a high level, PDPs are similar to evaluating the weights of the models, except PDPs also capture additional, more complex, relationships.  Basically, the fitted model is used to predict for the output while keeping all variables constant except for one.  
+
+Figure \ref{fig:03pdp} shows an example of a PDP plot for one variable.  The y-axis shows the change in the prediction (in this case, winning "Player of the Game" in soccer) while the x-axis is the number of goals scored. Here, the number of goals scored is the variable being manipulated. The plot shows how the chance of winning "Player of the Game" changes as more goals are scored by a player.  In this particular example, the PDP shows that scoring one goal helps tremendously in obtaining player of the game; however, any additional goals provide no impact. For more information on PDPs, see \cite{pdp}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/ch3/pdp.jpeg}
+    \caption{A visual example of permutation importance. Original image from \cite{pdp_plot}.}
+    \label{fig:03pdp}
+\end{figure}
+
+
+\textbf{SHAP:} Shapley additive explanations (SHAP) decomposes model predictions to identify the impact factor of each variable.  This analysis is critical for safety-sensitive systems; by applying SHAP, positive anomaly predictions can be decomposed to identify the root case.
+
+
+A more detailed description of SHAP can be found in \cite{SHAP}.
+
+
 
 \section{Alarm Management}
+Industry today is plagued with many problems that require advanced algorithms to overcome. Two of the largest problems are production optimization and alarm management. With continually pressure from environmental groups and increasing government regulations, large industrial companies are forced reduce their environmental footprints while improving the quality of output. The status quo also believes in zero-incident policies, i.e., all workplace incidents are preventable and unacceptable; therefore, it is in the best interest of the companies to implement effective safety systems or their social license to operate could be compromised. To tackle these issues, the University of Alberta's process control team applied artificial intelligence (AI) algorithms in conjunction with classical approaches to an industrial scale wastewater treatment plant (WWTP). The objectives were threefold: i) Design self-learning and adaptive RL controllers to seek out optimal operating strategies. In this case, the controllers must identify the optimal policy to meet government regulations in the most energy efficient way; ii) adaptability feature, allowing the RL controller to learn optimal operating strategies as the operating conditions change, i.e. adapting to changes in season, new government regulations, etc; iii) alarm reduction and prioritization through pattern recognition and communication establishment between RL and the alarm system. Objectives 1 and 2 will be discussed in Chapter 5, objective 3 will be discussed in the following subsections.
+
+Traditionally, alarms were the first line of defense against abnormalities in chemical processes, and were very effective. Due to their cost of implementation, many teams of engineers and subject matter experts would gather together to brain storm the most effective alarm strategies. However, today's plants are littered with alarms due to the price of alarms plummeting after the invention of digital alarms. And because of their sheer number, many alarms are redundant and convey no additional new information.
+This project aims to drastically reduce the amount of alarms flooding the alarm console so operators will avoid being overwhelmed. Secondly, this project will prioritize the most important alarms so operators can focus their attention on the highest threats first.
+
+\subsection{Alarm Reduction}
 
 \subsection{Alarm Prioritization}
 
-\subsection{Alarm Reduction}

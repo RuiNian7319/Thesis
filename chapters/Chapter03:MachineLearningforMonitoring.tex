@@ -252,20 +252,140 @@ Figure \ref{fig:03pdp} shows an example of a PDP plot for one variable.  The y-a
 \end{figure}
 
 
-\textbf{SHAP:} Shapley additive explanations (SHAP) decomposes model predictions to identify the impact factor of each variable.  This analysis is critical for safety-sensitive systems; by applying SHAP, positive anomaly predictions can be decomposed to identify the root case.
+\textbf{SHAP:} Shapley additive explanations (SHAP) are used to decompose model predictions so that the impact factor of each variable on the final prediction can be identified.  This analysis is critical for safety-sensitive systems; by applying SHAP, positive anomaly predictions can be decomposed to identify the root case (i.e., which feature is causing this prediction to be positive).  Overall, SHAP provide values that interprets the impact of having different values for certain features compared to if that feature took a baseline value.  For example, PDPs show how different the prediction would be, given a change in one variable. Instead, SHAP shows how the prediction is affected if one variable was changed, compared to if that variable took some baseline value.  In a multi-feature problem, a SHAP value is calculated from:
+\begin{equation}
+    y_{shap} = \sum y - y_{baseline}
+    \label{eq:03SHAP}
+\end{equation}
+That is, the difference between what was predicted from the actual variable and what would have been predicted if a baseline value was used. The sum of all individual SHAP values correspond to how different the predicted value is from the baseline. Afterwards, a SHAP decomposition graph, as shown in Figure \ref{fig:03SHAPFig}, can be generated to explain exactly how the prediction was constructed.  Figure \ref{fig:03SHAPFig} was originally generated to predict the \% chance of winning the "Player of the Game" award in a soccer match.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.99\textwidth]{images/ch3/SHAP.jpeg}
+    \caption{A visual example of permutation importance. Original image from \cite{SHAP_plot}.}
+    \label{fig:03SHAPFig}
+\end{figure}
 
-A more detailed description of SHAP can be found in \cite{SHAP}.
-
+From Figure \ref{fig:03SHAPFig}, the red and blue arrows represent variables that resulted in a higher and lower chance of winning the "Player of the Game' award. For example, it can be seen that scoring two goals increased the chances of winning the award drastically; however, the ball possession being at 38\% reduced the chances. A more detailed description of SHAP can be found in \cite{SHAP}.
 
 
 \section{Alarm Management}
-Industry today is plagued with many problems that require advanced algorithms to overcome. Two of the largest problems are production optimization and alarm management. With continually pressure from environmental groups and increasing government regulations, large industrial companies are forced reduce their environmental footprints while improving the quality of output. The status quo also believes in zero-incident policies, i.e., all workplace incidents are preventable and unacceptable; therefore, it is in the best interest of the companies to implement effective safety systems or their social license to operate could be compromised. To tackle these issues, the University of Alberta's process control team applied artificial intelligence (AI) algorithms in conjunction with classical approaches to an industrial scale wastewater treatment plant (WWTP). The objectives were threefold: i) Design self-learning and adaptive RL controllers to seek out optimal operating strategies. In this case, the controllers must identify the optimal policy to meet government regulations in the most energy efficient way; ii) adaptability feature, allowing the RL controller to learn optimal operating strategies as the operating conditions change, i.e. adapting to changes in season, new government regulations, etc; iii) alarm reduction and prioritization through pattern recognition and communication establishment between RL and the alarm system. Objectives 1 and 2 will be discussed in Chapter 5, objective 3 will be discussed in the following subsections.
+Industry today is plagued with many problems that require advanced algorithms to overcome. Two of the largest problems are production optimization and alarm management. With continually pressure from environmental groups and ever-increasing government regulations, large industrial companies are forced to reduce their environmental footprints while improving output quality. The status quo also believes in zero-incident policies, i.e., all workplace incidents are preventable and unacceptable; therefore, it is in the best interest of the companies to implement effective, yet cheap, safety systems or their social license to operate could be compromised. To tackle these issues, the University of Alberta's process control team applied artificial intelligence (AI) algorithms in conjunction with classical approaches to an industrial scale wastewater treatment plant (WWTP). The objectives were threefold: i) Design self-learning and adaptive RL controllers to seek out optimal operating strategies. In this case, the controllers must identify the optimal policy to meet government regulations in the most energy efficient way; ii) direct adaptive control, allowing the RL controller to learn optimal operating strategies as the operating conditions change by adapting the policy directly (not model re-identification since some systems may be unidentifiable), i.e. adapting to changes in season, new government regulations, etc; iii) superior alarm management by developing state-of-the-art alarm reduction and prioritization algorithms through pattern recognition and communication establishment between RL and the alarm system. Objectives 1 and 2 will be discussed in Chapter 4, objective 3 will be discussed in the following subsections.
 
-Traditionally, alarms were the first line of defense against abnormalities in chemical processes, and were very effective. Due to their cost of implementation, many teams of engineers and subject matter experts would gather together to brain storm the most effective alarm strategies. However, today's plants are littered with alarms due to the price of alarms plummeting after the invention of digital alarms. And because of their sheer number, many alarms are redundant and convey no additional new information.
-This project aims to drastically reduce the amount of alarms flooding the alarm console so operators will avoid being overwhelmed. Secondly, this project will prioritize the most important alarms so operators can focus their attention on the highest threats first.
+Traditionally, alarms were the first line of defense against abnormalities in chemical processes, and were very effective \cite{alarm_manage}. Due to their cost of implementation, many teams of engineers and subject matter experts would gather together to brain storm the most effective alarm strategies. However, today's plants are littered with thousands of alarms due to the price of alarms plummeting after the invention of digital alarms. And because of their sheer number, many alarms are redundant and convey no additional information. 
+
+This project aims to firstly reduce the amount of alarm floods to prevent overwhelming the operators. Secondly, an alarm prioritization algorithm will be introduced so operators can focus their attention on the highest impact alarms first.
 
 \subsection{Alarm Reduction}
+Alarm flooding is one of the biggest problems in alarm management.  During abnormal events in the plant, thousands of alarms may go off simultaneously due to poor alarm system design, rendering the whole system useless.  The first algorithm in the SMART alarm management system is alarm reduction.  The general idea of the alarm reduction algorithm is to create a sequence dictionary.  The dictionary comprises of sequences of alarms that often occur together.  For example, if alarms 1 and 2 occur frequently together, an alarm sequence, \emph{Sequence 1}, could be generated representing alarms 1 and 2.  With this, the number of alarms would be halved.  More significant reduction in alarms can be achieved if 10 or 100 alarms often occur together.  The steps for the alarm reduction algorithm are shown in Table 6.
+
+\clearpage
+\begin{table}[h]
+	\def\arraystretch{1.2}	
+	\centering
+	\begin{tabular}{p{14cm}}
+	\hline
+	\emph{Alarm Reduction Algorithm} \\
+	\hline
+	\textbf{Alarms from Plant in 0, 1, 2} \\
+	\hspace{0.5cm} Alarms converted to words.  (Ex. Alarm 3 turned on.) \\
+	\textbf{Alarm Coupling} \\
+	\hspace{0.5cm} \textbf{Initialize} alarm combinations list
+	\hspace{0.5cm} Group alarms in pairs \\ 
+	\hspace{1cm} \textbf{Save} grouped alarms in list \\
+	\hspace{0.5cm} Group alarms in triplets \\
+	\hspace{1cm} \textbf{Save} grouped alarms in list \\
+	\hspace{0.5cm} ... \\
+	\hspace{0.5cm} \textit{Repeat until all alarms are one group} \\
+	\textbf{Sequence Identifier} \\ 
+	\hspace{0.5cm} Generate all alarm sequences occuring in plant \\
+	\hspace{0.5cm} Count amount of times each \textbf{grouped} alarm occurred \\
+	\textbf{Sequence Dictionary Generation} \\
+	\hspace{0.5cm} Initialize sequence dictionary \\
+	\hspace{0.5cm} \textbf{If} group alarm occurred $\geq$ \emph{n} \\
+	\hspace{1cm} Add grouped alarm to sequence dictionary \\
+	\hspace{0.5cm} Return \textbf{Sequence Dictionary} \\
+	\\
+	\textbf{Online Implementation} \\
+	\hspace{0.5cm} Alarms from plant in 0, 1, 2 \\
+	\hspace{0.5cm} Alarms converted to words \\
+	\hspace{0.5cm} \textbf{Alarm Masking} \\
+	\hspace{1cm} \textbf{Group} previous two alarms \\
+	\hspace{1.5cm} Check sequence dictionary for match \\
+	\hspace{1.5cm} \textbf{If match} \\
+	\hspace{2cm} Replace previous two alarms with sequence \\
+	\hspace{1cm} \textbf{Group} previous thress alarms \\
+	\hspace{1.5cm} Check sequence dictionary for match \\
+	\hspace{1.5cm} \textbf{If match} \\
+	\hspace{2cm} Replace previous three alarms with sequence \\
+	\hspace{1.5cm} ... \\
+	\hspace{1.5cm} ... \\
+	\hspace{1cm} \emph{Repeat until historical alarms is one group} \\
+	\hline
+	\end{tabular}
+	\caption{Alarm reduction algorithm}
+\end{table}
+
 
 \subsection{Alarm Prioritization}
+During alarm flooding events, alarm reduction algorithms may reduce the amount of alarms to less than 5\% of total alarms.  However, it does not solve the root cause problem, i.e., what went wrong that caused all the alarms.  Also, 5\% of thousands of alarms is still far from useful and too much for a few operators to handle.  Therefore, a second algorithm was designed to sort the active alarms by a score.  Lower scores mean more dangerous alarms and will be placed on the top of the alarm log.  This way, the operators knows the priority alarms and can work to resolve the highest impact alarms first.  If a sequence is on the top of the alarm log, the first alarm in the sequence would be considered the highest priority alarm.
+
+Tables 7 and 8 shows the comparsion of a traditional alarm log compared to the proposed algorithm.  Comparing the alarm logs, it can be seen that the SMART alarm system was able to vastly reduce the amount of alarms, while putting the most important alarms on the top of the list.
+
+\begin{table}[h]
+	\def\arraystretch{1.2}
+	\centering
+	\begin{tabular}{P{1.1cm}|P{2.1cm}|P{2.1cm}|P{2.1cm}|P{2cm}|P{2cm}}
+	Events & Status & Date & Analysis & Value & Limit \\ \hline
+	1 & Warning & March 22 & Pipe 2 & 1.05 & 1.10 \\
+	2 & Warning & March 22 & Pump 3 & 55.2 & 60.1 \\
+	3 & Warning & March 23 & Pipe 5 & 0.96 & 1.15 \\
+	4 & Alarm & March 23 & Pipe 2 & 1.11 & 1.10 \\
+	5 & Warning & March 23 & Vessel 2 & 32.7 & 33.5 \\ 
+	6 & Alarm & March 23 & Vessel 2 & 35.2 & 33.5 \\
+	\end{tabular}
+	\caption{State-of-the-art industrial alarm system.}
+\end{table}
+
+\begin{table} [h]
+	\def\arraystretch{1.2}
+	\centering
+	\begin{tabular}{P{3cm}|P{3cm}|P{3cm}}
+	Date & Status & Alarm Score\\ \hline
+	March 22 & Sequence 1 & 2.5\\
+	March 23 & Warning 3 & 9.5  \\
+	March 23 & Warning 5 & 10.5 \\
+	\end{tabular}
+	\caption{SMART alarm system.}
+\end{table}
+
+The alarm prioritization algorithm is given in Table 9.  The value-sequence dictionary is generated live and need to be saved so if the same sequence occurs in the future, a value can be assigned to the sequence for prioritization purposes.
+
+\begin{table}
+	\def\arraystretch{1.2}
+    \centering
+	\begin{tabular}{p{13cm}}
+	\hline
+	\emph{Alarm Prioritization Algorithm} \\
+	\hline
+	\textbf{Alarms from Plant in 0, 1, 2} \\
+	\hspace{0.5cm} Alarms converted to words. (Ex. Alarm 3 turned on)\\
+	\textbf{Initialize Alarm / Q-value array} \\
+	\hspace{0.5cm} Event in plant occurs. (Ex. Warning or Alarm) \\
+	\hspace{0.5cm} Communication establishment with RL controller \\
+	\hspace{1cm} Return highest Q-value in the given state \\
+	\hspace{1cm} \textbf{If} more than one alarm/warning occurred in this time step \\
+	\hspace{1.5cm} Divide Q-value by number of events \\
+	\hspace{1.5cm} Assign divided Q-value to each event \\
+	\hspace{1cm} \textbf{Else} \\
+	\hspace{1.5cm} Assign Q-value to the event \\
+	\textbf{Initialize Value-Sequence Dictionary} \\
+	\hspace{0.5cm}\textbf{If} alarm sequence occurred \\
+	\hspace{1cm} Take EWMA Q-values of the alarms comprising of the sequence \\
+	\hspace{1cm} Assign the EWMA Q-values to the sequence \\
+	\hspace{0.5cm} Return \textbf{Value-Sequence Dictionary} \\
+	\hline
+	\end{tabular}
+	\caption{Alarm prioritization algorithm.}
+\end{table}
 

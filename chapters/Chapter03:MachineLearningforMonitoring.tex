@@ -45,7 +45,7 @@ Another more mathematical way to tackle this data imbalance issue is to bias the
 
 Luckily, normal process data are typically plentiful and lack "increasing" information (i.e., data is typically from steady state processes that hover around the same value for weeks) in the process industry.  Therefore, discarding large bulks of data in certain processes do not affect the ultimate accuracy of the model.  For anomaly detection, the majority class data was first undersampled to be comparable to the minority class. Undersampling should uniformly sample the data set to ensure all operating regimes are sufficiently captured. Then, a label column is generated; all anomalous events were given a value of 1 and normal process data had labels of 0.  An example of undersampling is shown below.  In this example, the process is deemed anomalous when $x_1 + x_2 > 3$.
 
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \begin{tabular}{ c | c | c }
         $x_1$ & $x_2$ & label \\
@@ -67,7 +67,7 @@ Luckily, normal process data are typically plentiful and lack "increasing" infor
 
 Notice that in Table \ref{tab:03undersampling}, the majority class dominates the minority class 5:1.  After downsampling, the data set becomes:
 
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \begin{tabular}{ c | c | c }
         $x_1$ & $x_2$ & label \\
@@ -94,7 +94,7 @@ where $l > 0$ denotes the minimum number of sampling time the model should predi
 
 Like in anomaly detection, the data is heavily skewed towards normal process data; therefore, the majority class must also be downsampled to be comparable to the minority data set. Downsampling occurs last to ensure no temporal relationships are broken. A quantitative example for the augmentation of an anomalous data is shown below.  Here, suppose downsampling is not required (since an example is already shown above) and $l = 1; L = 2$.
 
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \begin{tabular}{ c | c | c }
         $time$ & $x_2$ & label \\
@@ -280,8 +280,8 @@ This project aims to firstly reduce the amount of alarm floods to prevent overwh
 Alarm flooding is one of the biggest problems in alarm management.  During abnormal events in the plant, thousands of alarms may go off simultaneously due to poor alarm system design, rendering the whole system useless.  The first algorithm in the SMART alarm management system is alarm reduction.  The general idea of the alarm reduction algorithm is to create a sequence dictionary.  The dictionary comprises of sequences of alarms that often occur together.  For example, if alarms 1 and 2 occur frequently together, an alarm sequence, \emph{Sequence 1}, could be generated representing alarms 1 and 2.  With this, the number of alarms would be halved.  More significant reduction in alarms can be achieved if 10 or 100 alarms often occur together.  The steps for the alarm reduction algorithm are shown in Table 6.
 
 \clearpage
-\begin{table}[h]
-	\def\arraystretch{1.2}	
+\begin{table}[H]
+    {\setstretch{1.2}
 	\centering
 	\begin{tabular}{p{14cm}}
 	\hline
@@ -322,7 +322,7 @@ Alarm flooding is one of the biggest problems in alarm management.  During abnor
 	\hspace{1.5cm} ... \\
 	\hspace{1cm} \emph{Repeat until historical alarms is one group} \\
 	\hline
-	\end{tabular}
+	\end{tabular}}
 	\caption{Alarm reduction algorithm}
 \end{table}
 
@@ -332,8 +332,7 @@ During alarm flooding events, alarm reduction algorithms may reduce the amount o
 
 Tables 7 and 8 shows the comparsion of a traditional alarm log compared to the proposed algorithm.  Comparing the alarm logs, it can be seen that the SMART alarm system was able to vastly reduce the amount of alarms, while putting the most important alarms on the top of the list.
 
-\begin{table}[h]
-	\def\arraystretch{1.2}
+\begin{table}[H]
 	\centering
 	\begin{tabular}{P{1.1cm}|P{2.1cm}|P{2.1cm}|P{2.1cm}|P{2cm}|P{2cm}}
 	Events & Status & Date & Analysis & Value & Limit \\ \hline
@@ -347,8 +346,7 @@ Tables 7 and 8 shows the comparsion of a traditional alarm log compared to the p
 	\caption{State-of-the-art industrial alarm system.}
 \end{table}
 
-\begin{table} [h]
-	\def\arraystretch{1.2}
+\begin{table} [H]
 	\centering
 	\begin{tabular}{P{3cm}|P{3cm}|P{3cm}}
 	Date & Status & Alarm Score\\ \hline
@@ -362,7 +360,7 @@ Tables 7 and 8 shows the comparsion of a traditional alarm log compared to the p
 The alarm prioritization algorithm is given in Table 9.  The value-sequence dictionary is generated live and need to be saved so if the same sequence occurs in the future, a value can be assigned to the sequence for prioritization purposes.
 
 \begin{table}
-	\def\arraystretch{1.2}
+    {\setstretch{1.2}
     \centering
 	\begin{tabular}{p{13cm}}
 	\hline
@@ -385,7 +383,7 @@ The alarm prioritization algorithm is given in Table 9.  The value-sequence dict
 	\hspace{1cm} Assign the EWMA Q-values to the sequence \\
 	\hspace{0.5cm} Return \textbf{Value-Sequence Dictionary} \\
 	\hline
-	\end{tabular}
+	\end{tabular}}
 	\caption{Alarm prioritization algorithm.}
 \end{table}
 

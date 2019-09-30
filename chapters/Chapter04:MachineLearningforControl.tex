@@ -335,15 +335,144 @@ where $r(x_t, x_{t+1}, u)$ is the reward rate and is provided in Equation \ref{e
 \section{Control of Wastewater Treatment Plant}
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 \section{Continuous Control using Deep RL}
-UCB tabular $Q$-learning suffers from discretized states and actions and the curse of dimensionality.  To overcome such issues, deep RL will be explored.  More specifically, this section uses the deep deterministic policy gradient (DDPG) algorithm introduced in Chapter 1. DDPG offers several advantages and disadvantages compared to tabular $Q$-learning.  The advantages are that it can handle continuous states and perform continuous actions. Furthermore, the scalability of the algorithm is greatly enhanced because deep function approximators are used to map states to actions, rather than a $Q$-table. However, these advantages come with some disadvantages.  First and foremost, DDPG is a black box approach and employs four neural networks; therefore, explicitly identifying the control policy for DDPG is nearly impossible. Secondly, the function approximations cause small pertubations in control  For advanced details regarding DDPG, see \cite{ddpg}.  
+UCB tabular $Q$-learning suffers from discretized states and actions and the curse of dimensionality.  To overcome such issues, deep RL will be explored.  More specifically, this section uses the deep deterministic policy gradient (DDPG) algorithm introduced in Chapter 1. DDPG offers several advantages and disadvantages compared to tabular $Q$-learning.  The advantages are that it can handle continuous states and perform continuous actions. Furthermore, the scalability of the algorithm is greatly enhanced because deep function approximators are used to map states to actions, rather than a $Q$-table. However, these advantages come with some disadvantages.  First and foremost, DDPG is a black box approach and employs four deep neural networks to perform function approximation; therefore, explicitly identifying the control policy for DDPG is nearly impossible. Secondly, the function approximations cause small perturbations in control.  That is, the control outputs can sometimes contain small "jitters" (given an ideal output of 1, DDPG may output values between 0.995 - 1.005).  Intuitively, this is caused by the generality of the algorithm and can be related to humans.  Humans possess perhaps one of the most general intelligence available, yet we are not even capable of drawing a straight line. DDPG follows a similar idea; the algorithm is so general that it sometimes struggle with highly precise actions. For advanced details regarding DDPG, see \cite{ddpg}.  
 
+The objective of this section is to \textbf{explore the optimality} of RL and how closely it can approach the optimal solution (assuming MPC provides the optimal solution when given a perfect process model).  Here, four different control strategies will be applied onto simple SISO, SIMO, MISO, and MIMO systems. The four strategies are shown in Table \ref{tab:04control_and_cost}.
 
+\begin{table}[H]
+\caption{Different control strategies to be compared.}
+\centering
+\begin{tabular}{c|c}
+\textbf{Control Algorithm} & \textbf{Reward Function}\\
+\hline
+MPC		                & MPC cost function		 \\
+Tabular $Q$-learning    & MPC cost function		 \\
+DDPG	                & MPC cost function		 \\
+DDPG         	        & Custom RL reward function	
+\label{tab:04control_and_cost}
+\end{tabular}
+\end{table}
 
+From Table \ref{tab:04control_and_cost}, the MPC cost function is given as:
 \begin{equation}
-    J = \sum\limits^{N}_{i = 1} x_i^TQx_i + \sum\limits^N_{i=1}u_i^TRu_i
-    \label{eq:mpc_cost}
+    J = \sum\limits^{N}_{i = 1} x_i^TQ_{mpc}x_i + \sum\limits^N_{i=1}u_i^TR_{mpc}u_i
+    \label{eq:04mpc_cost}
 \end{equation}
+where:
+$$x_i = x_t - x_{ss}$$ 
+$$u_i = u_t - u_{ss}$$ 
+and the custom RL reward function is:
+\[
+    reward = 
+\begin{cases}
+    15 - (x_t - x_{sp}) \times 15,              & \text{if } x_i \leq 1 \\
+    x_i^2 + u_i^2,              & otherwise \\
+    \label{eq:04rl_cost}
+\end{cases}
+\]
+
+\subsection{Single-Input Single-Output System}
+First, a SISO system will be used to benchmark RL against MPC.  The system is given by:
+\begin{equation}
+\dfrac{dx}{dt} = -4x + u
+\end{equation}
+\noindent
+In the s-domain, the system equation is:
+\begin{equation}
+Y(s) = \dfrac{1}{s + 4}
+\end{equation}
+The system is stable with one pole at -4.  Initially, the system is at steady state with:
+$$x_0 = 0.5$$
+$$u_0 = 1.0$$
+The steady-state state and input, $x_{ss}$ and $u_{ss}$, are:
+$$x_{ss} = 5.0$$ 
+$$u_{ss} = 10.0$$
+Here, MPC used a prediction and control horizon of 100, with $Q_{mpc}$ and $R_{mpc}$ as 0.1 and 0.1, respectively.  The RL hyper parameters are given in Tables \ref{tab:04tab_rl} and \ref{tab:04deep_rl}
+
+\begin{table}[H]
+\caption{Tabular RL hyper parameters.}
+\label{tab:04tab_rl}
+\centering
+\begin{tabular}{c|c}
+\textbf{Hyper Parameter}     & \textbf{Value}  \\
+\hline
+States, $x$	             	& $\varepsilon = [0, 0.18, ..., 8]_{1 \times 45} $		 \\
+Actions, $u$               & $\Delta u = [5, 5.22, ..., 15]_{1 \times 45}$		\\
+Reward, $r$	               & Equation \ref{eq:04mpc_cost}		\\
+Learning rate, $\alpha$		& [0.001, 0.7]		 \\
+Discount factor, $\gamma$      	& 0.95  \\
+Exploratory factor, $\epsilon$             & [0.1, 1]  \\
+Evaluation time                 & 1 second \\
+System representation           & FOMDP \\
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\caption{DDPG hyper parameters.}
+\label{tab:04deep_rl}
+\centering
+\begin{tabular}{c|c}
+\textbf{Hyper Parameter}     & \textbf{Value}  \\
+\hline
+Actor network size	             & 3 layers: 50, 40, 40 neurons		 \\
+Actor learning rate              & 0.0001		\\
+Critic network size	             & 3 layers: 40, 30, 30 neurons		\\
+Critic learning rate       		 & 0.001		 \\
+Reward, $r$	                     & Equation \ref{eq:04mpc_cost}	or Equation \ref{eq:04rl_cost}	\\
+Discount factor, $\gamma$      	& 0.95  \\
+Evaluation time                 & 1 second \\
+System representation           & FOMDP \\
+\end{tabular}
+\end{table}
+
+Figure \ref{fig:04SISOcomp} shows the input and state trajectories of the four control algorithms.  
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth{images/ch4/States_and_Inputs_SISO2.png}
+    \caption{Input and state trajectories of the four control strategies on the SISO system.}
+    \label{fig:04SISOcomp}
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 \section{Comparison of Optimal Control Frameworks}
 The control framework of a typical process was first introduced in Chapter 1, and is shown again here in Figure \ref{fig:rto_mpc_pid2}. As a brief refresher: RTO evaluates seldomly (hourly basis) and is used to find the optimal steady states with accordance to a desired performance metric \cite{rto}. These optimal steady states are then passed onto the MPC layer, where the optimal input trajectories are identified.  A typical MPC objective function is:
@@ -605,7 +734,7 @@ The control agent is trained using a high-fidelity simulator for the system.
 \begin{table}[H]
     \begin{center}
 	\def\arraystretch{1.05}
-	\begin{tabular}{p{9cm}}
+	\begin{tabular}{p{12cm}}
 	\hline
 	\textbf{UCB Q-Learning:} \emph{Learn $f$: $\mathcal{X} \times \mathcal{U} \rightarrow Q$} \\ \hline
 	
@@ -664,7 +793,7 @@ Fig. \ref{fig:08RL_implementation} shows the steps to implementing the control a
 The plant managers may choose to leave the control agent in calibrate mode during a fault so it can continue to identify more optimal control strategies.  Such a strategy sounds risky in academia; however, it is indeed how state-of-the-art MPCs are implemented in industry.
 
 \subsection{Computational Complexity}
-The computation complexity was decomposed into training complexity and online evaluation complexity.  The training complexity refers to the computational time to find the optimal policy.  Likewise, the online evaluation complexity is the online evaluation time required to find the optimal input.  Assuming \textit{tabula rasa}, the computational complexity to reach the goal state for the first time during training is $O(p^3)$ \cite{complexity_rl_ref19}. Online evaluation complexity is approximately $O(mlog(p))$ and $O(mlog(p) + qlog(q))$ for the prediction and control bandit, respectively. Here, the $O(mlog(p))$ is associated with finding the index of the states using binary search.  Similarily, $O(qlog(q))$ refers to sorting the value functions using heap sort to find the maximum value. For traditional optimal control solvers, the computational complexity is $O(N(p^2 + q^2))$, where $N$ is the control horizon \cite{mpc_comp_time}. Comparatively, RL evaluates much faster online compared to traditional optimal control methods, but must first be trained. For tasks where long training times are feasible and demand fast online evaluation times, reinforcement learning may be the superior choice.  Typically in the process control industry, training models offline is not a significant downfall; however, online evaluation time is incredibly scarce especially in highly complex plants due to hardware limitations.  Therefore in terms of computation, RL may be the desired method.
+The computation complexity was decomposed into training complexity and online evaluation complexity.  The training complexity refers to the computational time to find the optimal policy.  Likewise, the online evaluation complexity is the online evaluation time required to find the optimal input.  Assuming \textit{tabula rasa}, the computational complexity to reach the goal state for the first time during training is $O(p^3)$ \cite{complexity_rl_ref19}. Online evaluation complexity is approximately $O(mlog(p))$ and $O(mlog(p) + qlog(q))$ for the prediction and control bandit, respectively. Here, the $O(mlog(p))$ is associated with finding the index of the states using binary search.  Similarily, $O(qlog(q))$ refers to sorting the value functions using heap sort to find the maximum value. For traditional optimal control solvers, the computational complexity is $O(N^3(p + q)^3)$, where $N$ is the control horizon \cite{mpc_comp_time}. Comparatively, RL evaluates much faster online compared to traditional optimal control methods, but must first be trained. For tasks where long training times are feasible and demand fast online evaluation times, reinforcement learning may be the superior choice.  Typically in the process control industry, training models offline is not a significant downfall; however, online evaluation time is incredibly scarce especially in highly complex plants due to hardware limitations.  Therefore in terms of computation, RL may be the desired method.
 
 \section{Case Study}
 The proposed FTCS was simulated on a distillation tower to illustrate the pros and cons compared to traditional methods. Distillation towers are integral units in industrial processes that require the separation of

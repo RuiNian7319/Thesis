@@ -332,18 +332,18 @@ The example shown here is simple, has a pre-set sampling time and does not consi
 \end{equation}
 where $r(x_t, x_{t+1}, u)$ is the reward rate and is provided in Equation \ref{eq:reward_rate}. For systems with unmeasurable states, concepts of POMDPs provided in Chapter 1 should be used.
 
+\section{Control of Wastewater Treatment Plant}
 
-
-
-To completely overcome discretization, introduce DDPG.
-
-Then compare these methods with MPC. MPC usually wins.
-
-Then do fault tolerant control where RL beats MPC in some systems
 
 \section{Continuous Control using Deep RL}
+UCB tabular $Q$-learning suffers from discretized states and actions and the curse of dimensionality.  To overcome such issues, deep RL will be explored.  More specifically, this section uses the deep deterministic policy gradient (DDPG) algorithm introduced in Chapter 1. DDPG offers several advantages and disadvantages compared to tabular $Q$-learning.  The advantages are that it can handle continuous states and perform continuous actions. Furthermore, the scalability of the algorithm is greatly enhanced because deep function approximators are used to map states to actions, rather than a $Q$-table. However, these advantages come with some disadvantages.  First and foremost, DDPG is a black box approach and employs four neural networks; therefore, explicitly identifying the control policy for DDPG is nearly impossible. Secondly, the function approximations cause small pertubations in control  For advanced details regarding DDPG, see \cite{ddpg}.  
 
-\section{Control of Wastewater Treatment Plant}
+
+
+\begin{equation}
+    J = \sum\limits^{N}_{i = 1} x_i^TQx_i + \sum\limits^N_{i=1}u_i^TRu_i
+    \label{eq:mpc_cost}
+\end{equation}
 
 \section{Comparison of Optimal Control Frameworks}
 The control framework of a typical process was first introduced in Chapter 1, and is shown again here in Figure \ref{fig:rto_mpc_pid2}. As a brief refresher: RTO evaluates seldomly (hourly basis) and is used to find the optimal steady states with accordance to a desired performance metric \cite{rto}. These optimal steady states are then passed onto the MPC layer, where the optimal input trajectories are identified.  A typical MPC objective function is:

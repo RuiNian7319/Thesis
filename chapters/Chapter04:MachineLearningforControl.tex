@@ -351,7 +351,7 @@ where $r(x_t, x_{t+1}, u)$ is the reward rate and is provided in Equation \ref{e
 
 
 
-\section{Continuous Control using Deep RL}
+\section{Optimality Evaluation of Reinforcement Learning}
 UCB tabular $Q$-learning suffers from discretized states and actions and the curse of dimensionality.  To overcome such issues, deep RL will be explored.  More specifically, this section uses the deep deterministic policy gradient (DDPG) algorithm introduced in Chapter 1. DDPG offers several advantages and disadvantages compared to tabular $Q$-learning.  The advantages are that it can handle continuous states and perform continuous actions. Furthermore, the scalability of the algorithm is greatly enhanced because deep function approximators are used to map states to actions, rather than a $Q$-table. However, these advantages come with some disadvantages.  First and foremost, DDPG is a black box approach and employs four deep neural networks to perform function approximation; therefore, explicitly identifying the control policy for DDPG is nearly impossible. Secondly, the function approximations cause small perturbations in control.  That is, the control outputs can sometimes contain small "jitters" (given an ideal output of 1, DDPG may output values between 0.995 - 1.005).  Intuitively, this is caused by the generality of the algorithm and can be related to humans.  Humans possess perhaps one of the most general intelligence available, yet we are not even capable of drawing a straight line. DDPG follows a similar idea; the algorithm is so general that it sometimes struggle with highly precise actions. For advanced details regarding DDPG, see \cite{ddpg}.  
 
 The objective of this section is to \textbf{explore the optimality} of RL and how closely it can approach the optimal solution (assuming MPC provides the optimal solution when given a perfect process model).  Here, four different control strategies will be applied onto simple SISO, SIMO, MISO, and MIMO systems. The four strategies are shown in Table \ref{tab:04control_and_cost}.
@@ -404,17 +404,17 @@ $$u_0 = 1.0$$
 The steady-state state and input, $x_{ss}$ and $u_{ss}$, are:
 $$x_{ss} = 5.0$$ 
 $$u_{ss} = 10.0$$
-Here, MPC used a prediction and control horizon of 100, with $Q_{mpc}$ and $R_{mpc}$ as 0.1 and 0.1, respectively.  The RL hyper parameters are given in Tables \ref{tab:04tab_rl} and \ref{tab:04deep_rl}
+Here, MPC used a prediction and control horizon of 20, with $Q_{mpc}$ and $R_{mpc}$ as 0.1 and 0.1, respectively.  The RL hyper parameters are given in Tables \ref{tab:04tab_rl} and \ref{tab:04deep_rl}
 
 \begin{table}[H]
-\caption{Tabular RL hyper parameters.}
+\caption{Tabular RL hyper parameters for the SISO system.}
 \label{tab:04tab_rl}
 \centering
 \begin{tabular}{c|c}
 \textbf{Hyper Parameter}     & \textbf{Value}  \\
 \hline
-States, $x$	             	& $\varepsilon = [0, 0.18, ..., 8]_{1 \times 45} $		 \\
-Actions, $u$               & $\Delta u = [5, 5.22, ..., 15]_{1 \times 45}$		\\
+States, $x$	             	& $[0, 0.18, ..., 8]_{1 \times 45} $		 \\
+Actions, $u$               & $[5, 5.22, ..., 15]_{1 \times 45}$		\\
 Reward, $r$	               & Equation \ref{eq:04mpc_cost}		\\
 Learning rate, $\alpha$		& [0.001, 0.7]		 \\
 Discount factor, $\gamma$      	& 0.95  \\
@@ -425,7 +425,7 @@ System representation           & FOMDP \\
 \end{table}
 
 \begin{table}[H]
-\caption{DDPG hyper parameters.}
+\caption{DDPG hyper parameters for the SISO system.}
 \label{tab:04deep_rl}
 \centering
 \begin{tabular}{c|c}
@@ -442,15 +442,205 @@ System representation           & FOMDP \\
 \end{tabular}
 \end{table}
 
-Figure \ref{fig:04SISOcomp} shows the input and state trajectories of the four control algorithms.  
+Figure \ref{fig:04SISOcomp} shows the input and state trajectories of the four control algorithms. The total cost of each trajectory (all calculated using Equation \ref{eq:04mpc_cost}) are shown in Table \ref{tab:04SISOCost}. Ultimately, RL actually \textit{surpassed} the performance of MPC in this case, even when equipped with a perfect process model. Comparing the trajectories, it can be seen that RL started with aggressive inputs, but reduced the magnitude thereafter.  On the other hand, MPC started with a smaller initial inputs, and gradually increased it along the trajectory. Deep RL had the "poorest" cost performance; it achieved the state set-point, but incurred large losses with its aggressive inputs. In theory, MPCs using a perfect process model will output the optimal solution.  In this case, one source of error could be the discount factor in RL that is not present in MPC. Typically, a discount factor of 0.95 denotes a 20 prediction horizon \cite{deeplearning_course}; however, these are not exactly equivalent. Nevertheless, this small scale study demonstrates that RL can actually surpass MPC even when the cost functions are \textit{nearly} identical.  
 
-\begin{figure}
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth{images/ch4/States_and_Inputs_SISO2.png}
+    \includegraphics[width=0.9\textwidth]{images/ch4/States_and_Inputs_SISO2.png}
     \caption{Input and state trajectories of the four control strategies on the SISO system.}
     \label{fig:04SISOcomp}
 \end{figure}
 
+\begin{table}[H]
+\caption{Controller cost for the input and state trajectories on the SISO system.}
+\label{tab:04SISOCost}
+\centering
+\begin{tabular}{c|c|c|c}
+\textbf{MPC} & \textbf{Tabular RL} & \textbf{Deep RL with MPC cost}& \textbf{Deep RL with RL cost} \\
+\hline
+5.56	     & 4.55	               & 4.27                         & 6.19	 \\
+\end{tabular}
+\end{table}
+
+
+
+
+
+
+
+\subsection{Multiple-Input Multiple-Output System}
+The above study was repeated for a simple MIMO system described by:
+\begin{flalign}
+\dfrac{dx_1}{dt} &= -3x_1 - 2x_2 + 4u_1 \\
+\dfrac{dx_2}{dt} &= -3x_2 + 2u_2
+\end{flalign}
+In the s-domain, the system equations are:
+\begin{align}
+Y_1(s) = \dfrac{4}{(s+3)^2} \\
+Y_2(s) = \dfrac{2}{(s+3)^2}
+\end{align}
+The system is critical damped and stable (i.e., two identical poles at -3). Initially, the system is at steady state with:
+\begin{align}
+x_{0} = \begin{bmatrix}
+           1.3 \\
+           4.0
+         \end{bmatrix}
+u_{0} = \begin{bmatrix}
+           3.0 \\
+           6.0
+         \end{bmatrix}
+\end{align}
+The steady-state states and inputs, $x_{ss}$ and $u_{ss}$ are:
+\begin{center}
+$x_{ss} = \begin{bmatrix}
+           3.6 \\
+           4.7
+         \end{bmatrix}$ \\
+\vspace{3mm}
+$u_{ss} = \begin{bmatrix}
+           5.0 \\
+           7.0
+         \end{bmatrix}$ \\
+\end{center}
+
+The MPC for this system also has a prediction and control horizon of 20.  The $Q$ and $R$ matrices are given by:
+$$Q = \begin{bmatrix}
+	1 & 0 \\
+	0 & 1
+\end{bmatrix}$$
+
+$$R = \begin{bmatrix}
+	1   & 0 \\
+	0   & 1
+\end{bmatrix}$$
+
+The RL hyper parameters for the MIMO system is given in Tables \ref{tab:04tab_rl_mimo} and \ref{tab:04deep_rl_mimo}.
+\begin{table}[H]
+\caption{Tabular RL hyper parameters for the MIMO system.}
+\label{tab:04tab_rl_mimo}
+\centering
+\begin{tabular}{c|c}
+\textbf{Hyper Parameter}     & \textbf{Value}  \\
+\hline
+States, $x$	             	& $x_1 = [0, 0.5, ..., 6]_{1 \times 13} $		 \\
+        	             	& $x_2 = [2, 2.5, ..., 6]_{1 \times 9} $		 \\
+Actions, $u$                & $u_1 = [1, 2, ..., 7]_{1 \times 7}$	         \\
+                            & $u_2 = [4, 5, ..., 9]_{1 \times 6}$		\\
+Reward, $r$	                & Equation \ref{eq:04mpc_cost}		\\
+Learning rate, $\alpha$		& [0.001, 0.5]		 \\
+Discount factor, $\gamma$      	& 0.95  \\
+Exploratory factor, $\epsilon$             & [0.1, 1]  \\
+Evaluation time                 & 1 second \\
+System representation           & FOMDP \\
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\caption{DDPG hyper parameters for the MIMO system (identical to the SISO system).}
+\label{tab:04deep_rl_mimo}
+\centering
+\begin{tabular}{c|c}
+\textbf{Hyper Parameter}     & \textbf{Value}  \\
+\hline
+Actor network size	             & 3 layers: 50, 40, 40 neurons		 \\
+Actor learning rate              & 0.0001		\\
+Critic network size	             & 3 layers: 40, 30, 30 neurons		\\
+Critic learning rate       		 & 0.001		 \\
+Reward, $r$	                     & Equation \ref{eq:04mpc_cost}	or Equation \ref{eq:04rl_cost}	\\
+Discount factor, $\gamma$      	& 0.95  \\
+Evaluation time                 & 1 second \\
+System representation           & FOMDP \\
+\end{tabular}
+\end{table}
+
+Figure \ref{fig:04MIMOcomp} shows the input and state trajectories of the MIMO system using the four control methods.  The total cost of each trajectory (again calculated using Equation \ref{eq:04mpc_cost}) is shown in Table \ref{tab:04MIMOCost}. Here, MPC performed the best while the two deep RL methods performed the worst. Furthermore, tabular RL's performance was nearly identical to MPC. Comparing the trajectories, the deep RL tends to favour $x_2$ and made large actions in $u_2$ while MPC and tabular RL instead focused on $x_1$.  It is difficult to identify exactly why deep RL favored $x_2$.
+Perhaps it was because $x_2$ was only a function of itself and $u_2$, but the exact reason is unknown.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/ch4/State_and_Input_MIMO3.png}
+    \caption{Input and state trajectories of the four control strategies on the MIMO system. The top figures denote $x_1$ and $u_1$.  The bottom figures denote $x_2$ and $u_2$.}
+    \label{fig:04MIMOcomp}
+\end{figure}
+
+\begin{table}[H]
+\caption{Controller cost for the input and state trajectories on the MIMO system.}
+\label{tab:04MIMOCost}
+\centering
+\begin{tabular}{c|c|c|c}
+\textbf{MPC} & \textbf{Tabular RL} & \textbf{Deep RL with MPC cost}& \textbf{Deep RL with RL cost} \\
+\hline
+0.86	     & 0.95	               & 2.33                         & 2.59	 \\
+\end{tabular}
+\end{table}
+
+\subsection{Discounted Stage Cost for MPC}
+To enhance the comparability of the two methods, MPC was changed to have an infinite horizon; however, the cost function would be discounted at each successive state.  The new MPC cost function is given as:
+\begin{equation}
+    J = \sum^{N}_{i = 1} \gamma^i[x^TQx + u^TRu]
+    \label{eq:04disc_mpc}
+\end{equation}
+
+Using this new cost function, the previous comparisons along with new SIMO and MISO systems were used to compare the four control strategies.  The new state and input trajectories of the SISO, SIMO, MISO, and MIMO systems using the four control strategies are shown in Figures \ref{fig:04SISO_disc}, \ref{fig:04SIMO_disc}, \ref{fig:04MISO_disc}, and \ref{fig:04MIMO_disc}, respectively.  The system descriptions and the costs are provided in Table \ref{tab:04allsys}.  Note that the deep RL using the custom RL cost was omitted here because it under-performed in all previous scenarios.  It can be seen that after discounting was introduced into the MPC cost function, all trajectories look nearly identical with only slight differences.  MPC was able to achieve the lowest cost (theoretically sound); however, RL and deep RL both achieved very comparable results through self-play alone!  From these plots, it can be concluded that RL does indeed approach the optimality of MPC, although cannot achieve exactly the optimal results.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/ch4/State_and_Input.png}
+    \caption{Input and state trajectories of the four control strategies on the SISO system.  MPC cost is calculated using Equation \ref{eq:04disc_mpc}.}
+    \label{fig:04SISO_disc}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/ch4/State_SIMO.png}
+    \includegraphics[width=0.52\textwidth]{images/ch4/Input_SIMO.png}
+    \caption{Input and state trajectories of the four control strategies on the SIMO system.  MPC cost is calculated using Equation \ref{eq:04disc_mpc}.}
+    \label{fig:04SIMO_disc}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.52\textwidth]{images/ch4/State_MISO.png}
+    \includegraphics[width=0.9\textwidth]{images/ch4/Input_MISO.png}
+    \caption{Input and state trajectories of the four control strategies on the MISO system.  MPC cost is calculated using Equation \ref{eq:04disc_mpc}.}
+    \label{fig:04MISO_disc}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/ch4/State_and_Input_MIMO.png}
+    \caption{Input and state trajectories of the four control strategies on the MIMO system. MPC cost is calculated using Equation \ref{eq:04disc_mpc}}
+    \label{fig:04MIMO_disc}
+\end{figure}
+
+\begin{table}[H]
+\caption{Controller cost for the input and state trajectories on the MIMO system.}
+\label{tab:04allsys}
+\centering
+{\tiny
+{\setstretch{2.8}
+\begin{tabular}{c|c|c|c|c}
+           &  \textbf{SISO} & \textbf{SIMO} & \textbf{MISO}& \textbf{MIMO} \\
+\hline
+System Equation & $\dfrac{dx}{dt} = -4x + u$ & $\dfrac{dx_1}{dt} = -2x_1 + u$	     & $\dfrac{dx}{dt} = -3x + u_1 + u_2$         & $\dfrac{dx_1}{dt} = -3x_1 - 2x_2 + 4u_1$	 \\
+&  & $\dfrac{dx_2}{dt} = -3x_2 + u$	     &         & $\dfrac{dx_2}{dt} = -3x_2 + 2u_2$  \\ \hline
+
+
+Initial States  & $x_0 = 0.5$ & $x_0 = [2.0, 0.7]$	  & $x_0 = 3.0$         & $x_{ss} = [1.3, 4.0]$	 \\
+                & $u_0 = 1.0$ & $u_0 = 2.0$		               & $u_0 = [3.0, 6.0]$        & $u_{ss} = [3.0, 6.0]$	 \\ \hline
+
+
+Steady States   & $x_{ss} = 5.0$ & $x_{ss} = [4.0, 4.3]$	 & $x_{ss} = 4.5$         & $x_{ss} = [3.6, 4.7]$	 \\
+                & $u_{ss} = 10.0$ & $u_{ss} = 4.0$	         & $u_{ss} = [5.5, 8.0$   & $u_{ss} = [5.0, 7.0]$		 \\ \hline
+
+
+MPC Cost            & 4.18	     & 2.1	               & 0.83         & 0.87	 \\
+Tabular RL Cost     & 4.33	     & 2.2	               & 0.97         & 0.95	 \\
+Deep RL Cost        & 4.32	     & 2.1	               & 0.89         & 1.14	 \\
+\end{tabular}}}
+\end{table}
+
+\subsection{Comparison of RL and MPC on a CSTR}
+All previous systems were applied onto arbitrary linear systems that do not exist in the real world. Here, a non-linear CSTR system will be used to evaluate the optimality of each control strategy. The CSTR is given by the following differential equations:
 
 
 
@@ -467,11 +657,7 @@ Figure \ref{fig:04SISOcomp} shows the input and state trajectories of the four c
 
 
 
-
-
-
-
-
+\section{A Study on Interpolated RL}
 
 
 \section{Comparison of Optimal Control Frameworks}

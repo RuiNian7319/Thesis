@@ -591,16 +591,16 @@ Using this new cost function, the previous comparisons along with new SIMO and M
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{images/ch4/State_SIMO.png}
-    \includegraphics[width=0.52\textwidth]{images/ch4/Input_SIMO.png}
+    \includegraphics[width=0.7\textwidth]{images/ch4/State_SIMO.png}
+    \includegraphics[width=0.4\textwidth]{images/ch4/Input_SIMO.png}
     \caption{Input and state trajectories of the four control strategies on the SIMO system.  MPC cost is calculated using Equation \ref{eq:04disc_mpc}.}
     \label{fig:04SIMO_disc}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.52\textwidth]{images/ch4/State_MISO.png}
-    \includegraphics[width=0.9\textwidth]{images/ch4/Input_MISO.png}
+    \includegraphics[width=0.4\textwidth]{images/ch4/State_MISO.png}
+    \includegraphics[width=0.7\textwidth]{images/ch4/Input_MISO.png}
     \caption{Input and state trajectories of the four control strategies on the MISO system.  MPC cost is calculated using Equation \ref{eq:04disc_mpc}.}
     \label{fig:04MISO_disc}
 \end{figure}
@@ -662,24 +662,25 @@ $C_p = 0.239 kJ/kg * K$ & $\Delta H = -5 \times 10^4 kJ/kmol$
 \end{table}
 Here, the agent's states, $x_1$ and $x_2$, are the concentration of reactant A and the reactor temperature, respectively.  The control action, $u_1$, is the coolant temperature. Throughout this study, the reactant height inside the reactor remained constant. The optimal set-points of the system were given as: $x_1 = 0.88, x_2 = 324.5$. The set-up of the tabular RL is as follows: $x_1 = [0.5, 0.525, ..., 1.2]_{1 \times 29}$, $x_2 = [300, 302, ..., 350]_{1 \times 26}$, and $u_1 = [285, 286, ..., 315]_{1 \times 31}$.  For the deep RL agent, the neural network set-up were identical as for the SISO and MIMO systems.
 
-Initially, the 
+Initially, all controllers (tabular RL, deep RL, and MPC) were evaluated once every five seconds. The state and input trajectories in this case are shown in Figure \ref{fig:04CSTR_5}.  Interestingly, all the state and input trajectories are almost identical. Intuitively, this means that RL was able to exactly recover the optimal solution in this case. Deep RL was slightly off the optimal solution towards the end of the trajectory, but it was minuscule ($T = 0.2$).
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{images/ch4/States_and_Inputs_5_CSTR.pdf}
+    \includegraphics[width=0.95\textwidth]{images/ch4/States_and_Inputs_5_CSTR.pdf}
     \caption{Input and state trajectories of the CSTR using controllers with sampling time = 5.}
     \label{fig:04CSTR_5}
 \end{figure}
 
+Figure \ref{fig:04CSTR_1} shows the new state and input trajectories when the sampling time reduces to 1.  In this system, the dynamics are too slow and do not finish in 1 second.  Hence, RL showed slight sub-optimality due to the system not being Markovian.  In fact, deep RL showed an offset from the optimal set point.  This extremely small off-set is difficult to identify for the agent when using deep learning function approximation; however, using the reward proposed in Equation \ref{eq:04rl_cost}, this was eliminated by putting more emphasis on the off-set.
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{images/ch4/States_and_Inputs_1_CSTR.pdf}
+    \includegraphics[width=0.95\textwidth]{images/ch4/States_and_Inputs_1_CSTR.pdf}
     \caption{Input and state trajectories of the CSTR using controllers with sampling time = 1.}
     \label{fig:04CSTR_1}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{images/ch4/States_and_Inputs_CSTR.pdf}
+    \includegraphics[width=0.95\textwidth]{images/ch4/States_and_Inputs_CSTR.pdf}
     \caption{Input and state trajectories of the CSTR under a disturbance.}
     \label{fig:04CSTR_Dis}
 \end{figure}

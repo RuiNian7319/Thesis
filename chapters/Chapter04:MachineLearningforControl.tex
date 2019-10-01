@@ -660,7 +660,9 @@ $ E/R = 8750 K $ & $ U = 54.94 kJ/min*m^2*K $ & $ \rho = 1000 kg/m^3 $ \\
 $C_p = 0.239 kJ/kg * K$ & $\Delta H = -5 \times 10^4 kJ/kmol$
 \end{tabular}
 \end{table}
+Here, the agent's states, $x_1$ and $x_2$, are the concentration of reactant A and the reactor temperature, respectively.  The control action, $u_1$, is the coolant temperature. Throughout this study, the reactant height inside the reactor remained constant. The optimal set-points of the system were given as: $x_1 = 0.88, x_2 = 324.5$. The set-up of the tabular RL is as follows: $x_1 = [0.5, 0.525, ..., 1.2]_{1 \times 29}$, $x_2 = [300, 302, ..., 350]_{1 \times 26}$, and $u_1 = [285, 286, ..., 315]_{1 \times 31}$.  For the deep RL agent, the neural network set-up were identical as for the SISO and MIMO systems.
 
+Initially, the 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{images/ch4/States_and_Inputs_5_CSTR.pdf}

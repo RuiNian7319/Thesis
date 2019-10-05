@@ -30,13 +30,6 @@ A schematic of Line B is shown in Figure \ref{fig:08RM06A}.  Line B is a complex
 
 Equipment wise, Line B boasts eight pumps spread across four pump stations. Two pumps are variable frequency drives (VFD), while the rest are on/off pumps. Additionally, there are four drag reducing agent (DRA) injection pumps situated at the second and third pump stations. Each pump station contains a heavy crude and light crude DRA pump because the different crudes use different types of DRA.  The DRA is injected based on the product present at the pump station. 
 
-\section{Anomaly Detection}
-\subsection{Data Pre-processing}
-\subsection{Data Set Creation}
-\subsubsection{Generative Modelling}
-\subsection{Model Identification}
-\subsection{Conceptual Software Design}
-
 \section{Real Time Optimization}
 The hierarchical structure of a typical process control system is shown in Figure \ref{fig:08APC}. Modern control systems typically consists of three layers: real time optimization (RTO), supervisory control, and regulatory control.  From the top, real time optimization is evaluated the least frequently, and performs a steady state optimization of the process.  The outputs of RTO are the ideal set points for all equipment given an operating objective.  Next, the supervisory control layer performs dynamic optimization to identify the most efficient input trajectory to achieve the set points from RTO. Supervisory control is evaluated faster than RTO, but slower than regulatory control. Model predictive control (MPC) and economic model predictive control (EMPC) are typical supervisory control frameworks. More recently, reinforcement learning (RL) can also be retrofitted into this control layer. Finally, the regulatory controllers actuate the physical equipment and follows the input trajectory given by the supervisory control layer while maintaining stability.  Common regulatory controllers are proportional-integral-derivative (PID) controllers.
 
@@ -936,20 +929,6 @@ In addition to the state ranges provided above, the recommended set points are a
     \caption{Applicable inputs of the machine learning models.}
     \label{tab:08InputConst}
 \end{table}
-
-\subsubsection{Adaptive Machine Learning}
-
-
-\paragraph{Online Learning vs. Incremental Learning}
-\paragraph{ART: Adaptive Resonance Theory}
-\paragraph{Implementation of Adaptive Machine Learning}
-
-\begin{figure}
-    \centering
-    \includegraphics[width=\textwidth]{images/suncor/08IncrementalLearning.png}
-    \caption{Importance Sampling Incremental Supervised learning architecture.}
-    \label{fig:08ART}
-\end{figure}
 
 \subsection{Mixed Integer Linear Programming}
 The information flow of the optimization algorithm is shown in Figure \ref{fig:08Optimization_flow}.  First, a desired flow will be inputted by the operators depending on the demand from refinery.  Then, the machine learning model along with equality and in-equality constraints will be provided to the mixed integer linear program (MILP).  Given the objective function, decision variables, and the current costs of operation, the MILP will output the optimal set points.

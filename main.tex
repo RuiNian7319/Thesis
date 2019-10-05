@@ -115,23 +115,15 @@
 \setcounter{page}{2}
 \chapter*{Abstract}
 
-Machine learning (ML) promises to create tremendous value and growth to all sectors around the world, enhancing productivity, health, and longevity of humanity. ML differentiates itself from all previous methods through its adaptive and self-learning capabilities. In recent years, the energy sector experienced significant setbacks due to collapsing commodity prices and increasing pressure from environmentalist groups.  As such, the sector is now actively seeking new innovative strategies to improve their bottom line through leveraging their historical data and propelling themselves into Industry 4.0. Unfortunately, the paradigm shift was cut short due to a lack of talent where individuals are both skilled in the process and ML industry. This thesis aims to educate industrial practitioners on the capabilities of ML. Additionally, solutions provided here consider functional, monetary, social, and psychological value.  That is, the capital cost, cost of ownership, etc., are all considered to ensure that the solution is both technologically innovative and economically viable. 
+Machine learning (ML) promises to create tremendous value and growth to all sectors around the world, enhancing productivity, health, and longevity of humanity. ML differentiates itself from all previous methods through its adaptive and self-learning capabilities. In recent years, the energy sector experienced significant setbacks due to collapsing commodity prices and increasing pressure from environmentalist groups.  As such, the sector is now actively seeking new innovative strategies to improve their bottom line through leveraging their historical data and propelling themselves into Industry 4.0. Unfortunately, the paradigm shift was cut short due to a lack of talent where individuals are both skilled in the process and ML industry. This thesis aims to educate industrial practitioners on the capabilities of ML. Additionally, solutions provided here consider functional, monetary, social, and psychological value.  That is, the capital cost, cost of ownership, etc., are all explicitly considered to ensure that the solution is both technologically innovative and economically viable. 
 
-Firstly, machine learning prediction algorithms and applications will be introduced. The chapter starts with a tutorial on data preparation catered towards the process industry.  Then, common machine learning models will be introduced.  For added intuition, the models here were then implemented onto an industrial pipeline, showcasing each models performance metrics.  Finally, a novel self-learning algorithm called USIS will be introduced towards the end of the chapter.  Ultimately, USIS equips the ML models with the ability to self-learn in a sustainable fashion.
+Firstly, ML prediction algorithms and applications was introduced. The chapter started with a tutorial on data preparation catered towards the process industry.  Next, common ML models was introduced.  For added intuition, the models here were then implemented onto an industrial pipeline, showcasing each model's advantages and disadvantages.  Finally, a novel self-learning algorithm called USIS was introduced that equips the ML models with the ability to self-learn in a sustainable fashion. The models identified here were ultimately used for a steady state optimization application, shown in Appendix A.
 
+Next, ML applications for safety and risk management was shown.  Here, ML models were designed to monitor and proactively manage risks associated with equipment failure. More specifically, ML anomaly detection and prediction algorithms are shown here, and each algorithm was general enough to be extended to the monitoring of a fleet of equipment (i.e., the same algorithm can be applied to hundreds of different equipment for monitoring). Finally, a novel alarm management solution based on alarm management was introduced for both reduce and prioritize alarms.
 
-- Prediction
-    - Forecasting, optimization
+Following that, control applications of RL was shown.  First, a detailed implementation tutorial was introduced where RL was used for the closed loop control of an industrial pump system. Next, the optimality of RL (tabular RL and deep RL) was validated by comparing its performance against model predictive controllers (MPC). Then, RL was implemented for the control of an industrial waste water treatment plant and its performance metrics was compared against variants of MPC. Finally, RL was used to construct a fault-tolerant control system, where RL was used for both fault detection and fault tolerant control.
 
-- Safety
-    - Anomaly detection / prediction
-    - Alarm management, alarm reduction and prioritization
-- Control
-    - process / optimal control
-    - extension to continuous non-linear
-    - fault tolerant control
-
-This thesis is concluded with a literature review on proposed applications of RL on the process industry.  Here, techniques to automatically tune PIDs with multi-interwined control loops will be introduced. Then, RL applications in process and optimal control will be shown.  Finally, this chapter is concluded with using RL for anomaly detection/prediction purposes.
+This thesis was concluded with a literature review on proposed applications of RL on the process industry.  Here, techniques to automatically tune PIDs with multi-interwined control loops was first reviewed. Then, RL applications in process and optimal control was shown.  Finally, this chapter was concluded with a review on using RL for anomaly detection/prediction purposes.
 
 
 

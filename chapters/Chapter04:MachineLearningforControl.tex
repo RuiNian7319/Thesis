@@ -447,44 +447,6 @@ where $r(x_t, x_{t+1}, u)$ is the reward rate and is provided in Equation \ref{e
 
 
 
-\section{Control of Wastewater Treatment Plant}
-
-
-
-EQ (Effluent Quality)
-OCI (Overall cost index) = $5 \cdot SE + AE + PE + ME$
-
-\begin{table}[H]
-\footnotesize
-\caption{A comparison of performance between RL and MPC variants. The MPCs all used a prediction and control horizon of 40.  DEMPCS and DEMPCE are the distributed economic MPCs using the subsystem and centralized models, respectively \cite{an_mpc}.}
-\centering
-\begin{tabular}{c|c|c|c|c|c}
-                         &\textbf{RL}     & \textbf{CMPC} & \textbf{CEMPC} & \textbf{DEMPCS} & \textbf{DEMPCE}\\
-\hline
-EQ (kg pollution/day)  	 &   6034                 & 6111                     &   5834                    &  6332           &	5828	 \\
-Aeration Energy (kWh / day) &  3454      &   3416                     &   -       &    -   &	-	 \\
-Pumping Energy (kWh / day)  & 315   &   338                     &   -       &   -    &	-	 \\
-OCI                       & 16207   &   16186       & 16244         &   16197    &	16698	 \\
-Computational Time (s)     &  1.91  &  $8.79 \times 10^4$     &    $3.77 \times 10^5$    &   $8.47 \times 10^4$   &	 $3.50 \times 10^5$	
-\label{tab:04rl_vs_mpcs}
-\end{tabular}
-\end{table}
-
-
-
-
-
-Testing
-\cite{an_mpc, wwtp}
-
-
-
-
-
-
-
-
-
 
 % \section{Optimality Evaluation of Reinforcement Learning}
 % UCB tabular $Q$-learning suffers from discretized states and actions and the curse of dimensionality.  To overcome such issues, deep RL will be explored.  More specifically, this section uses the deep deterministic policy gradient (DDPG) algorithm introduced in Chapter 1. DDPG offers several advantages and disadvantages compared to tabular $Q$-learning.  The advantages are that it can handle continuous states and perform continuous actions. Furthermore, the scalability of the algorithm is greatly enhanced because deep function approximators are used to map states to actions, rather than a $Q$-table. However, these advantages come with some disadvantages.  First and foremost, DDPG is a black box approach and employs four deep neural networks to perform function approximation; therefore, explicitly identifying the control policy for DDPG is nearly impossible. Secondly, the function approximations cause small perturbations in control.  That is, the control outputs can sometimes contain small "jitters" (given an ideal output of 1, DDPG may output values between 0.995 - 1.005).  Intuitively, this is caused by the generality of the algorithm and can be related to humans.  Humans possess perhaps one of the most general intelligence available, yet we are not even capable of drawing a straight line. DDPG follows a similar idea; the algorithm is so general that it sometimes struggle with highly precise actions. For advanced details regarding DDPG, see \cite{ddpg}.  
@@ -830,7 +792,82 @@ Testing
 
 
 
+\section{Control of Wastewater Treatment Plant}
+As shown in the previous section, RL can approach the optimal solution on small, simple problems.  This section applies an UCB tabular $Q$-learning algorithm for the optimal control of an industrial scale waste water treatment plant.  The details of the plant were previously introduced in the alarm management section in Chapter 3.  Here, the objectives are twofold: i) Design self-learning and adaptive RL controllers to seek out optimal operating strategies. In the WWTP, the controllers must identify the optimal policy to meet government regulations in the most energy efficient way; ii) direct adaptive control, allowing the RL controller to learn optimal operating strategies as the operating conditions change by adapting the policy directly.
 
+As a quick recap, the WWTP contains 145 states and 2 control actions and the schematic is provided again, in Figure \ref{fig:04WWTP}. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{images/ch3/WWTP.png}
+    \caption{Schematic of the WWTP process. Original image from \cite{wwtp}.}
+    \label{fig:04WWTP}
+\end{figure}
+
+
+
+
+
+
+
+The WWTP is evaluated based on two metrics, the effluent quality (EQ) and the overall cost index (OCI).
+
+EQ (Effluent Quality)
+OCI (Overall cost index) = $5 \cdot SE + AE + PE + ME$
+
+
+The reward function of the agent is given by:
+\begin{equation}
+    r = 
+    \label{eq:04WWTP_reward}
+\end{equation}
+
+The hyper parameters of the agent used to control the WWTP are provided in Table \ref{tab:04WWTPagent}. Here, the agent's states and actions are $x \in \mathbb{R}^2$ and $u \in \mathbb{R}^2$.  
+
+\begin{table}[H]
+\caption{Hyper parameters for the agent controlling the WWTP.}
+\label{tab:04WWTPagent}
+\centering
+\begin{tabular}{c|c}
+\textbf{Hyper Parameter}     & \textbf{Value}  \\
+\hline
+States, $x$	             	& $x_{kLa5} = [0.35, 0.5, ..., 2.35]_{1 \times 65} $		 \\
+        	             	& $x_{Qa} = [1, 2.5, ..., 3]_{1 \times 65} $		 \\
+Actions, $u$                & $u_{O_2} = [-0.50, -0.44, ..., 0.50]_{1 \times 16}$	         \\
+                            & $u_{N^2} = [-0.50, -0.44, ..., 0.50]_{1 \times 16}$		\\
+Reward, $r$	                & Equation \ref{eq:04WWTP_reward}		\\
+Learning rate, $\alpha$		& [0.001, 0.5]		 \\
+Discount factor, $\gamma$      	& 0.97  \\
+Exploratory factor, $\epsilon$             & [0.1, 0.5]  \\
+Evaluation time                 & 15 seconds \\
+System representation           & FOMDP \\
+\end{tabular}
+\end{table}
+
+
+
+\begin{table}[H]
+\footnotesize
+\caption{A comparison of performance between RL and MPC variants. The MPCs all used a prediction and control horizon of 40.  DEMPCS and DEMPCE are the distributed economic MPCs using the subsystem and centralized models, respectively \cite{an_mpc}.}
+\centering
+\begin{tabular}{c|c|c|c|c|c}
+                         &\textbf{RL}     & \textbf{CMPC} & \textbf{CEMPC} & \textbf{DEMPCS} & \textbf{DEMPCE}\\
+\hline
+EQ (kg pollution/day)  	 &   6034                 & 6111                     &   5834                    &  6332           &	5828	 \\
+Aeration Energy (kWh / day) &  3454      &   3416                     &   -       &    -   &	-	 \\
+Pumping Energy (kWh / day)  & 315   &   338                     &   -       &   -    &	-	 \\
+OCI                       & 16207   &   16186       & 16244         &   16197    &	16698	 \\
+Computational Time (s)     &  1.91  &  $8.79 \times 10^4$     &    $3.77 \times 10^5$    &   $8.47 \times 10^4$   &	 $3.50 \times 10^5$	
+\label{tab:04rl_vs_mpcs}
+\end{tabular}
+\end{table}
+
+
+
+
+
+Testing
+\cite{an_mpc, wwtp}
 
 
 

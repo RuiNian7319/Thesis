@@ -276,8 +276,40 @@ Traditionally, alarms were the first line of defense against abnormalities in ch
 
 This project aims to firstly reduce the amount of alarm floods to prevent overwhelming the operators. Secondly, an alarm prioritization algorithm will be introduced so operators can focus their attention on the highest impact alarms first.
 
+\subsection{System Description}
+Figure 1 shows a schematic diagram of the WWTP.  A dynamic model of the WWTP was first built using the Benchmark Simulation No.1 documentation from the International Water Association \cite{wwtp}.  The WWTP comprises of a five-compartment activated sludge reactor and a ten-stage gravity separator.  The first two compartments of the reactor are anoxic tanks, the last three compartments are aerobic tanks.  The two control strategies are:
+
+\begin{itemize}
+	\item Manipulating the oxygen transfer coefficient $(K_La_5)$ to control the dissolved oxygen level in tank 5 
+	\item Manipulating the internal recycle flow rate $(Q_a)$ to control the nitrogen level in tank 2
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{images/ch3/WWTP.png}
+    \caption{Schematic of the WWTP process. Original image from \cite{wwtp}.}
+    \label{fig:03WWTP}
+\end{figure}
+
+The WWTP contains 145 states, 2 control actions, and 14 disturbances.  The input states are the characteristics (flow rate, composition, etc.) of the influent into the WWTP.  There are three sets of inputs available to the WWTP: i) Dry weather data. ii) Rain weather data. iii) Storm weather data.  The dry weather data was used for the results presented in this section. For more information, please refer to the Benchmark Simulation No.1 documentation \cite{wwtp}.
+
+There exists five environmental constraints on the process: 1) Total nitrogen ($N_{tot}$); 2) chemical oxygen demand (COD); 3) $NH_4^+ + NH_3$ nitrogen ($S_{NH}$); 4) total suspended solids (TSS); 5) biochemical oxygen demand (BOD). The threshold for the environmental constraints is given as follows:
+\[
+    Alarm = 
+\begin{cases}
+    On,              & N_{tot}  > 10 \\
+    On,              & COD  >  100 \\
+    On,              & S_{nh} >  4 \\
+    On,              & TSS > 30 \\
+    On,              & BOD > 10 \\
+\end{cases}
+\]
+If any of the above constraints are violated, an alarm will sound.
+
+
+
 \subsection{Alarm Reduction}
-Alarm flooding is one of the biggest problems in alarm management.  During abnormal events in the plant, thousands of alarms may go off simultaneously due to poor alarm system design, rendering the whole system useless.  The first algorithm in the SMART alarm management system is alarm reduction.  The general idea of the alarm reduction algorithm is to create a sequence dictionary.  The dictionary comprises of sequences of alarms that often occur together.  For example, if alarms 1 and 2 occur frequently together, an alarm sequence, \emph{Sequence 1}, could be generated representing alarms 1 and 2.  With this, the number of alarms would be halved.  More significant reduction in alarms can be achieved if 10 or 100 alarms often occur together.  The steps for the alarm reduction algorithm are shown in Table 6.
+Alarm flooding is one of the biggest problems in alarm management.  During abnormal events in the plant, thousands of alarms may go off simultaneously due to poor alarm system design, rendering the whole system useless.  The first algorithm in the SMART alarm management system is alarm reduction.  The general idea of the alarm reduction algorithm is to create a sequence dictionary.  The dictionary comprises of sequences of alarms that often occur together.  For example, if alarms 1 and 2 occur frequently together, an alarm sequence, \emph{Sequence 1}, could be generated representing alarms 1 and 2.  With this, the number of alarms would be halved.  More significant reduction in alarms can be achieved if 10 or 100 alarms often occur together.  The steps for the alarm reduction algorithm are shown in Table \ref{alg:03AlarmReduce}.
 
 \clearpage
 \begin{table}[H]
@@ -314,7 +346,7 @@ Alarm flooding is one of the biggest problems in alarm management.  During abnor
 	\hspace{1.5cm} Check sequence dictionary for match \\
 	\hspace{1.5cm} \textbf{If match} \\
 	\hspace{2cm} Replace previous two alarms with sequence \\
-	\hspace{1cm} \textbf{Group} previous thress alarms \\
+	\hspace{1cm} \textbf{Group} previous three alarms \\
 	\hspace{1.5cm} Check sequence dictionary for match \\
 	\hspace{1.5cm} \textbf{If match} \\
 	\hspace{2cm} Replace previous three alarms with sequence \\
@@ -324,13 +356,14 @@ Alarm flooding is one of the biggest problems in alarm management.  During abnor
 	\hline
 	\end{tabular}}
 	\caption{Alarm reduction algorithm}
+	\label{alg:03AlarmReduce}
 \end{table}
 
 
 \subsection{Alarm Prioritization}
 During alarm flooding events, alarm reduction algorithms may reduce the amount of alarms to less than 5\% of total alarms.  However, it does not solve the root cause problem, i.e., what went wrong that caused all the alarms.  Also, 5\% of thousands of alarms is still far from useful and too much for a few operators to handle.  Therefore, a second algorithm was designed to sort the active alarms by a score.  Lower scores mean more dangerous alarms and will be placed on the top of the alarm log.  This way, the operators knows the priority alarms and can work to resolve the highest impact alarms first.  If a sequence is on the top of the alarm log, the first alarm in the sequence would be considered the highest priority alarm.
 
-Tables 7 and 8 shows the comparison of a traditional alarm log compared to the proposed algorithm.  Comparing the alarm logs, it can be seen that the SMART alarm system was able to vastly reduce the amount of alarms, while putting the most important alarms on the top of the list.
+Tables \ref{alg:03norm_system} and \ref{alg:03SMARTalarm} shows the comparison of a traditional alarm log compared to the proposed algorithm.  Comparing the alarm logs, it can be seen that the SMART alarm system was able to vastly reduce the amount of alarms, while putting the most important alarms on the top of the list.
 
 \begin{table}[H]
 	\centering
@@ -344,6 +377,7 @@ Tables 7 and 8 shows the comparison of a traditional alarm log compared to the p
 	6 & Alarm & March 23 & Vessel 2 & 35.2 & 33.5 \\
 	\end{tabular}
 	\caption{State-of-the-art industrial alarm system.}
+	\label{alg:03norm_system}
 \end{table}
 
 \begin{table} [H]
@@ -355,9 +389,10 @@ Tables 7 and 8 shows the comparison of a traditional alarm log compared to the p
 	March 23 & Warning 5 & 10.5 \\
 	\end{tabular}
 	\caption{SMART alarm system.}
+	\label{alg:03SMARTalarm}
 \end{table}
 
-The alarm prioritization algorithm is given in Table 9.  The value-sequence dictionary is generated live and need to be saved so if the same sequence occurs in the future, a value can be assigned to the sequence for prioritization purposes.
+The alarm prioritization algorithm is given in Table \ref{alg:03alarmprioritization}.  The value-sequence dictionary is generated live and need to be saved so if the same sequence occurs in the future, a value can be assigned to the sequence for prioritization purposes.
 
 \begin{table}
     {\setstretch{1.2}
@@ -385,5 +420,6 @@ The alarm prioritization algorithm is given in Table 9.  The value-sequence dict
 	\hline
 	\end{tabular}}
 	\caption{Alarm prioritization algorithm.}
+	\label{alg:03alarmprioritization}
 \end{table}
 

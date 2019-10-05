@@ -346,8 +346,7 @@ System representation           & FOMDP \\
 \end{tabular}
 \end{table}
 
-Figures \ref{fig:04no_dist}, \ref{fig:04low_dist}, \ref{fig:04med_dist}, and \ref{fig:04big_dist} compare the agent's performance with and without interpolated actions after experiencing no, low, medium, and large disturbances.  
-
+Figures \ref{fig:04no_dist}, \ref{fig:04low_dist}, \ref{fig:04med_dist}, and \ref{fig:04big_dist} compare the agent's performance with and without interpolated actions after experiencing no, low, medium, and large disturbances.  The tracking error of the systems are provided in Table \ref{tab:04rl_inter_vs_norm}.  From the trajectory figures, it can be seen that the oscillations in the input are completely removed; a significant benefit during implementation due to reduced wear-and-tear on the actuator.  The tracking performance is also significantly increases and resulted in no oscillations.  In terms of performance, the \% improvement decreased during larger disturbances due to the disturbance dominating the majority of the error. From Table \ref{fig:04big_dist}, interpolated RL never performed worse than normal RL, suggesting that there is little downside to implement this method other than the slightly increased computational cost.  Note that the algorithm cannot be used for extrapolation; therefore, interpolated actions cannot be conducted for states that surpass the largest discretized state.
 
 \begin{figure}[H]
      \centering
@@ -384,7 +383,19 @@ Figures \ref{fig:04no_dist}, \ref{fig:04low_dist}, \ref{fig:04med_dist}, and \re
      \end{subfigure}
 \end{figure}
 
-
+\begin{table}[H]
+\caption{Tracking error for the agent with and without interpolated actions.}
+\label{tab:04rl_inter_vs_norm}
+\centering
+\begin{tabular}{c|c|c|c}
+& \textbf{Normal RL}    & \textbf{Interpolated RL}  &  \textbf{\% Change}\\
+\hline
+No disturbances	        & 11.3 & 4.8 & 58		 \\
+Small disturbances      & 14.5 & 8.6 & 41		\\
+Medium disturbances     & 25.9 & 19.7 & 24		\\
+Large disturbances		& 46.0 & 56.0 & 22		 
+\end{tabular}
+\end{table}
 
 
 

@@ -308,6 +308,31 @@ With the addition of interpolation action selection, the 2-state RL agent (witho
      \caption{Pressure trajectory of the non-linear agent using interpolation action selection. Solid line represents the average of 10 runs to ensure reproducability. Shaded area correspond to one standard deviation.}
 \end{figure}
 
+
+
+
+
+
+
+
+
+
+
+
+\subsection{A Study on Interpolated RL}
+
+
+
+
+
+
+
+
+
+
+
+
+\subsection{Final Remarks}
 The RL methods introduced in this section along with their respective characteristics are summarized in Table \ref{tab:system1_info}. Throughout this tutorial, a simple RL agent was implemented onto an industrial VFD system. It was shown that the vanilla algorithm was unable to handle neither non-linear systems or achieve off-set free control; therefore, simple, implementable techniques that extended the agent's ability to non-linear systems and for off-set free control were introduced. Each state trajectory in this study was replicated on the live systems 10 times to ensure reproducability; the standard deviation for every algorithm was very narrow, representing highly reproducible results (indirectly, less risk).
 
 \begin{table}[H]
@@ -332,7 +357,32 @@ The example shown here is simple, has a pre-set sampling time and does not consi
 \end{equation}
 where $r(x_t, x_{t+1}, u)$ is the reward rate and is provided in Equation \ref{eq:reward_rate}. For systems with unmeasurable states, concepts of POMDPs provided in Chapter 1 should be used.
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 \section{Control of Wastewater Treatment Plant}
+
+
+
+
+
 
 
 
@@ -699,6 +749,19 @@ The control strategies were also explored when a disturbance was introduced into
 
 
 \section{A Study on Interpolated RL}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 \section{Comparison of Optimal Control Frameworks}

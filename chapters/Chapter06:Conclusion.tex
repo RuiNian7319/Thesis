@@ -3,16 +3,37 @@
 - RL has more exotic applications than control, and its value is most likely not in control.
 
 \section{Concluding Remarks}
+Machine learning methods are becoming infinitely more powerful as the world continues its transition to a digital era overloaded with data.  Unfortunately, the lack of individuals with knowledge in both the process engineering and machine learning is holding back value creation in the process industry.  This thesis introduced simple and economically efficient machine learning algorithms for prediction, monitoring, and control.
+
+Chapter 2 introduced the ML models for prediction---the most widely used machine learning technique.  Here, ML is used to predict the expected process variables given other measurements.  Applications in the process industry include soft sensors, digital twins, and production forecasting.  Combined with mathematical programming, data-driven MPCs and real-time optimization applications can also be built.
+
+Chapter 3 focused on ML applications for safety and risk management.  More specifically, anomaly detection/prediction and alarm management applications were introduced.  Anomaly detection/prediction applications served as "multi-variate alarms", \textit{proactively} identifying deviations in process variables to safeguard people, the environment, company assets, and production capabilities.  The ML alarm management system was used to reduce nuisance alarms and provide alarm prioritization during alarm flood scenarios.
+
+In Chapter 4, ML was used for process control and optimal control and was compared to model predictive control.  
 
 
 
+In Chapter 5, a literature review of RL applications in the process industry was conducted to provide motivation for future innovation.
 
 
+Table \ref{tab:06adv_disadv} shows the pros and cons of reinforcement learning. RL truly shines in extremely fast, non-linear processes where model predictive controllers cannot provide solutions in adequate time.  Furthermore, RL also does not need process models after initial training due to its \textit{model-free} nature and can naturally adapt to process drifts. Currently, the biggest disadvantages of RL are simply due to the embryonic nature of the field. In literature, meta-RL studies a set of RLs that can adapt quickly to unseen environments; thus, overcoming the requirement of accurate simulators.  Inverse RL began to tackle the reward design issue. Lastly, stability theory and state constraints are being studied in the field of safe RL. 
 
-
-
-
-
+\begin{table}[H]
+\caption{Most influential advantages and disadvantages of reinforcement learning.}
+\centering
+%% \tablesize{} %% You can specify the fontsize here, e.g.,  \tablesize{\footnotesize}. If commented out \small will be used.
+\begin{tabular}{cc}
+\toprule
+\textbf{Advantages}	& \textbf{Disadvantages}\\
+\midrule
+Online computation time  & Accurate simulator required			 \\
+Can learn many tasks	   & Reward design can be difficult		 \\
+Direct adaptive optimal control       & Stability theory lacking    \\
+Engineered features not needed & State constraints are difficult \\
+\bottomrule
+\end{tabular}
+\label{tab:06adv_disadv}
+\end{table}
 
 As a final remark, the truly unique characteristic of RL that makes it the closest thing to real artificial intelligence is its \textit{general nature}, allowing for learning of many things through a general algorithm. Although modern RL still faces many challenges, the most interesting fact about artificial general intelligence is that it is \textit{eventually} scientifically achievable. Unlike galactic teleporters or other wild fantasies from science fiction literature, artificial general intelligence is proven to exist, currently within us!  The last step is \textit{merely} to reverse engineer human psychology. And when such a task if finally conquered, the concepts reinforcement learning will, \textit{without a doubt}, reside as its central algorithm.
 

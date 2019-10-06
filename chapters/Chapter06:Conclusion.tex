@@ -9,12 +9,9 @@ Chapter 2 introduced the ML models for prediction---the most widely used machine
 
 Chapter 3 focused on ML applications for safety and risk management.  More specifically, anomaly detection/prediction and alarm management applications were introduced.  Anomaly detection/prediction applications served as "multi-variate alarms", \textit{proactively} identifying deviations in process variables to safeguard people, the environment, company assets, and production capabilities.  The ML alarm management system was used to reduce nuisance alarms and provide alarm prioritization during alarm flood scenarios.
 
-In Chapter 4, ML was used for process control and optimal control and was compared to model predictive control.  
+In Chapter 4, ML was used for process control and optimal control and was compared to model predictive control. More specifically, the focus transitioned to RL, a branch of ML that can actually surpass previous knowledge and push the boundaries of research. Here, RL was applied for continuous control of processes. Firstly, a tutorial on implementing RL for continuous process control was introduced.  Then, RL's optimality was validated against model predictive control, a mathematical programming approach to optimal control. Afterwards, the two methods' pros and cons were compared.  To test the limits of RL, it was used in simulation to perform optimal control on an industrial wastewater treatment plant with 145 states and 14 disturbances.  The chapter was concluded by showcasing RL's abilities to serve as a general fault detection and fault-tolerant control system.  
 
-
-
-In Chapter 5, a literature review of RL applications in the process industry was conducted to provide motivation for future innovation.
-
+In Chapter 5, a literature review of RL applications in the process industry was conducted to provide motivation for future innovation. Here, it was discovered that RL can be used for adaptive PIDs tuning, real-time optimal control, and anomaly detection applications.
 
 Table \ref{tab:06adv_disadv} shows the pros and cons of reinforcement learning. RL truly shines in extremely fast, non-linear processes where model predictive controllers cannot provide solutions in adequate time.  Furthermore, RL also does not need process models after initial training due to its \textit{model-free} nature and can naturally adapt to process drifts. Currently, the biggest disadvantages of RL are simply due to the embryonic nature of the field. In literature, meta-RL studies a set of RLs that can adapt quickly to unseen environments; thus, overcoming the requirement of accurate simulators.  Inverse RL began to tackle the reward design issue. Lastly, stability theory and state constraints are being studied in the field of safe RL. 
 

@@ -793,9 +793,9 @@ where $r(x_t, x_{t+1}, u)$ is the reward rate and is provided in Equation \ref{e
 
 
 \section{Control of Wastewater Treatment Plant}
-As shown in the previous section, RL can approach the optimal solution on small, simple problems.  This section applies an UCB tabular $Q$-learning algorithm for the optimal control of an industrial scale waste water treatment plant.  The details of the plant were previously introduced in the alarm management section in Chapter 3.  Here, the objectives are twofold: i) Design self-learning and adaptive RL controllers to seek out optimal operating strategies. In the WWTP, the controllers must identify the optimal policy to meet government regulations in the most energy efficient way; ii) direct adaptive control, allowing the RL controller to learn optimal operating strategies as the operating conditions change by adapting the policy directly.
+As shown in the previous section, RL can approach the optimal solution on small, simple problems.  This section applies an UCB tabular $Q$-learning algorithm for the optimal control of an industrial scale waste water treatment plant.  The details of the plant were previously introduced in the alarm management section in Chapter 3.  Here, the objectives are twofold: i) Design a self-learning and adaptive RL controller to seek out optimal operating strategies. In the WWTP, the controllers must identify the optimal policy to meet government regulations in the most energy efficient way; ii) direct adaptive control, allowing the RL controller to learn optimal operating strategies as the operating conditions change by adapting the policy directly. In the end, the results achieved by RL will be compared to different variants of MPC.
 
-As a quick recap, the WWTP contains 145 states and 2 control actions and the schematic is provided again, in Figure \ref{fig:04WWTP}. 
+As a quick recap, the WWTP contains 145 states and 2 control actions and the schematic is provided again, in Figure \ref{fig:04WWTP}. In the WWTP, the dissolved oxygen level in unit 5 is controlled via manipulation of the oxygen transfer coefficient, $u_{kLa_5}$ and the nitrogen level in unit 2 is controlled through manipulation of the internal recycle flow rate, $Q_a$.  For more information regarding the WWTP, see \cite{wwtp}.
 
 \begin{figure}[H]
     \centering
@@ -804,23 +804,62 @@ As a quick recap, the WWTP contains 145 states and 2 control actions and the sch
     \label{fig:04WWTP}
 \end{figure}
 
+\subsection{Performance Assessment}
+The WWTP performance is evaluated based on two metrics, the effluent quality (EQ) (kg pollutant per day) and the overall cost index (OCI). Each performance metric contains numerous states.  For the exact definition of each state, please refer to \cite{wwtp}.  The effluent quality is given by:
+\begin{multline}
+    EQ = \frac{1}{T \cdot 1000} \int^{t_f}_{t_0} ( \beta_{ss} \cdot SS_e(t) + B_{COD} \cdot COD_e(t) + B_{Nkj} \cdot S_{Nkj, e}(t) \\ 
+    + B_{NO} \cdot S_{NO, e}(t) + B_{BOD5} \cdot BOD_e(t)) Q_e(t) dt
+\end{multline}
+where $T$ denotes the evaluation period in days, the 1000 in the denominator is for unit conversion to kg, and:
+$$S_{Nkj, e} = S_{NH, e} + S_{ND, e} + X_{ND, e} + i_{XB}(X_{B, H, e} + X_{X, A, e}) + i_{XP} (X_{P, e} + X_{i, e})$$
+$$SS_e = 0.75 \cdot (X_{S, e} + X_{I, e} + X_{B, H, e} + X_{B, A, e} + X_{P, e})$$
+$$BOD_{S, e} = 0.25 \cdot (S_{S, e} + X_{S, e} + (1 - f_p) \cdot (X_{B, H, e} + X_{B, A, e}))$$
+$$COD_e = S_{S, e} + S_{I, e} + X_{S, e} + X_{I, e} + X_{B, H, e} + X_{B, A, e} + X_{P, e}$$
 
+The OCI is a combination of four factors: 1) sludge production (SP) that requires disposal; 2) aeration energy (AE); 3) pumping energy (PE);  4) mixing energy (ME). 
 
+The sludge production is measured as the average solids production per day (kg / day) and is given as:
+\begin{multline}
+    SP = \frac{0.75}{T \cdot 1000} \int_{t_0}^{t_f} (X_{s, w}(t) + X_{I, w}(t) + X_{B_A, w}(t) + X_{B_H, w}(t) \\ 
+    + X_{P, w}(t) Q_w(t)dt + \frac{1}{T \cdot 1000} (SS(t_f) - SS(t_0))
+\end{multline}
+where solids include the sedimentary particles remaining in the WWTP and the particles discharged through the waste flow, $Q_w$. Additionally, subscripts $w$ denote the waste flow.
 
-
-
-
-The WWTP is evaluated based on two metrics, the effluent quality (EQ) and the overall cost index (OCI).
-
-EQ (Effluent Quality)
-OCI (Overall cost index) = $5 \cdot SE + AE + PE + ME$
-
-
-The reward function of the agent is given by:
+The aeration energy (kWh/day) is a function of the oxygen transfer rate in units 1-5, and is given by:
 \begin{equation}
-    r = 
-    \label{eq:04WWTP_reward}
+    AE = \frac{S_o^{sat}}{T \cdot 1800} \int_{t_0}^{t_f} \sum\limits^5_{i = 1} V_i \cdot K_La_i (t) dt
 \end{equation}
+where $V_i$ and $K_La_i$ represents the volume and oxygen transfer rate of the $i^{th}$ unit, respectively. Furthermore, $S_o^{sat}$ is the saturation concentration of oxygen.  Here, the value was assumed to be 8 $g/m^3$.
+
+Similarily, the pumping energy (kWh/day) accounts for the energy consumed by the internal recycle and outer recycle pumps.  PE is mathematically quantified as:
+\begin{equation}
+    PE = \frac{1}{T} \int_{t_0}^{t_f} (0.004 Q_a(t) + 0.05 Q_w(t) + 0.008 Q_T(t)) dt
+\end{equation}
+
+The mixing energy (kWh / day) is calculated as the total energy consumed for mixing activities in the anoxic units (units 1 and 2). Total ME consumption is given as:
+\begin{equation}
+    ME = \frac{24}{T} \int_{t_0}^{t_f} \left(\sum 0.005 \cdot V_i \right) dt
+\end{equation}
+
+
+Finally, the OCI can be computed as the summation of the above equations and is given as:
+\begin{equation}
+    OCI = 5 \cdot SP + AE + PE + ME
+\end{equation}
+
+\subsection{Control Design}
+Typically, all implementation of advanced controls into today's process systems reside in the supervisory layer. In such a structure, the traditional regulatory controllers guarantee stability of the process while supervisory controls simply provide ideal operating set-points.
+
+The control system design is shown in Figure \ref{fig:04wwtp_rl}. In this study, the typical structure will be mimicked to simulate a real world implementation example. The RL controller will provide set-points only to the lower level PID controllers regulating $Q_a$ and $K_La_5$.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/ch4/supervisory_control.png}
+    \caption{Control structure of the wastewater treatment plant.}
+    \label{fig:04wwtp_rl}
+\end{figure}
+
+\subsection{Agent design}
 
 The hyper parameters of the agent used to control the WWTP are provided in Table \ref{tab:04WWTPagent}. Here, the agent's states and actions are $x \in \mathbb{R}^2$ and $u \in \mathbb{R}^2$.  
 
@@ -843,6 +882,12 @@ Evaluation time                 & 15 seconds \\
 System representation           & FOMDP \\
 \end{tabular}
 \end{table}
+
+The reward function of the agent is given by:
+\begin{equation}
+    r = 
+    \label{eq:04WWTP_reward}
+\end{equation}
 
 
 

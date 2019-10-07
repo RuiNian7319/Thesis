@@ -360,6 +360,25 @@ Alarm flooding is one of the biggest problems in alarm management.  During abnor
 \end{table}
 
 
+
+
+
+
+\subsection{Alarm Reduction through Suppression}
+
+\begin{equation}
+    Q_{i, norm} = \frac{Q_i - Q_{ave}}{\sigma}
+\end{equation}
+where $\sigma$ denotes the ...
+
+
+
+
+
+
+
+
+
 \subsection{Alarm Prioritization}
 During alarm flooding events, alarm reduction algorithms may reduce the amount of alarms to less than 5\% of total alarms.  However, it does not solve the root cause problem, i.e., what went wrong that caused all the alarms.  Also, 5\% of thousands of alarms is still far from useful and too much for a few operators to handle.  Therefore, a second algorithm was designed to sort the active alarms by a score.  Lower scores mean more dangerous alarms and will be placed on the top of the alarm log.  This way, the operators knows the priority alarms and can work to resolve the highest impact alarms first.  If a sequence is on the top of the alarm log, the first alarm in the sequence would be considered the highest priority alarm.
 

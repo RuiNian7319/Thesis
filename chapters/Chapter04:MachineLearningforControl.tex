@@ -847,12 +847,12 @@ Finally, the OCI can be computed as the summation of the above equations and is 
     OCI = 5 \cdot SP + AE + PE + ME
 \end{equation}
 
-\subsection{Control Design}
+\subsection{Control System Design}
 Typically, all implementation of advanced controls into today's process systems reside in the supervisory layer. In such a structure, the traditional regulatory controllers guarantee stability of the process while supervisory controls simply provide ideal operating set-points.
 
-The control system design is shown in Figure \ref{fig:04wwtp_rl}. In this study, the typical structure will be mimicked to simulate a real world implementation example. The RL controller will provide set-points only to the lower level PID controllers regulating $Q_a$ and $K_La_5$.
+The control system design is shown in Figure \ref{fig:04wwtp_rl}. In this study, the RL controllers were implemented in the supervisory controls layer and only provide the set-points to the PIDs. Such a structure simulates a real world implementation example. Here, the RL controller provides set-points to the $Q_a$ and $K_La_5$ PIDs.
 
-\begin{figure}
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{images/ch4/supervisory_control.png}
     \caption{Control structure of the wastewater treatment plant.}
@@ -860,8 +860,7 @@ The control system design is shown in Figure \ref{fig:04wwtp_rl}. In this study,
 \end{figure}
 
 \subsection{Agent design}
-
-The hyper parameters of the agent used to control the WWTP are provided in Table \ref{tab:04WWTPagent}. Here, the agent's states and actions are $x \in \mathbb{R}^2$ and $u \in \mathbb{R}^2$.  
+In this study, an \textit{off-policy} $Q$-learning agent with UCB acceleration was used for the controllers.  The hyper parameters of the agent used to control the WWTP are provided in Table \ref{tab:04WWTPagent}. The agent's states and actions are $x \in \mathbb{R}^2$ and $u \in \mathbb{R}^2$. 
 
 \begin{table}[H]
 \caption{Hyper parameters for the agent controlling the WWTP.}
@@ -878,6 +877,7 @@ Reward, $r$	                & Equation \ref{eq:04WWTP_reward}		\\
 Learning rate, $\alpha$		& [0.001, 0.5]		 \\
 Discount factor, $\gamma$      	& 0.97  \\
 Exploratory factor, $\epsilon$             & [0.1, 0.5]  \\
+Heuristics Acceleration     & Upper Confidence Bound \\
 Evaluation time                 & 15 seconds \\
 System representation           & FOMDP \\
 \end{tabular}
@@ -888,8 +888,22 @@ The reward function of the agent is given by:
     r = 
     \label{eq:04WWTP_reward}
 \end{equation}
+where the large negatives are used for \textit{soft} state constraints.
 
+For exploration, the agent used UCB and followed an $\epsilon$-greedy exploratory policy.  The UCB algorithm was given in Equation \ref{ucb} and $\epsilon$ was given by:
+\begin{equation}
+    
+\end{equation}
 
+Lastly, the learning rate of the agent was decayed using:
+\begin{equation}
+    
+\end{equation}
+
+\subsection{Comparison with MPC}
+To validate the optimality of the solution provided by RL, it was compared to four variants of MPC: 1) centralized MPC (CMPC); 2) centralized EMPC (CEMPC); 3) distributed EMPC using a centralized model (DEMPCE); 4) distributed EMPC using subsystem models (DEMPCS).  The objective functions and subsystem decomposition of the MPCs are from \cite{an_mpc}.  The RL agent was trained for approximately 383.6 years in simulation (2 hour physical time) under dry weather conditions on a typical office computer (i7-6700 with no graphics processing unit).
+
+The EQ and OCI of RL and the four MPC variants are shown in Table \ref{tab:04rl_vs_mpcs}.  Even in such a complex environment, RL was able to generate highly comparable performance to MPC. In terms of EQ and energy usage, RL used more energy but produced less waste while MPC used less energy, but produced more waste.  In terms of OCI, RL was only 0.129\% higher compared to the best performance achieved by MPC.  Moreover, MPC used a perfect process model whereas RL learned the optimal policy solely through self-play.  Additionally, the computation time of RL in this system was dramatically less compared to MPC. In fact, most of the computation time used by RL was to solve the system equations, and not to generate the control inputs.  
 
 \begin{table}[H]
 \footnotesize
@@ -906,17 +920,6 @@ Computational Time (s)     &  1.91  &  $8.79 \times 10^4$     &    $3.77 \times 
 \label{tab:04rl_vs_mpcs}
 \end{tabular}
 \end{table}
-
-
-
-
-
-Testing
-\cite{an_mpc, wwtp}
-
-
-
-
 
 
 

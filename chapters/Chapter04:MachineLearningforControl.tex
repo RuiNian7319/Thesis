@@ -847,18 +847,6 @@ Finally, the OCI can be computed as the summation of the above equations and is 
     OCI = 5 \cdot SP + AE + PE + ME
 \end{equation}
 
-\subsection{Control System Design}
-Typically, all implementation of advanced controls into today's process systems reside in the supervisory layer. In such a structure, the traditional regulatory controllers guarantee stability of the process while supervisory controls simply provide ideal operating set-points.
-
-The control system design is shown in Figure \ref{fig:04wwtp_rl}. In this study, the RL controllers were implemented in the supervisory controls layer and only provide the set-points to the PIDs. Such a structure simulates a real world implementation example. Here, the RL controller provides set-points to the $Q_a$ and $K_La_5$ PIDs.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.9\textwidth]{images/ch4/supervisory_control.png}
-    \caption{Control structure of the wastewater treatment plant.}
-    \label{fig:04wwtp_rl}
-\end{figure}
-
 \subsection{Agent design}
 In this study, an \textit{off-policy} $Q$-learning agent with UCB acceleration was used for the controllers.  The hyper parameters of the agent used to control the WWTP are provided in Table \ref{tab:04WWTPagent}. The agent's states and actions are $x \in \mathbb{R}^2$ and $u \in \mathbb{R}^2$. 
 
@@ -878,6 +866,7 @@ Learning rate, $\alpha$		& [0.001, 0.5]		 \\
 Discount factor, $\gamma$      	& 0.97  \\
 Exploratory factor, $\epsilon$             & [0.1, 0.5]  \\
 Heuristics Acceleration     & Upper Confidence Bound \\
+Degree of exploration, $c$  & 1.2 \\
 Evaluation time                 & 15 seconds \\
 System representation           & FOMDP \\
 \end{tabular}
@@ -888,9 +877,9 @@ The reward function of the agent is given by:
     r = 
     \label{eq:04WWTP_reward}
 \end{equation}
-where the large negatives are used for \textit{soft} state constraints.
+where the large negatives are used for \textit{soft} state constraints, heavily discouraging the agent from approaching those states. 
 
-For exploration, the agent used UCB and followed an $\epsilon$-greedy exploratory policy.  The UCB algorithm was given in Equation \ref{ucb} and $\epsilon$ was given by:
+For exploration, the agent used UCB and followed an $\epsilon$-greedy exploratory policy. As a quick reminder, UCB provides the agent with unique learning rates for each state-action pair and promotes exploration in states that have a high probability of being optimal (instead of random exploration). The UCB algorithm was given in Equation \ref{ucb} and $\epsilon$ was given by:
 \[
     \epsilon =
 \begin{cases}
@@ -908,6 +897,87 @@ Lastly, the learning rate of the agent was decayed using:
     0.5,              & otherwise \\
 \end{cases}
 \]
+Intuitively, $\alpha \in [0.001, 0.5]$ is very high for the first 15 visits for each state-action pair.  Afterwards, the learning rate is decayed until a minimum value of 0.001.
+
+Finally, the pseudo-code for the UCB $Q$-learning algorithm is given in by:
+\begin{table}[h]
+	\def\arraystretch{1.2}
+	\begin{tabular}{p{15cm}}
+	\hline
+	\emph{Upper Confidence Bound (UCB) Q-Learning: Learn Function Q: $\mathcal{X} \times \mathcal{U} \rightarrow \mathbb{R}$} \\ \hline
+	\textbf{\emph{Require}}: \\
+		States $\mathcal{X} = \left\{ x_1, ..., x_n \right\}$ \\
+		Actions $\mathcal{U} = \left\{u_1, ..., u_n \right\}$ \\
+		Reward Function $R: \mathcal{X} \times \mathcal{U} \rightarrow \mathbb{R}$ \\
+		Probabilistic transition function $T: \mathcal{X}_t \times \mathcal{U} \rightarrow \mathcal{X}_{t+1}$ \\
+		Learning rate function $\alpha \in [0, 1], \hspace{0.8cm} min = 0.0001$ \\
+		$\epsilon$-Greedy function $\epsilon \in [0, 1], \hspace{0.8cm} min = 0.01$ \\
+		Discount factor $\gamma \in [0, 1]$ \\
+		Q-matrix $Q:[...]_{x \times u}$ \\
+		Memory Matrices $N_t \; and \; T : [...]_{x \times u}$ \\
+		\textbf{\emph{Procedure}} \emph{UCB Q-Learning} $(\mathcal{X},\; \mathcal{U},\; \mathbb{R},\; T,\; \alpha,\; \epsilon,\; \gamma)$ \\
+		\hspace{1cm}  Initialize $Q(x, u): \mathcal{X} \times \mathcal{U} \rightarrow \mathbb{R} \; arbitrarily$ \\
+		\hspace{1cm} Initialize initial state, $x$ \\
+		\hspace{1cm} \textbf{\emph{While}} Q is not converged \textbf{do} \\
+		\hspace{2cm} Generate random number, $n \; \in [0, 1]$ \\
+		\hspace{2cm} \textbf{\emph{If}} $n > \epsilon$: Choose \emph{u} from \emph{x} given max Q, \textbf{break ties randomly*} \\
+		\hspace{2cm} \textbf{\emph{Else}}: Choose random \emph{u} \\
+		\hspace{2cm} Perform action \emph{u}, observe \emph{r}, \emph{s'} \\
+		\hspace{2cm} $Q(x, u) \leftarrow Q(x, u) + \alpha(r + \gamma max(Q(x', u) - Q(x, u)$ \\
+		\hspace{2cm} $x \leftarrow x'$ \\
+		\hspace{2cm} $N_t(x, u) \leftarrow N_t(x, u) + 1$ \\
+		\hspace{2cm} $T(x, \neq u) \leftarrow t(x, \neq u) + 1$ \\
+		\hspace{1cm} until convergence or x is a terminal state \\ \hline
+		*Note: Ties must be broken randomly to avoid bias.
+	\end{tabular}
+\end{table}
+
+\subsection{Control System Design}
+Typically, all implementation of advanced controls into today's process systems reside in the supervisory layer. In such a structure, the traditional regulatory controllers guarantee stability of the process while supervisory controls simply provide ideal operating set-points.
+
+The control system design is shown in Figure \ref{fig:04wwtp_rl}. In this study, the RL controllers were implemented in the supervisory controls layer and only provide the set-points to the PIDs. Such a structure simulates a real world implementation example. Here, the RL controller provides set-points to the $Q_a$ and $K_La_5$ PIDs.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/ch4/supervisory_control.png}
+    \caption{Control structure of the wastewater treatment plant.}
+    \label{fig:04wwtp_rl}
+\end{figure}
+
+Two discrete PI controllers were used to control this system.  The discrete PI formulation is given by:
+\begin{equation}
+    \Delta u) = K_c[e(t_k) - e(t_{k-1})] + \dfrac{K_cT_s}{T_i}e(t_k)
+\end{equation}
+\begin{table}[H]
+	\begin{tabular}{p{1.5cm}p{6.5cm}}
+	$u(u)$ & Output as a function of time sample \\
+	$K_c$ & Controller gain \\
+	$e(t_k)$ & Current error \\
+	$e(t_{k-1})$ & Error at last time step \\
+	$T_s$ & Sampling time \\
+	$T_i$ & Integral time \\
+	\end{tabular}
+\end{table}
+
+The parameters of the two PI controllers are given in Table \ref{tab04:pi_parameters} and were originally provided from \cite{wwtp}.
+
+\begin{table}[h]
+	\begin{center}
+	\def\arraystretch{1.2}
+	\begin{tabular}{p{1.5cm}p{5.5cm}p{5.5cm}}
+	\hline
+	 & Dissolved Oxygen Controller & Nitrogen Controller \\
+	 \hline
+	 $K_c$ & 25 & 10,000 \\
+	 $\tau_i$ & 0.002 & 0.00167 \\
+	\hline
+	\end{tabular}
+	\end{center}
+	\caption{Hyper parameters for the PI controllers}
+	\label{tab04:pi_parameters}
+\end{table}
+
+The 
 
 \subsection{Comparison with MPC}
 To validate the optimality of the solution provided by RL, it was compared to four variants of MPC: 1) centralized MPC (CMPC); 2) centralized EMPC (CEMPC); 3) distributed EMPC using a centralized model (DEMPCE); 4) distributed EMPC using subsystem models (DEMPCS).  The objective functions and subsystem decomposition of the MPCs are from \cite{an_mpc}.  The RL agent was trained for approximately 383.6 years in simulation (2 hour physical time) under dry weather conditions on a typical office computer (i7-6700 with no graphics processing unit).

@@ -857,17 +857,17 @@ In this study, an \textit{off-policy} $Q$-learning agent with UCB acceleration w
 \begin{tabular}{c|c}
 \textbf{Hyper Parameter}     & \textbf{Value}  \\
 \hline
-States, $x$	             	& $x_{kLa5} = [0.35, 0.5, ..., 2.35]_{1 \times 65} $		 \\
-        	             	& $x_{Qa} = [1, 2.5, ..., 3]_{1 \times 65} $		 \\
-Actions, $u$                & $u_{O_2} = [-0.50, -0.44, ..., 0.50]_{1 \times 16}$	         \\
-                            & $u_{N^2} = [-0.50, -0.44, ..., 0.50]_{1 \times 16}$		\\
+States, $x$	             	& $x_{O_2} = [0.35, 0.5, ..., 2.35]_{1 \times 65} $		 \\
+        	             	& $x_{N_2} = [1, 2.5, ..., 3]_{1 \times 65} $		 \\
+Actions, $u$                & $\Delta u_{O_2} = [-0.50, -0.44, ..., 0.50]_{1 \times 16}$	         \\
+                            & $\Delta u_{N_2} = [-0.50, -0.44, ..., 0.50]_{1 \times 16}$		\\
 Reward, $r$	                & Equation \ref{eq:04WWTP_reward}		\\
 Learning rate, $\alpha$		& [0.001, 0.5]		 \\
 Discount factor, $\gamma$      	& 0.97  \\
 Exploratory factor, $\epsilon$             & [0.1, 0.5]  \\
 Heuristics Acceleration     & Upper Confidence Bound \\
 Degree of exploration, $c$  & 1.2 \\
-Evaluation time                 & 15 seconds \\
+Evaluation time                 & 15 minutes \\
 System representation           & FOMDP \\
 \end{tabular}
 \end{table}
@@ -899,7 +899,7 @@ Lastly, the learning rate of the agent was decayed using:
 \]
 Intuitively, $\alpha \in [0.001, 0.5]$ is very high for the first 15 visits for each state-action pair.  Afterwards, the learning rate is decayed until a minimum value of 0.001.
 
-Finally, the pseudo-code for the UCB $Q$-learning algorithm is given in by:
+Finally, the pseudo-code for the UCB $Q$-learning algorithm used in this particular study is given by:
 \begin{table}[h]
 	\def\arraystretch{1.2}
 	\begin{tabular}{p{15cm}}
@@ -923,7 +923,7 @@ Finally, the pseudo-code for the UCB $Q$-learning algorithm is given in by:
 		\hspace{2cm} \textbf{\emph{If}} $n > \epsilon$: Choose \emph{u} from \emph{x} given max Q, \textbf{break ties randomly*} \\
 		\hspace{2cm} \textbf{\emph{Else}}: Choose random \emph{u} \\
 		\hspace{2cm} Perform action \emph{u}, observe \emph{r}, \emph{s'} \\
-		\hspace{2cm} $Q(x, u) \leftarrow Q(x, u) + \alpha(r + \gamma max(Q(x', u) - Q(x, u)$ \\
+		\hspace{2cm} $Q(x, u) \leftarrow Q(x, u) + \alpha(r + \gamma max(Q(x', u) - Q(x, u))$ \\
 		\hspace{2cm} $x \leftarrow x'$ \\
 		\hspace{2cm} $N_t(x, u) \leftarrow N_t(x, u) + 1$ \\
 		\hspace{2cm} $T(x, \neq u) \leftarrow t(x, \neq u) + 1$ \\
@@ -947,6 +947,7 @@ The control system design is shown in Figure \ref{fig:04wwtp_rl}. In this study,
 Two discrete PI controllers were used to control this system.  The discrete PI formulation is given by:
 \begin{equation}
     \Delta u) = K_c[e(t_k) - e(t_{k-1})] + \dfrac{K_cT_s}{T_i}e(t_k)
+    \label{eq:04discrete_pid}
 \end{equation}
 \begin{table}[H]
 	\begin{tabular}{p{1.5cm}p{6.5cm}}
@@ -977,10 +978,54 @@ The parameters of the two PI controllers are given in Table \ref{tab04:pi_parame
 	\label{tab04:pi_parameters}
 \end{table}
 
-The 
+The pseudo-code for the supervisory RL controllers are as follows:
+\begin{table}[h]
+	\def\arraystretch{1.2}
+	\begin{tabular}{p{15.5cm}}
+	\hline
+	\emph{Supervisory Control - Dissolved Oxygen Controller Information Flow} \\ \hline
+	\textbf{Initiate Plant Operations} \\
+	\hspace{0.75cm} \textbf{Regulatory Control Layer} \\
+	\hspace{0.75cm} Observe dissolved oxygen level, $x_{o}$, in unit 5\\
+	\hspace{0.75cm} Calculate error \emph{e}: $x_{o}$ - $x_{o, setpoint}$ \\
+	\hspace{0.75cm} Calculate $\Delta u_{O_2}$ from Equation \ref{eq:04discrete_pid} \\
+	\hspace{1.5cm} \textbf{Supervisory Control Layer} \emph{every 60 mins} \\
+	\hspace{2.25cm} \textbf{If} first RL evaluation, \emph{skip} \\
+	\hspace{2.25cm} \textbf{Else} Observe $r_t, \; x_{o, t+1}$, update $Q, \; N_t, \; T$ \\
+	\hspace{2.25cm} $x_o \leftarrow x_{o, t+1}$ \\
+	\hspace{1.5cm} Current state: $x_o$ \\
+	\hspace{1.5cm} Apply \emph{reinforcement learning} to find optimal set-point change \\
+	\hspace{1.5cm} Apply set-point change \\
+	\hspace{0.75cm} repeat forever or until terminal state \\
+	\hline
+	\end{tabular}
+\end{table}
+
+\begin{table}[h]
+	\def\arraystretch{1.2}
+	\begin{tabular}{p{15.5cm}}
+	\hline
+	\emph{Supervisory Control - Nitrogen Controller Information Flow} \\ \hline
+	\textbf{Initiate Plant Operations} \\
+	\hspace{0.75cm} \textbf{Regulatory Control Layer} \\
+	\hspace{0.75cm} Observe nitrogen level in unit 5\\
+	\hspace{0.75cm} Calculate error \emph{e}: $x_{n}$ - $x_{n, setpoint}$ \\
+	\hspace{0.75cm} Calculate $\Delta u_{N_2}$ from Equation \ref{eq:04discrete_pid} \\
+	\hspace{1.5cm} \textbf{Supervisory Control Layer} \emph{every 60 mins} \\
+	\hspace{2.25cm} \textbf{If} first RL evaluation, \emph{skip} \\
+	\hspace{2.25cm} \textbf{Else} Observe $r_t, \; x_{n, t+1}$, update $Q, \; N_t, \; T$ \\
+	\hspace{2.25cm} $x_n \leftarrow x_{n, t+1}$ \\
+	\hspace{1.5cm} Current state: $x_n$ \\
+	\hspace{1.5cm} Apply \emph{reinforcement learning} to find optimal set-point change \\
+	\hspace{1.5cm} Apply set-point change \\
+	\hspace{0.75cm} repeat forever or until terminal state \\
+	\hline
+	\end{tabular}
+\end{table}
+
 
 \subsection{Comparison with MPC}
-To validate the optimality of the solution provided by RL, it was compared to four variants of MPC: 1) centralized MPC (CMPC); 2) centralized EMPC (CEMPC); 3) distributed EMPC using a centralized model (DEMPCE); 4) distributed EMPC using subsystem models (DEMPCS).  The objective functions and subsystem decomposition of the MPCs are from \cite{an_mpc}.  The RL agent was trained for approximately 383.6 years in simulation (2 hour physical time) under dry weather conditions on a typical office computer (i7-6700 with no graphics processing unit).
+To validate the optimality of the solution provided by RL, it was compared to four variants of MPC: 1) centralized MPC (CMPC); 2) centralized EMPC (CEMPC); 3) distributed EMPC using a centralized model (DEMPCE); 4) distributed EMPC using subsystem models (DEMPCS).  The objective functions and subsystem decomposition of the MPCs are from \cite{an_mpc}. All controllers had sampling times of 15 minutes. The RL agent was trained for approximately 383.6 years in simulation (2 hour physical time) under dry weather conditions on a typical office computer (Intel i7-6700 with no graphics processing unit).
 
 The EQ and OCI of RL and the four MPC variants are shown in Table \ref{tab:04rl_vs_mpcs}.  Even in such a complex environment, RL was able to generate highly comparable performance to MPC. In terms of EQ and energy usage, RL used more energy but produced less waste while MPC used less energy, but produced more waste.  In terms of OCI, RL was only 0.129\% higher compared to the best performance achieved by MPC.  Moreover, MPC used a perfect process model whereas RL learned the optimal policy solely through self-play.  Additionally, the computation time of RL in this system was dramatically less compared to MPC. In fact, most of the computation time used by RL was to solve the system equations, and not to generate the control inputs. 
 

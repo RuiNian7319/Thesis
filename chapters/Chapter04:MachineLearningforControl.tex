@@ -872,9 +872,25 @@ System representation           & FOMDP \\
 \end{tabular}
 \end{table}
 
-The reward function of the agent is given by:
+The reward function of the agent is given by the summation of the following three Equations:
 \begin{equation}
-    r = 
+    
+    \label{eq:04r1}
+\end{equation}
+
+\begin{equation}
+    
+    \label{eq:04r2}
+\end{equation}
+\begin{equation}
+    
+    \label{eq:04r3}
+\end{equation}
+
+
+Combining Equations \ref{eq:04r1}, \ref{eq:04r2}, and \ref{eq:04r3}, the scalar reward function for the agent is given by:
+\begin{equation}
+    r = r_1 + r_2 + r_3
     \label{eq:04WWTP_reward}
 \end{equation}
 where the large negatives are used for \textit{soft} state constraints, heavily discouraging the agent from approaching those states. 
@@ -979,7 +995,7 @@ The parameters of the two PI controllers are given in Table \ref{tab04:pi_parame
 \end{table}
 
 The pseudo-code for the supervisory RL controllers are as follows:
-\begin{table}[h]
+\begin{table}[H]
 	\def\arraystretch{1.2}
 	\begin{tabular}{p{15.5cm}}
 	\hline
@@ -989,8 +1005,8 @@ The pseudo-code for the supervisory RL controllers are as follows:
 	\hspace{0.75cm} Observe dissolved oxygen level, $x_{o}$, in unit 5\\
 	\hspace{0.75cm} Calculate error \emph{e}: $x_{o}$ - $x_{o, setpoint}$ \\
 	\hspace{0.75cm} Calculate $\Delta u_{O_2}$ from Equation \ref{eq:04discrete_pid} \\
-	\hspace{1.5cm} \textbf{Supervisory Control Layer} \emph{every 60 mins} \\
-	\hspace{2.25cm} \textbf{If} first RL evaluation, \emph{skip} \\
+	\hspace{1.5cm} \textbf{Supervisory Control Layer} \emph{every 15 mins} \\
+	\hspace{2.25cm} \textbf{Do} first RL evaluation, \emph{skip} \\
 	\hspace{2.25cm} \textbf{Else} Observe $r_t, \; x_{o, t+1}$, update $Q, \; N_t, \; T$ \\
 	\hspace{2.25cm} $x_o \leftarrow x_{o, t+1}$ \\
 	\hspace{1.5cm} Current state: $x_o$ \\
@@ -1001,7 +1017,7 @@ The pseudo-code for the supervisory RL controllers are as follows:
 	\end{tabular}
 \end{table}
 
-\begin{table}[h]
+\begin{table}[H]
 	\def\arraystretch{1.2}
 	\begin{tabular}{p{15.5cm}}
 	\hline
@@ -1011,7 +1027,7 @@ The pseudo-code for the supervisory RL controllers are as follows:
 	\hspace{0.75cm} Observe nitrogen level in unit 5\\
 	\hspace{0.75cm} Calculate error \emph{e}: $x_{n}$ - $x_{n, setpoint}$ \\
 	\hspace{0.75cm} Calculate $\Delta u_{N_2}$ from Equation \ref{eq:04discrete_pid} \\
-	\hspace{1.5cm} \textbf{Supervisory Control Layer} \emph{every 60 mins} \\
+	\hspace{1.5cm} \textbf{Supervisory Control Layer} \emph{every 15 mins} \\
 	\hspace{2.25cm} \textbf{If} first RL evaluation, \emph{skip} \\
 	\hspace{2.25cm} \textbf{Else} Observe $r_t, \; x_{n, t+1}$, update $Q, \; N_t, \; T$ \\
 	\hspace{2.25cm} $x_n \leftarrow x_{n, t+1}$ \\

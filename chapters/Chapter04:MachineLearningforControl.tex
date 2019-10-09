@@ -872,28 +872,54 @@ System representation           & FOMDP \\
 \end{tabular}
 \end{table}
 
-The reward function of the agent is given by the summation of the following three Equations:
+The reward function of the agent is given by the summation of the following four Equations.  Equation \ref{eq:04r1} provides feedback regarding the effluent quality and is given as:
 \begin{equation}
-    
-    \label{eq:04r1}
+    r_1 =
+\begin{cases}
+        5130 - EQ,              & \text{if } EQ < 5130 \\
+        -(EQ - 5130)^2,              & otherwise 
+        \label{eq:04r1}
+\end{cases}
 \end{equation}
 
+Equation \ref{eq:04r2} considers the aeration energy cost.
 \begin{equation}
-    
+    r_2 =
+\begin{cases}
+    (3480 - AE) * 3,              & \text{if } AE  < 3480 \\
+    -(AE - 3480)^2,              & otherwise 
     \label{eq:04r2}
+\end{cases}
 \end{equation}
+
+Similarily, Equation \ref{eq:04r3} considers the pumping energy cost.
 \begin{equation}
-    
+    r_3 =
+\begin{cases}
+    288 - PE,              & \text{if } PE  < 288 \\
+    -(PE - 288)^2,              & otherwise 
     \label{eq:04r3}
+\end{cases}
 \end{equation}
 
-
-Combining Equations \ref{eq:04r1}, \ref{eq:04r2}, and \ref{eq:04r3}, the scalar reward function for the agent is given by:
+And lastly, Equation \ref{eq:04r4} is for constraint handling.  Note here that constraint handling is not guaranteed with RL.
 \begin{equation}
-    r = r_1 + r_2 + r_3
+    r_4 =
+\begin{cases}
+    -5000,              & \text{if } N_{tot} > 18 \\
+    -5000,              & \text{if } COD > 100 \\
+    -5000,              & \text{if } S_{nh(e)} > 4 \\
+    -5000,              & \text{if } TSS > 30 \\
+    -5000,              & \text{if } BOD > 10 
+    \label{eq:04r4}
+\end{cases}
+\end{equation}
+
+Combining Equations \ref{eq:04r1}, \ref{eq:04r2}, \ref{eq:04r3}, and \ref{eq:04r4}, the scalar reward function for the agent is given by:
+\begin{equation}
+    r = r_1 + r_2 + r_3 + r_4
     \label{eq:04WWTP_reward}
 \end{equation}
-where the large negatives are used for \textit{soft} state constraints, heavily discouraging the agent from approaching those states. 
 
 For exploration, the agent used UCB and followed an $\epsilon$-greedy exploratory policy. As a quick reminder, UCB provides the agent with unique learning rates for each state-action pair and promotes exploration in states that have a high probability of being optimal (instead of random exploration). The UCB algorithm was given in Equation \ref{ucb} and $\epsilon$ was given by:
 \[
@@ -996,17 +1022,18 @@ The parameters of the two PI controllers are given in Table \ref{tab04:pi_parame
 
 The pseudo-code for the supervisory RL controllers are as follows:
 \begin{table}[H]
-	\def\arraystretch{1.2}
 	\begin{tabular}{p{15.5cm}}
 	\hline
 	\emph{Supervisory Control - Dissolved Oxygen Controller Information Flow} \\ \hline
 	\textbf{Initiate Plant Operations} \\
 	\hspace{0.75cm} \textbf{Regulatory Control Layer} \\
-	\hspace{0.75cm} Observe dissolved oxygen level, $x_{o}$, in unit 5\\
-	\hspace{0.75cm} Calculate error \emph{e}: $x_{o}$ - $x_{o, setpoint}$ \\
+	\hspace{0.75cm} Observe dissolved oxygen level, $x_{O_2, t}$, in unit 5\\
+	\hspace{0.75cm} Calculate error \emph{e}: $x_{O_2}$ - $x_{O_2, setpoint}$ \\
 	\hspace{0.75cm} Calculate $\Delta u_{O_2}$ from Equation \ref{eq:04discrete_pid} \\
 	\hspace{1.5cm} \textbf{Supervisory Control Layer} \emph{every 15 mins} \\
-	\hspace{2.25cm} \textbf{Do} first RL evaluation, \emph{skip} \\
+	\hspace{2.25cm} \textbf{Observe} x_{O_2, t} \\
+	\hspace{2.25cm} \textbf{If} U(0, 1) > $\epsilon$ \\
+	\hspace{3cm} \textbf{Do} U(0, 1) > $\epsilon$ \\
 	\hspace{2.25cm} \textbf{Else} Observe $r_t, \; x_{o, t+1}$, update $Q, \; N_t, \; T$ \\
 	\hspace{2.25cm} $x_o \leftarrow x_{o, t+1}$ \\
 	\hspace{1.5cm} Current state: $x_o$ \\
@@ -1017,14 +1044,26 @@ The pseudo-code for the supervisory RL controllers are as follows:
 	\end{tabular}
 \end{table}
 
+
+
+\hspace{2cm} \textbf{\emph{If}} $n > \epsilon$: Choose \emph{u} from \emph{x} given max Q, \textbf{break ties randomly*} \\
+\hspace{2cm} \textbf{\emph{Else}}: Choose random \emph{u} \\
+\hspace{2cm} Perform action \emph{u}, observe \emph{r}, \emph{s'} \\
+\hspace{2cm} $Q(x, u) \leftarrow Q(x, u) + \alpha(r + \gamma max(Q(x', u) - Q(x, u))$ \\
+\hspace{2cm} $x \leftarrow x'$ \\
+\hspace{2cm} $N_t(x, u) \leftarrow N_t(x, u) + 1$ \\
+\hspace{2cm} $T(x, \neq u) \leftarrow t(x, \neq u) + 1$ \\
+\hspace{1cm} until convergence or x is a terminal state \\
+
+
+
 \begin{table}[H]
-	\def\arraystretch{1.2}
 	\begin{tabular}{p{15.5cm}}
 	\hline
 	\emph{Supervisory Control - Nitrogen Controller Information Flow} \\ \hline
 	\textbf{Initiate Plant Operations} \\
 	\hspace{0.75cm} \textbf{Regulatory Control Layer} \\
-	\hspace{0.75cm} Observe nitrogen level in unit 5\\
+	\hspace{0.75cm} Observe nitrogen level, $x_{N_2}$, in unit 5\\
 	\hspace{0.75cm} Calculate error \emph{e}: $x_{n}$ - $x_{n, setpoint}$ \\
 	\hspace{0.75cm} Calculate $\Delta u_{N_2}$ from Equation \ref{eq:04discrete_pid} \\
 	\hspace{1.5cm} \textbf{Supervisory Control Layer} \emph{every 15 mins} \\

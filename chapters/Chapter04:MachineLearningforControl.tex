@@ -961,15 +961,15 @@ Finally, the pseudo-code for the UCB $Q$-learning algorithm used in this particu
 		\hspace{1cm}  Initialize $Q(x, u): \mathcal{X} \times \mathcal{U} \rightarrow \mathbb{R} \; arbitrarily$ \\
 		\hspace{1cm} Initialize initial state, $x$ \\
 		\hspace{1cm} \textbf{\emph{While}} Q is not converged \textbf{do} \\
-		\hspace{2cm} Generate random number, $n \; \in [0, 1]$ \\
+		\hspace{2cm} Generate random number, $n \thicksim U[0, 1]$ \\
 		\hspace{2cm} \textbf{\emph{If}} $n > \epsilon$: Choose \emph{u} from \emph{x} given max Q, \textbf{break ties randomly*} \\
 		\hspace{2cm} \textbf{\emph{Else}}: Choose random \emph{u} \\
 		\hspace{2cm} Perform action \emph{u}, observe \emph{r}, \emph{s'} \\
-		\hspace{2cm} $Q(x, u) \leftarrow Q(x, u) + \alpha(r + \gamma max(Q(x', u) - Q(x, u))$ \\
+		\hspace{2cm} $Q(x, u) \leftarrow Q(x, u) + \alpha(r + \gamma max_u' Q(x', u') - Q(x, u))$ \\
 		\hspace{2cm} $x \leftarrow x'$ \\
 		\hspace{2cm} $N_t(x, u) \leftarrow N_t(x, u) + 1$ \\
 		\hspace{2cm} $T(x, \neq u) \leftarrow t(x, \neq u) + 1$ \\
-		\hspace{1cm} until convergence or x is a terminal state \\ \hline
+		\hspace{1cm} until convergence or $x$ is a terminal state \\ \hline
 		*Note: Ties must be broken randomly to avoid bias.
 	\end{tabular}
 \end{table}
@@ -1031,31 +1031,20 @@ The pseudo-code for the supervisory RL controllers are as follows:
 	\hspace{0.75cm} Calculate error \emph{e}: $x_{O_2}$ - $x_{O_2, setpoint}$ \\
 	\hspace{0.75cm} Calculate $\Delta u_{O_2}$ from Equation \ref{eq:04discrete_pid} \\
 	\hspace{1.5cm} \textbf{Supervisory Control Layer} \emph{every 15 mins} \\
-	\hspace{2.25cm} \textbf{Observe} x_{O_2, t} \\
-	\hspace{2.25cm} \textbf{If} U(0, 1) > $\epsilon$ \\
-	\hspace{3cm} \textbf{Do} U(0, 1) > $\epsilon$ \\
-	\hspace{2.25cm} \textbf{Else} Observe $r_t, \; x_{o, t+1}$, update $Q, \; N_t, \; T$ \\
-	\hspace{2.25cm} $x_o \leftarrow x_{o, t+1}$ \\
-	\hspace{1.5cm} Current state: $x_o$ \\
-	\hspace{1.5cm} Apply \emph{reinforcement learning} to find optimal set-point change \\
-	\hspace{1.5cm} Apply set-point change \\
+	\hspace{2.25cm} \textbf{Observe} initial $x_{O_2, t}$ \\
+	\hspace{2.25cm} Generate random number, $n \thicksim U[0, 1]$ \\
+    \hspace{2.25cm} \textbf{\emph{If $n > \epsilon$:}} \\ 
+    \hspace{3cm} Choose \emph{u} from \emph{x} given max Q, \textbf{break ties randomly*} \\
+    \hspace{2.25cm} \textbf{\emph{Else}}: \\
+    \hspace{3cm} Choose random \emph{u} \\
+	\hspace{2.25cm} Perform action: $x_{O_2, sp} \leftarrow x_{O_2, sp} + u$ \\
+	\hspace{2.25cm} \textbf{Observe} $r_{t+1}, \; x_{O_2, t+1}$, update $Q, \; N_t, \; T$ \\
+    \hspace{2.25cm} $Q(x_{O_2, t}, u_t) \leftarrow Q(x_{O_2, t}, u_t) + \alpha(r_t + \gamma \max_{u_{t+1}} Q(x_{O_2, t+1}, u_{t+1}) - Q(x_{O_2, t}, u_t))$ \\
+	\hspace{2.25cm} $x_{O_2} \leftarrow x_{O_2, t+1}$ \\
 	\hspace{0.75cm} repeat forever or until terminal state \\
 	\hline
 	\end{tabular}
 \end{table}
-
-
-
-\hspace{2cm} \textbf{\emph{If}} $n > \epsilon$: Choose \emph{u} from \emph{x} given max Q, \textbf{break ties randomly*} \\
-\hspace{2cm} \textbf{\emph{Else}}: Choose random \emph{u} \\
-\hspace{2cm} Perform action \emph{u}, observe \emph{r}, \emph{s'} \\
-\hspace{2cm} $Q(x, u) \leftarrow Q(x, u) + \alpha(r + \gamma max(Q(x', u) - Q(x, u))$ \\
-\hspace{2cm} $x \leftarrow x'$ \\
-\hspace{2cm} $N_t(x, u) \leftarrow N_t(x, u) + 1$ \\
-\hspace{2cm} $T(x, \neq u) \leftarrow t(x, \neq u) + 1$ \\
-\hspace{1cm} until convergence or x is a terminal state \\
-
-
 
 \begin{table}[H]
 	\begin{tabular}{p{15.5cm}}
@@ -1063,16 +1052,20 @@ The pseudo-code for the supervisory RL controllers are as follows:
 	\emph{Supervisory Control - Nitrogen Controller Information Flow} \\ \hline
 	\textbf{Initiate Plant Operations} \\
 	\hspace{0.75cm} \textbf{Regulatory Control Layer} \\
-	\hspace{0.75cm} Observe nitrogen level, $x_{N_2}$, in unit 5\\
-	\hspace{0.75cm} Calculate error \emph{e}: $x_{n}$ - $x_{n, setpoint}$ \\
+	\hspace{0.75cm} Observe nitrogen level, $x_{N_2, t}$, in unit 5\\
+	\hspace{0.75cm} Calculate error \emph{e}: $x_{N_2}$ - $x_{N_2, setpoint}$ \\
 	\hspace{0.75cm} Calculate $\Delta u_{N_2}$ from Equation \ref{eq:04discrete_pid} \\
 	\hspace{1.5cm} \textbf{Supervisory Control Layer} \emph{every 15 mins} \\
-	\hspace{2.25cm} \textbf{If} first RL evaluation, \emph{skip} \\
-	\hspace{2.25cm} \textbf{Else} Observe $r_t, \; x_{n, t+1}$, update $Q, \; N_t, \; T$ \\
-	\hspace{2.25cm} $x_n \leftarrow x_{n, t+1}$ \\
-	\hspace{1.5cm} Current state: $x_n$ \\
-	\hspace{1.5cm} Apply \emph{reinforcement learning} to find optimal set-point change \\
-	\hspace{1.5cm} Apply set-point change \\
+	\hspace{2.25cm} \textbf{Observe} initial $x_{N_2, t}$ \\
+	\hspace{2.25cm} Generate random number, $n \thicksim U[0, 1]$ \\
+    \hspace{2.25cm} \textbf{\emph{If $n > \epsilon$:}} \\ 
+    \hspace{3cm} Choose \emph{u} from \emph{x} given max Q, \textbf{break ties randomly*} \\
+    \hspace{2.25cm} \textbf{\emph{Else}}: \\
+    \hspace{3cm} Choose random \emph{u} \\
+	\hspace{2.25cm} Perform action: $x_{N_2, sp} \leftarrow x_{N_2, sp} + u$ \\
+	\hspace{2.25cm} \textbf{Observe} $r_{t+1}, \; x_{N_2, t+1}$, update $Q, \; N_t, \; T$ \\
+    \hspace{2.25cm} $Q(x_{N_2, t}, u_t) \leftarrow Q(x_{N_2, t}, u_t) + \alpha(r_t + \gamma \max_{u_{t+1}} Q(x_{N_2, t+1}, u_{t+1}) - Q(x_{N_2, t}, u_t))$ \\
+	\hspace{2.25cm} $x_{N_2} \leftarrow x_{N_2, t+1}$ \\
 	\hspace{0.75cm} repeat forever or until terminal state \\
 	\hline
 	\end{tabular}

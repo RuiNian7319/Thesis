@@ -322,7 +322,7 @@ In industrial processes, alarm floods are mostly caused by chattering and redund
 The first algorithm in the SMART alarm management system is alarm reduction. Here, two methods will be proposed: 1) Alarm sequencing based on pattern recognition; 2) Alarm suppression via RL.
 
 \subsubsection{Alarm Sequencing}
-The first alarm reduction algorithm is called alarm sequencing.  The main goal is to create a sequence dictionary comprising of alarms that often occur (temporally) together \cite{alarm_sequence}.  For example, if alarms 1 and 2 frequently occur one after another, an alarm sequence, \emph{Sequence 1}, could be generated representing alarms 1 and 2. During an alarm flooding scenario, operators would see sequence 1 rather than alarms 1 and 2. In this simple scenario, the number of alarms would be halved.  More significant reduction in alarms can be achieved if 10 or 100 alarms often occur together.  The steps for the alarm reduction algorithm are shown in Table \ref{alg:03AlarmReduce}.
+The first alarm reduction algorithm is called alarm sequencing.  The main goal is to create a sequence dictionary comprising of alarms that often occur (temporally) together \cite{alarm_sequence}.  For example, if alarms 1 and 2 frequently occur one after another, an alarm sequence, \emph{Sequence 1}, could be generated representing alarms 1 and 2. During an alarm flooding scenario, operators would see sequence 1 rather than alarms 1 and 2. In this simple scenario, the number of alarms would be halved.  More significant reduction in alarms can be achieved if 10 or 100 alarms often occur together.  The steps for the alarm reduction algorithm during initial set-up and online implementation is shown in Table \ref{alg:03AlarmReduce}.
 
 \clearpage
 \begin{table}[H]
@@ -356,11 +356,11 @@ The first alarm reduction algorithm is called alarm sequencing.  The main goal i
 	\hspace{1cm} \textbf{Group} previous two alarms \\
 	\hspace{1.5cm} Check sequence dictionary for match \\
 	\hspace{1.5cm} \textbf{If match} \\
-	\hspace{2cm} Replace previous two alarms with sequence \\
+	\hspace{2cm} Replace previous two alarms with first alarm in sequence \\
 	\hspace{1cm} \textbf{Group} previous three alarms \\
 	\hspace{1.5cm} Check sequence dictionary for match \\
 	\hspace{1.5cm} \textbf{If match} \\
-	\hspace{2cm} Replace previous three alarms with sequence \\
+	\hspace{2cm} Replace previous three alarms with with first alarm in sequence \\
 	\hspace{1.5cm} ... \\
 	\hspace{1.5cm} ... \\
 	\hspace{1cm} \emph{Repeat until end of sequence dictionary} \\
@@ -370,17 +370,24 @@ The first alarm reduction algorithm is called alarm sequencing.  The main goal i
 	\label{alg:03AlarmReduce}
 \end{table}
 
-
-
-
-
+During online implementation, the alarm sequences are masked with the alarm in the sequence because the first alarm typically corresponds to the \textit{root cause} of the entire alarm sequence \cite{alarm_sequence}.  Additionally, displaying alarm sequences during live events do not help operators because it is essentially the same amount of alarms, except displayed differently.
 
 \subsubsection{Alarm Reduction through Suppression}
+The second alarm reduction method filters out low impact alarms altogether.  First, the algorithm uses RL to assign credits to different alarms given 
 
+
+Because $Q$-values may have significantly different magnitudes across different processes, the $Q$-values are first normalized using:
 \begin{equation}
     Q_{i, norm} = \frac{Q_i - Q_{ave}}{\sigma}
 \end{equation}
-where $\sigma$ denotes the ...
+where $\sigma$ denotes the standard deviation of the $Q$-values.  In tabular cases, the mean and standard deviation of the $Q$-values can be found trivially; however, deep RL approaches may face challenges.  One recommended solution would be to discretize the system and calculate the corresponding $Q$-values for each set of states and actions.  For example, suppose there exists a SISO system with $x \in [0, 5]$ and $u \in [5, 10]$.  The states and actions can be discretized as: $x = [0, 1, 2, 3, 4, 5]; u = [5, 6, 7, 8, 9, 10]$ and the average $Q$-values can be calculated as:
+\begin{equation}
+    Q_{ave} = \frac{1}{p \times q} \sum_{i, j = 0}^{p, q} Q(x_i, u_j | \theta)
+\end{equation}
+where $x_p$ and $u_q$ are the $p^{th}$ and $q^{th}$ state and action, respectively. Moreover, the standard deviation can be calculated as:
+\begin{equation}
+    \sigma = \sqrt{\frac{\sum (Q_i - Q_{ave})^2}{p \times q}}
+\end{equation}
 
 
 

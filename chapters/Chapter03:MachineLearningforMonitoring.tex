@@ -273,11 +273,10 @@ From Figure \ref{fig:03SHAPFig}, the red and blue arrows represent variables tha
 Industry today is plagued with many problems that require advanced algorithms to overcome. Two of the largest problems are production optimization and alarm management. With continually pressure from environmental groups and ever-increasing government regulations, large industrial companies are forced to reduce their environmental footprints while improving output quality. The status quo also believes in zero-incident policies, i.e., all workplace incidents are preventable and unacceptable; therefore, it is in the best interest of the companies to implement effective, yet cheap, safety systems or their social license to operate could be compromised. To tackle these issues, the University of Alberta's process control team applied artificial intelligence (AI) algorithms in conjunction with classical approaches to an industrial scale wastewater treatment plant (WWTP). The objectives were threefold: i) Design self-learning and adaptive RL controllers to seek out optimal operating strategies. In this case, the controllers must identify the optimal policy to meet government regulations in the most energy efficient way; ii) direct adaptive control, allowing the RL controller to learn optimal operating strategies as the operating conditions change by adapting the policy directly (not model re-identification since some systems may be unidentifiable), i.e. adapting to changes in season, new government regulations, etc; iii) superior alarm management by developing state-of-the-art alarm reduction and prioritization algorithms through pattern recognition and communication establishment between RL and the alarm system. Objectives 1 and 2 will be discussed in Chapter 4, objective 3 will be discussed in the following subsections.
 
 Traditionally, alarms were the first line of defense against abnormalities in chemical processes, and were very effective \cite{alarm_manage}. Due to their cost of implementation, many teams of engineers and subject matter experts would gather together to brain storm the most effective alarm strategies. However, today's plants are littered with thousands of alarms due to the price of alarms plummeting after the invention of digital alarms. And because of their sheer number, many alarms are redundant and convey no additional information. 
-
-This project aims to firstly reduce the amount of alarm floods to prevent overwhelming the operators. Secondly, an alarm prioritization algorithm will be introduced so operators can focus their attention on the highest impact alarms first.
+This project aims to firstly reduce the amount of alarm floods through suppression and pattern recognition. Secondly, an alarm prioritization algorithm will be introduced so operators can focus their attention on the highest impact alarms first.
 
 \subsection{System Description}
-Figure 1 shows a schematic diagram of the WWTP.  A dynamic model of the WWTP was first built using the Benchmark Simulation No.1 documentation from the International Water Association \cite{wwtp}.  The WWTP comprises of a five-compartment activated sludge reactor and a ten-stage gravity separator.  The first two compartments of the reactor are anoxic tanks, the last three compartments are aerobic tanks.  The two control strategies are:
+Figure \ref{fig:03WWTP} shows a schematic diagram of the WWTP.  A dynamic model of the WWTP was first built using the Benchmark Simulation No.1 documentation from the International Water Association \cite{wwtp}.  The WWTP comprises of a five-compartment activated sludge reactor and a ten-stage gravity separator.  The first two compartments of the reactor are anoxic tanks, the last three compartments are aerobic tanks.  The two control strategies are:
 
 \begin{itemize}
 	\item Manipulating the oxygen transfer coefficient $(K_La_5)$ to control the dissolved oxygen level in tank 5 
@@ -291,9 +290,17 @@ Figure 1 shows a schematic diagram of the WWTP.  A dynamic model of the WWTP was
     \label{fig:03WWTP}
 \end{figure}
 
-The WWTP contains 145 states, 2 control actions, and 14 disturbances.  The input states are the characteristics (flow rate, composition, etc.) of the influent into the WWTP.  There are three sets of inputs available to the WWTP: i) Dry weather data. ii) Rain weather data. iii) Storm weather data.  The dry weather data was used for the results presented in this section. For more information, please refer to the Benchmark Simulation No.1 documentation \cite{wwtp}.
+The WWTP contains 145 states, 2 control actions, and 14 disturbances.  The states describe the characteristics of the overall WWTP system and contain process variables such as the flow rate and product compositions.  There are three sets of disturbances available to the WWTP: i) Dry weather data. ii) Rain weather data. iii) Storm weather data.  The results presented here use the dry weather data. For more detailed information regarding the WWTP, please refer to the Benchmark Simulation No.1 documentation \cite{wwtp}.
 
-There exists five environmental constraints on the process: 1) Total nitrogen ($N_{tot}$); 2) chemical oxygen demand (COD); 3) $NH_4^+ + NH_3$ nitrogen ($S_{NH}$); 4) total suspended solids (TSS); 5) biochemical oxygen demand (BOD). The threshold for the environmental constraints is given as follows:
+There exists five environmental constraints on the process:
+\begin{enumerate}
+    \item Total nitrogen ($N_{tot}$)
+    \item Chemical oxygen demand (COD)
+    \item $NH_4^+ + NH_3$ nitrogen ($S_{NH}$)
+    \item Total suspended solids (TSS)
+    \item Biochemical oxygen demand (BOD)
+\end{enumerate}
+The threshold for the environmental constraints is given as follows:
 \[
     Alarm = 
 \begin{cases}
@@ -306,10 +313,16 @@ There exists five environmental constraints on the process: 1) Total nitrogen ($
 \]
 If any of the above constraints are violated, an alarm will sound.
 
+\subsection{Basics of Alarms}
+In simple terms, alarm management is a special case of fault detection problem. Let $f_i \in \mathcal{F}$ be a set of possible faults and $A_i \in \mathcal{A}$ be a set of possible alarms.  In simple terms, $f_i \rightarrow A_i$.  That is, all alarms are generated by a fault or sequence of faults. In alarm management, $A_i$ is given; therefore, the task is the reverse (i.e., identify $A_i \rightarrow f_i$) \cite{alarm_nn}.
 
+In industrial processes, alarm floods are mostly caused by chattering and redundant alarms or by poor alarm threshold design \cite{alarm_manage}. Chattering alarms often occur on noisy process variables. Here, the measurement(s) repeatedly violate the alarm limits purely due to measurement noise and do not pose any threat to the operation.  Redundant alarms refer to ones that repeat the same information as previous alarm.  For example, placing two alarms on a pipeline in series will cause the second alarm to be redundant because any process upsets will already be reported by the first alarm. Furthermore, many alarms are just poorly designed and contain extremely low thresholds; thus, activating even when no process upsets are present.  Given that thousands of alarms may be triggered at once, the prioritization of different alarms is equally difficult.  In this study, alarm reduction methods based on pattern recognition and RL will first be introduced.  Then, an alarm prioritization method on RL will be shown.
 
 \subsection{Alarm Reduction}
-Alarm flooding is one of the biggest problems in alarm management.  During abnormal events in the plant, thousands of alarms may go off simultaneously due to poor alarm system design, rendering the whole system useless.  The first algorithm in the SMART alarm management system is alarm reduction.  The general idea of the alarm reduction algorithm is to create a sequence dictionary.  The dictionary comprises of sequences of alarms that often occur together.  For example, if alarms 1 and 2 occur frequently together, an alarm sequence, \emph{Sequence 1}, could be generated representing alarms 1 and 2.  With this, the number of alarms would be halved.  More significant reduction in alarms can be achieved if 10 or 100 alarms often occur together.  The steps for the alarm reduction algorithm are shown in Table \ref{alg:03AlarmReduce}.
+The first algorithm in the SMART alarm management system is alarm reduction. Here, two methods will be proposed: 1) Alarm sequencing based on pattern recognition; 2) Alarm suppression via RL.
+
+\subsubsection{Alarm Sequencing}
+The first alarm reduction algorithm is called alarm sequencing.  The main goal is to create a sequence dictionary comprising of alarms that often occur (temporally) together \cite{alarm_sequence}.  For example, if alarms 1 and 2 frequently occur one after another, an alarm sequence, \emph{Sequence 1}, could be generated representing alarms 1 and 2. During an alarm flooding scenario, operators would see sequence 1 rather than alarms 1 and 2. In this simple scenario, the number of alarms would be halved.  More significant reduction in alarms can be achieved if 10 or 100 alarms often occur together.  The steps for the alarm reduction algorithm are shown in Table \ref{alg:03AlarmReduce}.
 
 \clearpage
 \begin{table}[H]
@@ -364,7 +377,7 @@ Alarm flooding is one of the biggest problems in alarm management.  During abnor
 
 
 
-\subsection{Alarm Reduction through Suppression}
+\subsubsection{Alarm Reduction through Suppression}
 
 \begin{equation}
     Q_{i, norm} = \frac{Q_i - Q_{ave}}{\sigma}

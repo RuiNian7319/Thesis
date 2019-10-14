@@ -289,19 +289,17 @@ The number of anomalous and non-anomalous data in the training and validation da
     \label{tab:03train_validate}
 \end{table}
 
-Afterwards, logistic regression was applied onto the training data set.  The hyper parameters of the logistic regression is given in Table \ref{tab:03log_reg}.  Ultimately, the algorithm was able to achieve 98.6\% accuracy, 99\% precision and recall on
+Data pre-processing followed similar methods as shown in Chapter 2 to initially reduce the number of redundant and/or unnecessary features.  The initial 785 input features were reduced to 64 following consulting with subject matter experts, redundancy analysis, and other analyses. Afterwards, logistic regression was applied onto the training data set.  The learning rate, mini-batch size, and number of training epochs for the model are 0.001, 256, and 800, respectively. The threshold for a positive classification was set at 0.5. Ultimately, the algorithm was able to achieve 99.6\% accuracy, 99.3\% precision, and 100\% recall on the training data.  The performance on the validation data was 99.7\% accuracy, 99.6\% precision, and 100\% recall.  From the results, it can be seen that deep learning was not required.
 
-\begin{table}[H]
-    \centering
-    \begin{tabular}{ c | c | c }
-          & Anomalous & Non-anomalous  \\
-        \hline
-        Training & 70,956 & 70,956 \\
-        Validation & 7884 & 7884 \\
-    \end{tabular}
-    \caption{Comparison of the best results achieved for anomaly detection and prediction.}
-    \label{tab:03train_validate}
-\end{table}
+The largest contributors to the prediction model were:
+\begin{enumerate}
+    \item Motor Vibration
+    \item Current Imbalance
+    \item Ground Current
+    \item Discharge Pressure
+\end{enumerate}
+
+Although the model above achieved high accuracy in detecting VFD trips, it is a reactive approach and does not prevent the incident from occurring.  Next, anomaly prediction algorithms will be shown where the events are predicted prematurely.  
 
 \subsection{Anomaly Prediction}
 

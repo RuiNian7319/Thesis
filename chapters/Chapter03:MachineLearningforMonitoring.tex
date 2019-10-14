@@ -270,7 +270,7 @@ From Figure \ref{fig:03SHAPFig}, the red and blue arrows represent variables tha
 
 
 \section{Alarm Management}
-Industry today is plagued with many problems that require advanced algorithms to overcome. Two of the largest problems are production optimization and alarm management. With continually pressure from environmental groups and ever-increasing government regulations, large industrial companies are forced to reduce their environmental footprints while improving output quality. The status quo also believes in zero-incident policies, i.e., all workplace incidents are preventable and unacceptable; therefore, it is in the best interest of the companies to implement effective, yet cheap, safety systems or their social license to operate could be compromised. To tackle these issues, the University of Alberta's process control team applied artificial intelligence (AI) algorithms in conjunction with classical approaches to an industrial scale wastewater treatment plant (WWTP). The objectives were threefold: i) Design self-learning and adaptive RL controllers to seek out optimal operating strategies. In this case, the controllers must identify the optimal policy to meet government regulations in the most energy efficient way; ii) direct adaptive control, allowing the RL controller to learn optimal operating strategies as the operating conditions change by adapting the policy directly (not model re-identification since some systems may be unidentifiable), i.e. adapting to changes in season, new government regulations, etc; iii) superior alarm management by developing state-of-the-art alarm reduction and prioritization algorithms through pattern recognition and communication establishment between RL and the alarm system. Objectives 1 and 2 will be discussed in Chapter 4, objective 3 will be discussed in the following subsections.
+Industry today is plagued with many problems that require advanced algorithms to overcome. Two of the largest problems are production optimization and alarm management. With continually pressure from environmental groups and ever-increasing government regulations, large industrial companies are forced to reduce their environmental footprints while improving output quality. The status quo also believes in zero-incident policies, i.e., all workplace incidents are preventable and unacceptable; therefore, it is in the best interest of the companies to implement effective, yet cheap, safety systems or their social license to operate could be compromised. To tackle these issues, the University of Alberta's process control team applied artificial intelligence (AI) algorithms in conjunction with classical approaches to an industrial scale wastewater treatment plant (WWTP) \footnote{This project was funded in part through an engage program with NTwist.}. The objectives were threefold: i) Design self-learning and adaptive RL controllers to seek out optimal operating strategies. In this case, the controllers must identify the optimal policy to meet government regulations in the most energy efficient way; ii) direct adaptive control, allowing the RL controller to learn optimal operating strategies as the operating conditions change by adapting the policy directly (not model re-identification since some systems may be unidentifiable), i.e. adapting to changes in season, new government regulations, etc; iii) superior alarm management by developing state-of-the-art alarm reduction and prioritization algorithms through pattern recognition and communication establishment between RL and the alarm system. Objectives 1 and 2 will be discussed in Chapter 4, objective 3 will be discussed in the following subsections.
 
 Traditionally, alarms were the first line of defense against abnormalities in chemical processes, and were very effective \cite{alarm_manage}. Due to their cost of implementation, many teams of engineers and subject matter experts would gather together to brain storm the most effective alarm strategies. However, today's plants are littered with thousands of alarms due to the price of alarms plummeting after the invention of digital alarms. And because of their sheer number, many alarms are redundant and convey no additional information. 
 This project aims to firstly reduce the amount of alarm floods through suppression and pattern recognition. Secondly, an alarm prioritization algorithm will be introduced so operators can focus their attention on the highest impact alarms first.
@@ -381,7 +381,7 @@ The second alarm reduction method suppresses low impact alarms altogether.  The 
     Off,              & otherwise \\
 \end{cases}
 \]
-where $z$ denotes some arbitrary threshold. Intuitively, this algorithm assesses each new alarm through observing the value of the current operating condition, $v(x)$. During critical events where alarms are necessary, $v(x)$ are intrinsically low because the plant would be operating far from ideal; however, during normal operations littered with nuisance alarms, $v(x)$ remains high resulting in suppression of all nuisance alarms.
+where $z$ denotes some arbitrary threshold. Intuitively, this algorithm assesses each new alarm through observing the value of the current operating condition, $v(x)$. During critical events where alarms are necessary, $v(x)$ are intrinsically low because the plant would be operating far from ideal; however, during normal operations littered with nuisance alarms, $v(x)$ remains high resulting in suppression of all nuisance alarms.  This algorithm also acts as a \textit{multi-dimensional} alarm system.  That is, typical alarms occur after a higher or low limit is exceeded and do not consider multi-dimensional effects. By using the value functions of the process, the interaction effects can be additionally captured.
 
 During initial identification of the $v(x)$ or $Q(x, u)$ values, both Markov reward processes (MRP) or Markov decision processes (MDP) can be used.  MRPs are used if only the alarm suppression algorithm is of interest and no actions are involved.  MDPs should be used if the plant managers also want to understand the optimal actions during different alarm events.  When using $Q(x, u)$, alarms are assigned the average $Q(x_i, u)$ for $x_i$ (i.e., average of $Q(x, u)$ across all possible actions).
 
@@ -414,7 +414,7 @@ By normalizing the $Q$-values, the alarm threshold, $z$, across multiple units w
 \subsection{Alarm Prioritization}
 During alarm flooding events, alarm reduction algorithms may reduce the amount of alarms to less than 5\% of total alarms.  However, it does not solve the root cause of the problem.  Also, 5\% of thousands of alarms is still far from useful and too much for a few operators to handle; therefore, a second algorithm was designed to sort the active alarms by a score.  Lower scores denote more dangerous alarms and will be placed on the top of the alarm log. Through this algorithm, the operators are equipped with knowledge regarding the priorities of different alarms and can work to resolve the safety critical ones first. 
 
-The alarm prioritization algorithm is given in Table \ref{alg:03alarmprioritization}.  The value-sequence dictionary is generated live and need to be saved so if the same sequence occurs in the future, a value can be assigned to the sequence for prioritization purposes.
+The alarm prioritization algorithm is shown in Table \ref{alg:03alarmprioritization}.  On a high level, each alarm is assigned a value based on the current condition of the plant.  Alarms with higher values denote normal plant behaviour and are seen as unimportant.  Contrarily, alarms with low values correspond to poor plant performance; thus, alarms associated with low values may be critical.
 
 \begin{table}[H]
     {\setstretch{1.2}
@@ -423,54 +423,61 @@ The alarm prioritization algorithm is given in Table \ref{alg:03alarmprioritizat
 	\hline
 	\emph{Alarm Prioritization Algorithm} \\
 	\hline
-	\textbf{Alarms from Plant in 0, 1, 2} \\
-	\hspace{0.5cm} Alarms converted to words. (Ex. Alarm 3 turned on)\\
-	\textbf{Initialize Alarm / Q-value array} \\
-	\hspace{0.5cm} Event in plant occurs. (Ex. Warning or Alarm) \\
+	\textbf{Alarms from Plant} \\
+	\hspace{0.5cm} Receive process alarms (typically as integers) \\
 	\hspace{0.5cm} Communication establishment with RL controller \\
-	\hspace{1cm} Return highest Q-value in the given state \\
-	\hspace{1cm} \textbf{If} more than one alarm/warning occurred in this time step \\
-	\hspace{1.5cm} Divide Q-value by number of events \\
-	\hspace{1.5cm} Assign divided Q-value to each event \\
+	\hspace{1cm} Return value or average action-value in the given state \\
+	\hspace{1cm} \textbf{If} new alarm is part of an existing sequence \\
+	\hspace{1.5cm} Calculate the EWMA $Q$-value given previous values \\
+	\hspace{1.5cm} Assign $Q$-value to alarm sequence \\
 	\hspace{1cm} \textbf{Else} \\
-	\hspace{1.5cm} Assign Q-value to the event \\
-	\textbf{Initialize Value-Sequence Dictionary} \\
-	\hspace{0.5cm}\textbf{If} alarm sequence occurred \\
-	\hspace{1cm} Take EWMA Q-values of the alarms comprising of the sequence \\
-	\hspace{1cm} Assign the EWMA Q-values to the sequence \\
-	\hspace{0.5cm} Return \textbf{Value-Sequence Dictionary} \\
+	\hspace{1.5cm} Assign value or average action-value to the event \\
+	\textbf{Alarm Sorting} \\
+	\hspace{0.5cm}\textbf{While} value of new alarm is higher than alarm below \\
+	\hspace{1cm} Move sequence down alarm log \\
+	\hspace{0.5cm} \textbf{Return} sorted alarm log \\
 	\hline
 	\end{tabular}}
 	\caption{Alarm prioritization algorithm.}
 	\label{alg:03alarmprioritization}
 \end{table}
 
-Tables \ref{alg:03norm_system} and \ref{alg:03SMARTalarm} shows the comparison of a traditional alarm log compared to the proposed algorithm.  Comparing the alarm logs, it can be seen that the SMART alarm system was able to vastly reduce the amount of alarms, while putting the most important alarms on the top of the list.
+Tables \ref{alg:03norm_system} and \ref{alg:03SMARTalarm} shows a comparison between a traditional alarm log compared to the proposed algorithm.  Comparing the alarm logs, it can be seen that the SMART alarm system was able to vastly reduce the amount of alarms, while putting the most important alarms on the top of the list. Additionally, the top alarm is comprised of a sequence of alarms.  The first alarm in the sequence (HH Vessel 2) is shown because it is assumed to be the root cause. Other alarms were not shown because their corresponding values are higher than the filtering threshold, $z$.  
 
 \begin{table}[H]
 	\centering
-	\begin{tabular}{P{1.1cm}|P{2.1cm}|P{2.1cm}|P{2.1cm}|P{2cm}|P{2cm}}
+	\begin{tabular}{P{1.1cm}|P{2.1cm}|P{2.1cm}|P{2.5cm}|P{2cm}|P{2cm}}
 	Events & Status & Date & Analysis & Value & Limit \\ \hline
-	1 & Warning & March 22 & Pipe 2 & 1.05 & 1.10 \\
-	2 & Warning & March 22 & Pump 3 & 55.2 & 60.1 \\
-	3 & Warning & March 23 & Pipe 5 & 0.96 & 1.15 \\
-	4 & Alarm & March 23 & Pipe 2 & 1.11 & 1.10 \\
-	5 & Warning & March 23 & Vessel 2 & 32.7 & 33.5 \\ 
-	6 & Alarm & March 23 & Vessel 2 & 35.2 & 33.5 \\
+	1 & Warning & March 22 & L Vessel 5 & 1.05 & 1.10 \\
+	2 & Warning & March 22 & H Tank 2 & 61.2 & 60.0 \\
+	3 & Warning & March 23 & L Vessel 3 & 0.96 & 1.15 \\
+	4 & Alarm & March 23 & HH Tank 1 & 1.51 & 1.10 \\
+	5 & Warning & March 23 & L Vessel 2 & 32.7 & 33.5 \\ 
+	6 & Alarm & March 23 & HH Tank 3 & 40.2 & 33.5 \\
 	\end{tabular}
-	\caption{State-of-the-art industrial alarm system.}
+	\caption{State-of-the-art industrial alarm system. L, H, LL, and HH corresponds to low, high, low low and high high levels.}
 	\label{alg:03norm_system}
 \end{table}
 
 \begin{table}[H]
 	\centering
-	\begin{tabular}{P{3cm}|P{3cm}|P{3cm}}
-	Date & Status & Alarm Score\\ \hline
-	March 22 & Sequence 1 & 2.5\\
-	March 23 & Warning 3 & 9.5  \\
-	March 23 & Warning 5 & 10.5 \\
+	\begin{tabular}{P{2.5cm}|P{4.5cm}|P{2.5cm}|P{2.5cm}}
+	Date & Status & Equipment &  Value\\ \hline
+	March 22 & Alarm - Sequence & HH Tank 1 & 2.5\\
+	March 23 & Warning & H Tank 2 &  9.5  \\
+	March 23 & Warning & L Vessel 2 &  10.5 \\
 	\end{tabular}
 	\caption{SMART alarm system.}
 	\label{alg:03SMARTalarm}
 \end{table}
+
+\subsection{Simulation Results}
+
+The algorithms proposed above were simulated on the WWTP.  During training, the system was formulated as a MDP and the agent was trained for 10,000 episodes where each episode comprised of a 14 day period of dry weather.  Intuitively, the agent trained for approximately 383.6 years in simulation time (2 hours physical time).  After training, the simulation was reset and the storm weather data was used.  The storm weather data was used because it is guaranteed to create many alarms in the system.  To replicate 
+
+The alarm sequence dictionary was first built by running the simulation once to identify common alarm sequences.  Alarm sequences were built based on the same alarm sequence happening more than 4 times.  Additionally, any alarms above $z = 0.5$ was filtered from the alarm log.  After $z$ and the alarm sequence dictionary were specified, the alarm management system was ready for use.  Two simulations were ran: one without the alarm management system and one with the alarm management system.
+
+Without the system, there were 185 alarms generated within the process with no prioritization.  With the system, only 33 alarms were generated, resulting in a 82\% reduction in total alarms. Furthermore, the alarms were organized based on their priority.
+
+The algorithms presented above are exploratory in nature and demonstrate the potential of RL in alarm management and root cause analysis problems. Here, three algorithms are presented to reduce and prioritize alarms with the assistance of RL. The presented algorithms have shown potential in a simple simulated example; however, have not been applied to large scale systems with thousands of alarms. One identifiable flaw with the sequencing technique is its space complexity.  In large industrial settings, there could exist millions of different sequences, rendering the method computational infeasible. To implement the alarm sequencing portion of this project, more research will be required.
 

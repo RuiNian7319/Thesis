@@ -373,68 +373,50 @@ The first alarm reduction algorithm is called alarm sequencing.  The main goal i
 During online implementation, the alarm sequences are masked with the \textit{first} alarm in the sequence because it typically corresponds to the \textit{root cause} of the entire alarm sequence \cite{alarm_sequence}.  Moreover, simply displaying alarm sequences do little to help operators because it is essentially the same amount of alarms, except displayed in a more condensed format.
 
 \subsubsection{Alarm Reduction through Suppression}
-The second alarm reduction method suppresses low impact alarms altogether.  First, the algorithm uses RL to assign credits to different alarms via the optimal value or action-value functions, $v^*(x)$ and $Q^*(x, u)$, respectively.  During alarming events, alarms failing to exceed a threshold value will be suppressed.  Intuitively, this algorithm assigns different values to 
+The second alarm reduction method suppresses low impact alarms altogether.  The algorithm starts by using RL to assign credits to different alarms via the optimal value or action-value functions, $v^*(x)$ and $Q^*(x, u)$, respectively.  During alarming events, alarms failing to exceed a threshold value will be suppressed and hidden from operators and is given mathematically by:
+\[
+    Alarm = 
+\begin{cases}
+    On,              & \text{if } v(x) < z \\
+    Off,              & otherwise \\
+\end{cases}
+\]
+where $z$ denotes some arbitrary threshold. Intuitively, this algorithm assesses each new alarm through observing the value of the current operating condition, $v(x)$. During critical events where alarms are necessary, $v(x)$ are intrinsically low because the plant would be operating far from ideal; however, during normal operations littered with nuisance alarms, $v(x)$ remains high resulting in suppression of all nuisance alarms.
 
+During initial identification of the $v(x)$ or $Q(x, u)$ values, both Markov reward processes (MRP) or Markov decision processes (MDP) can be used.  MRPs are used if only the alarm suppression algorithm is of interest and no actions are involved.  MDPs should be used if the plant managers also want to understand the optimal actions during different alarm events.  When using $Q(x, u)$, alarms are assigned the average $Q(x_i, u)$ for $x_i$ (i.e., average of $Q(x, u)$ across all possible actions).
 
-Both Markov reward processes (MRP) or Markov decision processes (MDP) can be used to represent this system.  MRPs are used if the system already contains existing controls and only the alarm suppression algorithm is of interest.  MDPs should be used if the plant managers also want to understand the optimal actions during different alarm events.
-
-
-Because $Q$-values may have significantly different magnitudes across different processes, the $Q$-values are first normalized using:
+Because $Q$-values may have significantly different magnitudes depending on the reward function design, the $Q$-values are first normalized using:
 \begin{equation}
     Q_{i, norm} = \frac{Q_i - Q_{ave}}{\sigma}
 \end{equation}
-where $\sigma$ denotes the standard deviation of the $Q$-values.  In tabular cases, the mean and standard deviation of the $Q$-values can be found trivially; however, deep RL approaches may face challenges.  One recommended solution would be to discretize the system and calculate the corresponding $Q$-values for each set of states and actions.  For example, suppose there exists a SISO system with $x \in [0, 5]$ and $u \in [5, 10]$.  The states and actions can be discretized as: $x = [0, 1, 2, 3, 4, 5]; u = [5, 6, 7, 8, 9, 10]$ and the average $Q$-values can be calculated as:
+where $\sigma$ denotes the standard deviation of the $Q$-values.  In tabular cases, the mean and standard deviation of the $Q$-values can be found trivially because all $Q$-values are shown in the $Q$-table; however, deep RL approaches may face challenges.  One recommended solution would be to discretize the system and calculate the corresponding $Q$-values for each set of states and actions.  For example, suppose there exists a SISO system with $x \in [0, 5]$ and $u \in [5, 10]$.  The states and actions can be discretized as: $x = [0, 1, 2, 3, 4, 5]; u = [5, 6, 7, 8, 9, 10]$ and the average $Q$-values can be calculated as:
 \begin{equation}
     Q_{ave} = \frac{1}{p \times q} \sum_{i, j = 0}^{p, q} Q(x_i, u_j | \theta)
+    \label{eq:03mean_q}
 \end{equation}
-where $x_p$ and $u_q$ are the $p^{th}$ and $q^{th}$ state and action, respectively. Moreover, the standard deviation can be calculated as:
+where $x_i$ and $u_j$ are the $i^{th}$ and $j^{th}$ state and action, respectively. Moreover, the standard deviation can be calculated as:
 \begin{equation}
     \sigma = \sqrt{\frac{\sum (Q_i - Q_{ave})^2}{p \times q}}
+    \label{eq:03sd_q}
 \end{equation}
 
+By normalizing the $Q$-values, the alarm threshold, $z$, across multiple units within a plant will share similar magnitudes and can be tuned easier.  Tuning of $z$ is dependent on the risk tolerance of the plant manager.  For a high amount of alarm suppression, $z$ can be tuned exceptionally low.  The steps to implementing this alarm reduction algorithm is as follows:
 
-
-
-
-
+\begin{enumerate}
+    \item Initialize the process and initialize the RL agent using any RL algorithm \textit{tabula rasa}.
+    \item Allow RL to learn the value or action-values of the process through any traditional way (alarms are not required).
+    \item After training, find the mean and standard deviations of the $Q$-values through Equations \ref{eq:03mean_q} and \ref{eq:03sd_q}.
+    \item Online implementation: monitor alarms.  Any new alarm will be assigned the value or action-value at the time of their occurrence.  For alarm sequences, the assigned value is an exponentially weighted moving average (given in Equation \label{eq:08EWMA}) of the alarm values inside the sequence.  An EWMA was used because newer alarms matter more than old.
+\end{enumerate}
 
 
 
 \subsection{Alarm Prioritization}
-During alarm flooding events, alarm reduction algorithms may reduce the amount of alarms to less than 5\% of total alarms.  However, it does not solve the root cause problem, i.e., what went wrong that caused all the alarms.  Also, 5\% of thousands of alarms is still far from useful and too much for a few operators to handle.  Therefore, a second algorithm was designed to sort the active alarms by a score.  Lower scores mean more dangerous alarms and will be placed on the top of the alarm log.  This way, the operators knows the priority alarms and can work to resolve the highest impact alarms first.  If a sequence is on the top of the alarm log, the first alarm in the sequence would be considered the highest priority alarm.
-
-Tables \ref{alg:03norm_system} and \ref{alg:03SMARTalarm} shows the comparison of a traditional alarm log compared to the proposed algorithm.  Comparing the alarm logs, it can be seen that the SMART alarm system was able to vastly reduce the amount of alarms, while putting the most important alarms on the top of the list.
-
-\begin{table}[H]
-	\centering
-	\begin{tabular}{P{1.1cm}|P{2.1cm}|P{2.1cm}|P{2.1cm}|P{2cm}|P{2cm}}
-	Events & Status & Date & Analysis & Value & Limit \\ \hline
-	1 & Warning & March 22 & Pipe 2 & 1.05 & 1.10 \\
-	2 & Warning & March 22 & Pump 3 & 55.2 & 60.1 \\
-	3 & Warning & March 23 & Pipe 5 & 0.96 & 1.15 \\
-	4 & Alarm & March 23 & Pipe 2 & 1.11 & 1.10 \\
-	5 & Warning & March 23 & Vessel 2 & 32.7 & 33.5 \\ 
-	6 & Alarm & March 23 & Vessel 2 & 35.2 & 33.5 \\
-	\end{tabular}
-	\caption{State-of-the-art industrial alarm system.}
-	\label{alg:03norm_system}
-\end{table}
-
-\begin{table} [H]
-	\centering
-	\begin{tabular}{P{3cm}|P{3cm}|P{3cm}}
-	Date & Status & Alarm Score\\ \hline
-	March 22 & Sequence 1 & 2.5\\
-	March 23 & Warning 3 & 9.5  \\
-	March 23 & Warning 5 & 10.5 \\
-	\end{tabular}
-	\caption{SMART alarm system.}
-	\label{alg:03SMARTalarm}
-\end{table}
+During alarm flooding events, alarm reduction algorithms may reduce the amount of alarms to less than 5\% of total alarms.  However, it does not solve the root cause of the problem.  Also, 5\% of thousands of alarms is still far from useful and too much for a few operators to handle; therefore, a second algorithm was designed to sort the active alarms by a score.  Lower scores denote more dangerous alarms and will be placed on the top of the alarm log. Through this algorithm, the operators are equipped with knowledge regarding the priorities of different alarms and can work to resolve the safety critical ones first. 
 
 The alarm prioritization algorithm is given in Table \ref{alg:03alarmprioritization}.  The value-sequence dictionary is generated live and need to be saved so if the same sequence occurs in the future, a value can be assigned to the sequence for prioritization purposes.
 
-\begin{table}
+\begin{table}[H]
     {\setstretch{1.2}
     \centering
 	\begin{tabular}{p{13cm}}
@@ -461,5 +443,34 @@ The alarm prioritization algorithm is given in Table \ref{alg:03alarmprioritizat
 	\end{tabular}}
 	\caption{Alarm prioritization algorithm.}
 	\label{alg:03alarmprioritization}
+\end{table}
+
+Tables \ref{alg:03norm_system} and \ref{alg:03SMARTalarm} shows the comparison of a traditional alarm log compared to the proposed algorithm.  Comparing the alarm logs, it can be seen that the SMART alarm system was able to vastly reduce the amount of alarms, while putting the most important alarms on the top of the list.
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{P{1.1cm}|P{2.1cm}|P{2.1cm}|P{2.1cm}|P{2cm}|P{2cm}}
+	Events & Status & Date & Analysis & Value & Limit \\ \hline
+	1 & Warning & March 22 & Pipe 2 & 1.05 & 1.10 \\
+	2 & Warning & March 22 & Pump 3 & 55.2 & 60.1 \\
+	3 & Warning & March 23 & Pipe 5 & 0.96 & 1.15 \\
+	4 & Alarm & March 23 & Pipe 2 & 1.11 & 1.10 \\
+	5 & Warning & March 23 & Vessel 2 & 32.7 & 33.5 \\ 
+	6 & Alarm & March 23 & Vessel 2 & 35.2 & 33.5 \\
+	\end{tabular}
+	\caption{State-of-the-art industrial alarm system.}
+	\label{alg:03norm_system}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{P{3cm}|P{3cm}|P{3cm}}
+	Date & Status & Alarm Score\\ \hline
+	March 22 & Sequence 1 & 2.5\\
+	March 23 & Warning 3 & 9.5  \\
+	March 23 & Warning 5 & 10.5 \\
+	\end{tabular}
+	\caption{SMART alarm system.}
+	\label{alg:03SMARTalarm}
 \end{table}
 

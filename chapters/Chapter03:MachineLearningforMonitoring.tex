@@ -215,15 +215,6 @@ Typically, there is a trade-off between precision and recall for traditional met
 
 
 
-\section{Industrial Application of ML Monitoring}
-
-\subsection{Anomaly Detection}
-The 
-
-
-\subsection{Anomaly Prediction}
-
-
 \subsection{Interpreting ML Models}
 Another critical requirement of ML models is that it must provide \textbf{real value} to the operators.  The algorithms presented here create value in two ways: 1) Provide explainability to the models which can increase intuition and gain addition buy-in from project shareholders and potential users; 2) provide actionable recommendations to operators.  It is almost useless to tell the operators that the plant will blow up in 10 minutes if no details on how to avoid such a fate is not provided.
 
@@ -267,6 +258,109 @@ That is, the difference between what was predicted from the actual variable and 
 \end{figure}
 
 From Figure \ref{fig:03SHAPFig}, the red and blue arrows represent variables that resulted in a higher and lower chance of winning the "Player of the Game' award. For example, it can be seen that scoring two goals increased the chances of winning the award drastically; however, the ball possession being at 38\% reduced the chances. A more detailed description of SHAP can be found in \cite{SHAP}.
+
+
+
+
+\section{Industrial Application of ML Monitoring}
+The above algorithms were implemented onto an industrial pipeline for monitoring of an unreliable VFD.  Often times, the VFD would trip. When the VFD trips, the output pressure of the VFD drops to near zero. Initially, plant managers just wanted to detect when the VFDs trip through anomaly detection.  For the second phase of the project, the managers wanted to manage the VFDs proactively; thus, anomaly prediction was used predict \textit{in advance} when the VFDs will trip. Furthermore, management wanted the largest contributors of the VFD trip.  
+
+\subsection{Anomaly Detection}
+In total, the data set contained 54 anomalous events in a span of one year (525,600 data points) and are shown in Figure \ref{fig:03anomalous_events}. Some anomalous events lasted up to a few days but most ended within a few hours. In total, approximately 15\% of the data was anomalous (any values dipping below the dashed red line). 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/ch3/anomalous_events.jpg}
+    \caption{Anomalous events of a pump in an industrial pipeline.}
+    \label{fig:03anomalous_events}
+\end{figure}
+
+The number of anomalous and non-anomalous data in the training and validation data sets are shown in Table \ref{tab:03train_validate}. In this study, an anomalous data is any point below the dashed red line shown in Figure \ref{fig:03anomalous_events}. For training and validation purposes, the data underwent a 90/10 split for the anomalous data.  In the end, 70,956 anomalous events were contained in the training data set and the remaining 7884 were in the validation data set. The data sets were then mixed with an equal number of non-anomalous data points.  No synthetic data generation methods were used here because there exists enough anomalous events to build an effective model.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{ c | c | c }
+          & Anomalous & Non-anomalous  \\
+        \hline
+        Training & 70,956 & 70,956 \\
+        Validation & 7884 & 7884 \\
+    \end{tabular}
+    \caption{Comparison of the best results achieved for anomaly detection and prediction.}
+    \label{tab:03train_validate}
+\end{table}
+
+Afterwards, logistic regression was applied onto the training data set.  The hyper parameters of the logistic regression is given in Table \ref{tab:03log_reg}.  Ultimately, the algorithm was able to achieve 98.6\% accuracy, 99\% precision and recall on
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{ c | c | c }
+          & Anomalous & Non-anomalous  \\
+        \hline
+        Training & 70,956 & 70,956 \\
+        Validation & 7884 & 7884 \\
+    \end{tabular}
+    \caption{Comparison of the best results achieved for anomaly detection and prediction.}
+    \label{tab:03train_validate}
+\end{table}
+
+\subsection{Anomaly Prediction}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/ch3/anomaly_prediction.JPG}
+    \caption{Visualization of the anomaly prediction.}
+    \label{fig:03anomaly_pred}
+\end{figure}
+
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{ c | c | c }
+        Detection & Prediction (Logistic Regression) & Prediction (Deep Learning) \\
+        \hline
+        2 & 5 & 1 \\
+        2 & -2 & 0 \\
+        5 & -1 & 1 \\
+        -2 & -1 & 0 \\
+    \end{tabular}
+    \caption{Precision and recall of the anomaly prediction algorithm using different parameters.}
+    \label{tab:03anomaly_pred_results}
+\end{table}
+
+
+\subsection{Summary of Results}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{ c | c | c }
+        Detection & Prediction (Logistic Regression) & Prediction (Deep Learning) \\
+        \hline
+        2 & 5 & 1 \\
+        2 & -2 & 0 \\
+        5 & -1 & 1 \\
+        -2 & -1 & 0 \\
+    \end{tabular}
+    \caption{Comparison of the best results achieved for anomaly detection and prediction.}
+    \label{tab:03anomaly_detect_pred}
+\end{table}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 \section{Alarm Management}

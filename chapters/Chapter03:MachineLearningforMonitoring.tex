@@ -301,16 +301,17 @@ There exists five environmental constraints on the process:
     \item Biochemical oxygen demand (BOD)
 \end{enumerate}
 The threshold for the environmental constraints is given as follows:
-\[
+\begin{equation}
     Alarm = 
-\begin{cases}
+    \begin{cases}
     On,              & N_{tot}  > 10 \\
     On,              & COD  >  100 \\
     On,              & S_{nh} >  4 \\
     On,              & TSS > 30 \\
     On,              & BOD > 10 \\
-\end{cases}
-\]
+    \end{cases}
+    \label{eq:03constraints}
+\end{equation}
 If any of the above constraints are violated, an alarm will sound.
 
 \subsection{Basics of Alarms}
@@ -473,7 +474,7 @@ Tables \ref{alg:03norm_system} and \ref{alg:03SMARTalarm} shows a comparison bet
 
 \subsection{Simulation Results}
 
-The algorithms proposed above were simulated on the WWTP.  During training, the system was formulated as a MDP and the agent was trained for 10,000 episodes where each episode comprised of a 14 day period of dry weather.  Intuitively, the agent trained for approximately 383.6 years in simulation time (2 hours physical time).  After training, the simulation was reset and the storm weather data was used.  The storm weather data was used because it is guaranteed to create many alarms in the system.  To replicate 
+The algorithms proposed above were simulated on the WWTP.  During training, the system was formulated as a MDP and the agent was trained for 10,000 episodes where each episode comprised of a 14 day period of dry weather.  Intuitively, the agent was trained for approximately 383.6 years in simulation time (2 hours physical time).  After training, the simulation was reset and the storm weather data was used.  The storm weather data was used because it is guaranteed to create many alarms in the system. In this study, warnings are triggered when values exceed 75\% of the constraints shown in Equation \ref{eq:03constraints}.  Moreover, alarms are triggered if the constraints are violated. To replicate a redundant alarming scenario, $S_{nh}$ alarms are placed on each stage of the separator; therefore, after one $S_{nh}$ alarm triggers, 9 additional alarms will follow due to redundancy.  Moreover, alarms are placed on the overall system to measure the other constraints as well.  To activate the alarm management system, the alarm sequence dictionary must first be built through pattern recognition.
 
 The alarm sequence dictionary was first built by running the simulation once to identify common alarm sequences.  Alarm sequences were built based on the same alarm sequence happening more than 4 times.  Additionally, any alarms above $z = 0.5$ was filtered from the alarm log.  After $z$ and the alarm sequence dictionary were specified, the alarm management system was ready for use.  Two simulations were ran: one without the alarm management system and one with the alarm management system.
 

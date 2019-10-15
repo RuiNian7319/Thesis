@@ -83,7 +83,14 @@ Notice that in Table \ref{tab:03undersampling}, the majority class dominates the
 Note that the majority and minority class do not have to be perfectly balanced, especially in cases where perfectly balancing the classes require discarding unique information from the majority class.
 
 \subsection{Data Prep. for Anomaly Prediction}
-Anomaly prediction is a much more difficult problem compared to anomaly detection.  In anomaly prediction, the model must \textit{predict} if an anomaly is going to happen \textit{before} it happens.  Compared to anomaly detection, this task is much more difficult, and how far in advance an anomaly can be detected is heavily dependent on the speed of dynamics of the system.  For example, in cat classification, anomaly detection simply has to identify if the picture is a cat or not.  However, anomaly prediction has to predict if the animal in each picture will eventually grow up to become a cat.
+A visual breakdown of the anomaly prediction task is shown in Figure \ref{fig:03anomaly_pred}. From Figure \ref{fig:03anomaly_pred}, the \textit{old event} refers to the anomaly detection problem. The \textit{new event} denotes the latest time step to predict an anomalous event. Overall, anomaly prediction is a much more difficult problem compared to anomaly detection.  In anomaly prediction, the model must \textit{predict} if an anomaly is going to happen \textit{before} it happens.  Compared to anomaly detection, this task is much more difficult, and how far in advance an anomaly can be detected is heavily dependent on the speed of dynamics of the system.  For example, in cat classification, anomaly detection simply has to identify if the picture is a cat or not.  However, anomaly prediction has to predict if the animal in each picture will eventually grow up to become a cat.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/ch3/anomaly_prediction.JPG}
+    \caption{Visualization of the anomaly prediction.}
+    \label{fig:03anomaly_pred}
+\end{figure}
 
 In anomaly prediction, the data is first labelled as in anomaly detection. Afterwards, the data is augmented as follows:
 \begin{equation}
@@ -302,45 +309,39 @@ The largest contributors to the prediction model were:
 Although the model above achieved high accuracy in detecting VFD trips, it is a reactive approach and does not prevent the incident from occurring.  Next, anomaly prediction algorithms will be shown where the events are predicted prematurely.  
 
 \subsection{Anomaly Prediction}
+Compared to anomaly detection, anomaly prediction is a much more difficult task.  Additionally, the amount of data present will be reduced tremendously.  That is, previously, there were approximately 78,840 anomalous data points; however, anomaly prediction can only use data right \textit{before} an incident occurs because its goal is to identify the dynamics behaviour of incidents before they occur.
+Therefore, the total available data for anomaly prediction is only 54---the total number of events.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.9\textwidth]{images/ch3/anomaly_prediction.JPG}
-    \caption{Visualization of the anomaly prediction.}
-    \label{fig:03anomaly_pred}
-\end{figure}
+The anomaly prediction training and validation data also underwent a 90/10 split where 48 incidents were in the training data set and 6 incidents were in the validation data set. The data was then balanced with non-anomalous examples.  For the data augmentation, $l = 1$ and $L = 3$ (i.e., predict at least 1 step before the incident, and use the past 3 time step information for the prediction). The hyper parameters of the logistic regression were identical to those used in anomaly detection.
 
+Table \ref{tab:03anomaly_pred_results} shows the performance of the anomaly prediction algorithm using different parameters.
 
 \begin{table}[H]
     \centering
-    \begin{tabular}{ c | c | c }
-        Detection & Prediction (Logistic Regression) & Prediction (Deep Learning) \\
+    \begin{tabular}{ c | c | c | c | c | c}
+        Precision & Recall & Activation & Syn. Data & N:A Ratio & Algorithm\\
         \hline
-        2 & 5 & 1 \\
-        2 & -2 & 0 \\
-        5 & -1 & 1 \\
-        -2 & -1 & 0 \\
+        15\% & 98\% & 0.70 & 0 & 1:1 & Log. regression  \\
+        30\% & 79\% & 0.95 & 0 & 1:1 & Log. regression  \\
+        54\% & 96\% & 0.70 & 0 & 5:1 & Log. regression  \\
+        41\% & 38\% & 0.95 & 0 & 5:1 & Log. regression  \\
+        56\% & 93\% & 0.82 & 0 & 5:1 & Log. regression  \\
+        40\% & 96\% & 0.70 & 0 & 8:1 & Log. regression  \\
+        42\% & 92\% & 0.83 & 0 & 8:1 & Log. regression  \\
+        58\% & 98\% & 0.70 & 0 & 10:1 & Log. regression  \\
+        57\% & 92\% & 0.83 & 0 & 10:1 & Log. regression  \\
+        53\% & 96\% & 0.70 & 0 & 12:1 & Log. regression  \\
+        57\% & 96\% & 0.83 & 0 & 12:1 & Log. regression  \\
+        54\% & 98\% & 0.70 & $1 \times$  & 12:1 & Log. regression  \\
+        62\% & 92\% & 0.83 & $1 \times$ & 12:1 & Log. regression  \\
+        75\% & 96\% & 0.70 & $5 \times$ & 12:1 & Log. regression  \\
+        81\% & 92\% & 0.83 & $5 \times$ & 12:1 & Log. regression  \\
+        100\% & 100\% & 0.5 & $5 \times$ & 5:1 & Deep learning  \\
     \end{tabular}
     \caption{Precision and recall of the anomaly prediction algorithm using different parameters.}
     \label{tab:03anomaly_pred_results}
 \end{table}
 
-
-\subsection{Summary of Results}
-
-\begin{table}[H]
-    \centering
-    \begin{tabular}{ c | c | c }
-        Detection & Prediction (Logistic Regression) & Prediction (Deep Learning) \\
-        \hline
-        2 & 5 & 1 \\
-        2 & -2 & 0 \\
-        5 & -1 & 1 \\
-        -2 & -1 & 0 \\
-    \end{tabular}
-    \caption{Comparison of the best results achieved for anomaly detection and prediction.}
-    \label{tab:03anomaly_detect_pred}
-\end{table}
 
 
 

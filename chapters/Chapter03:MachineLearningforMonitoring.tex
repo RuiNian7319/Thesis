@@ -314,7 +314,9 @@ Therefore, the total available data for anomaly prediction is only 54---the tota
 
 The anomaly prediction training and validation data also underwent a 90/10 split where 48 incidents were in the training data set and 6 incidents were in the validation data set. The data was then balanced with non-anomalous examples.  For the data augmentation, $l = 1$ and $L = 3$ (i.e., predict at least 1 step before the incident, and use the past 3 time step information for the prediction). The hyper parameters of the logistic regression were identical to those used in anomaly detection.
 
-Table \ref{tab:03anomaly_pred_results} shows the performance of the anomaly prediction algorithm using different parameters.
+Table \ref{tab:03anomaly_pred_results} shows the performance of the anomaly prediction algorithm using different parameters.  In the headings of Table \ref{tab:03anomaly_pred_results}, \textit{Syn. Data} represents the amount of synthetic generated data points using ADASYN.  Here, $1 \times$ means 48 additional synthetic examples ($1 \times$ the total incidents).  N:A Ratio denotes the normal to anomalous data ratio.  For example, a N:A ratio of 12:1 means that the normal data points outnumber the anomalous data points 12 to 1. From Table \ref{tab:03anomaly_pred_results}, it can be seen that the initial precision was extremely low. With the addition of more normal data points, the precision increased significantly without much reduction in recall.  By tuning solely the N:A ratio, the best results obtained were 58\% precision and 98\% recall. To further increase accuracy, ADASYN was used to generate synthetic data.  After applying ADASYN, the best results achieved increased to 81\% precision and 92\% recall; still a large gap to ideal performance.  
+
+In further improve accuracy, a three layer deep learning classifier was used.  The learning rate, mini-batch size, and training epochs were set to be the same as the logistic regression.  Ultimately, the deep learning classifier was able to achieve both 100\% precision and recall.
 
 \begin{table}[H]
     \centering
@@ -324,23 +326,32 @@ Table \ref{tab:03anomaly_pred_results} shows the performance of the anomaly pred
         15\% & 98\% & 0.70 & 0 & 1:1 & Log. regression  \\
         30\% & 79\% & 0.95 & 0 & 1:1 & Log. regression  \\
         54\% & 96\% & 0.70 & 0 & 5:1 & Log. regression  \\
-        41\% & 38\% & 0.95 & 0 & 5:1 & Log. regression  \\
         56\% & 93\% & 0.82 & 0 & 5:1 & Log. regression  \\
+        41\% & 38\% & 0.95 & 0 & 5:1 & Log. regression  \\
         40\% & 96\% & 0.70 & 0 & 8:1 & Log. regression  \\
         42\% & 92\% & 0.83 & 0 & 8:1 & Log. regression  \\
         58\% & 98\% & 0.70 & 0 & 10:1 & Log. regression  \\
         57\% & 92\% & 0.83 & 0 & 10:1 & Log. regression  \\
         53\% & 96\% & 0.70 & 0 & 12:1 & Log. regression  \\
         57\% & 96\% & 0.83 & 0 & 12:1 & Log. regression  \\
-        54\% & 98\% & 0.70 & $1 \times$  & 12:1 & Log. regression  \\
-        62\% & 92\% & 0.83 & $1 \times$ & 12:1 & Log. regression  \\
-        75\% & 96\% & 0.70 & $5 \times$ & 12:1 & Log. regression  \\
-        81\% & 92\% & 0.83 & $5 \times$ & 12:1 & Log. regression  \\
+        54\% & 98\% & 0.70 & $1 \times$  & 10:1 & Log. regression  \\
+        62\% & 92\% & 0.83 & $1 \times$ & 10:1 & Log. regression  \\
+        75\% & 96\% & 0.70 & $5 \times$ & 10:1 & Log. regression  \\
+        81\% & 92\% & 0.83 & $5 \times$ & 10:1 & Log. regression  \\
         100\% & 100\% & 0.5 & $5 \times$ & 5:1 & Deep learning  \\
     \end{tabular}
     \caption{Precision and recall of the anomaly prediction algorithm using different parameters.}
     \label{tab:03anomaly_pred_results}
 \end{table}
+
+An example of the prediction algorithm in action is shown in Figure \ref{fig:03anomaly_prediction}.  It can be seen that the algorithm predicted the incident approximately 11 minutes in advance. The short prediction window is due to the suddenness of the events in this study.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/ch3/an_pred.jpg}
+    \caption{Anomaly prediction of an incident. Prediction algorithm output (top) as the incident gets closer (bottom).}
+    \label{fig:03anomaly_prediction}
+\end{figure}
 
 
 

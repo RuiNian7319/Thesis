@@ -6,8 +6,8 @@
 
 \usepackage[a4paper,width=150mm,top=25mm,bottom=25mm]{geometry}
 \usepackage{fancyhdr}
-\pagestyle{fancy}
-\fancyhead[RO]{\thechapter}
+
+\usepackage[multiple]{footmisc}
 
 \usepackage{caption}
 \usepackage{subcaption}
@@ -118,13 +118,13 @@
 
 Machine learning (ML) promises to create tremendous value and growth to all sectors around the world, enhancing productivity, health, and longevity of humanity. ML differentiates itself from all previous methods through its adaptive and self-learning capabilities. In recent years, the energy sector experienced significant setbacks due to collapsing commodity prices and increasing pressure from environmentalist groups.  As such, the sector is now actively seeking new innovative strategies to improve their bottom line through leveraging their historical data and propelling themselves into Industry 4.0. ML was identified as one such avenue to be able to have an important role in the transition to Industry 4.0.  This thesis aims to explore and demonstrate the capabilities of ML in process modelling, monitoring, and control.
 
-Firstly, ML prediction algorithms and applications was introduced. The chapter started with a tutorial on data preparation catered towards the process industry.  Next, common ML models was introduced.  For added intuition, the models here were then implemented onto an industrial pipeline, showcasing each model's advantages and disadvantages.  Finally, a novel self-learning algorithm called USIS was introduced that equips the ML models with the ability to self-learn in a sustainable fashion. The models identified here were ultimately used for a steady state optimization application, shown in Appendix A.
+Firstly, ML prediction algorithms and applications were introduced. The chapter started with a tutorial on data preparation catered towards the process industry.  Next, common ML models were introduced.  For added intuition, the models here were then implemented onto an industrial pipeline, showcasing each model's advantages and disadvantages.  Finally, a novel self-learning algorithm called USIS was introduced that equips the ML models with the ability to self-learn in a sustainable fashion. The models identified here were ultimately used for a steady-state optimization application, shown in Appendix A.
 
-Next, ML applications for safety and risk management was shown.  Here, ML models were designed to monitor and proactively manage risks associated with equipment failure. More specifically, ML anomaly detection and prediction algorithms are shown here, and each algorithm was general enough to be extended to the monitoring of a fleet of equipment (i.e., the same algorithm can be applied to hundreds of different equipment for monitoring). Finally, a novel alarm management solution based on alarm management was introduced for both reduce and prioritize alarms.
+Next, ML applications for safety and risk management were shown.  Here, ML models were designed to monitor and proactively manage risks associated with equipment failure. More specifically, ML anomaly detection and prediction algorithms are shown here, and each algorithm was general enough to be extended to the monitoring of a fleet of equipment (i.e., the same algorithm can be applied to hundreds of different equipment for monitoring). Finally, a novel alarm management solution based on alarm management was introduced for both reduce and prioritize alarms.
 
-Following that, control applications of RL was shown.  First, a detailed implementation tutorial was introduced where RL was used for the closed loop control of an industrial pump system. Next, the optimality of RL (tabular RL and deep RL) was validated by comparing its performance against model predictive controllers (MPC). Then, RL was implemented for the control of an industrial waste water treatment plant and its performance metrics was compared against variants of MPC. Finally, RL was used to construct a fault-tolerant control system, where RL was used for both fault detection and fault tolerant control.
+Following that, control applications of RL were shown.  First, a detailed implementation tutorial was introduced where RL was used for the closed loop control of an industrial pump system. Next, the optimality of RL (tabular RL and deep RL) was validated by comparing its performance against model predictive controllers (MPC). Then, RL was implemented for the control of an industrial waste water treatment plant and its performance metrics were compared against variants of MPC. Finally, RL was used to construct a fault-tolerant control system, where RL was used for both fault detection and fault tolerant control.
 
-This thesis was concluded with a literature review on proposed applications of RL on the process industry.  Here, techniques to automatically tune PIDs with multi-interwined control loops was first reviewed. Then, RL applications in process and optimal control was shown.  Finally, this chapter was concluded with a review on using RL for anomaly detection/prediction purposes.
+This thesis was concluded with a literature review on proposed applications of RL on the process industry.  Here, techniques to automatically tune PIDs with multi-interwined control loops were first reviewed. Then, RL applications in process and optimal control were shown.  Finally, this chapter was concluded with a review on using RL for anomaly detection/prediction purposes.
 
 
 
@@ -178,14 +178,15 @@ GAN & Generative Adversarial Networks \\
 HVAC & Heating, ventilation, air conditioning \\
 LPV & Linear parameter-varying \\
 MAE & Mean absolute error \\
-MC & Monte Carlo \\
-MDP & Markov decision process \\
-MIMO & Multiple-input multiple-output \\
-MRP & Markov reward process
 \end{tabular}
 
 \newpage
 \begin{tabular}{@{}ll}
+MAE & Mean absolute error \\
+MC & Monte Carlo \\
+MDP & Markov decision process \\
+MIMO & Multiple-input multiple-output \\
+MRP & Markov reward process \\
 ML & Machine learning \\
 MP & Mathematical programming \\
 MPC & Model predictive control \\
@@ -211,15 +212,21 @@ VFD & Variable frequency drive \\
 WWTP & Waste water treatment plant \\
 \end{tabular}
 
-\chapter{Introduction}
+\newpage
+% Enable fancy header
+\pagestyle{fancy}
+\fancyhead[L]{Chapter \thechapter}
+\fancyhead[R]{\rightmark}
+
+% \chapter{Introduction}
 \pagenumbering{arabic}
-\input{chapters/Chapter01Introduction.tex}
+% \input{chapters/Chapter01Introduction.tex}
 
 % \chapter{Machine Learning for Prediction Applications}
 % \input{chapters/Chapter02MachineLearningforPrediction.tex}
 
-% \chapter{Machine Learning for Process Monitoring}
-% \input{chapters/Chapter03MachineLearningforMonitoring.tex}
+\chapter{Machine Learning for Process Monitoring}
+\input{chapters/Chapter03MachineLearningforMonitoring.tex}
 
 % \chapter{Machine Learning for Control Applications}
 % \input{chapters/Chapter04MachineLearningforControl.tex}

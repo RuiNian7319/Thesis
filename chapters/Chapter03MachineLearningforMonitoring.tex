@@ -266,25 +266,25 @@ That is, the difference between what was predicted from the actual variable and 
     \label{fig:03SHAPFig}
 \end{figure}
 
-From Figure \ref{fig:03SHAPFig}, the red and blue arrows represent variables that resulted in a higher and lower chance of winning the "Player of the Game' award. For example, it can be seen that scoring two goals increased the chances of winning the award drastically; however, the ball possession being at 38\% reduced the chances. A more detailed description of SHAP can be found in \cite{SHAP}.
+From Figure \ref{fig:03SHAPFig}, the red and blue arrows represent variables that resulted in a higher and lower chance of winning the \textit{Player of the Game} award. For example, it can be seen that scoring two goals increased the chances of winning the award drastically; however, the ball possession being at 38\% reduced the chances. A more detailed description of SHAP can be found in \cite{SHAP}.
 
 
 
 
 \section{Industrial Application of ML Monitoring}
-The above algorithms were implemented onto an industrial pipeline for monitoring of an unreliable VFD.  Often times, the VFD would trip. When the VFD trips, the output pressure of the VFD drops to near zero. Initially, plant managers just wanted to detect when the VFDs trip through anomaly detection.  For the second phase of the project, the managers wanted to manage the VFDs proactively; thus, anomaly prediction was used predict \textit{in advance} when the VFDs will trip. Furthermore, management wanted the largest contributors of the VFD trip.  
+The above algorithms were implemented onto an industrial pipeline for monitoring of an unreliable variable frequency drive (VFD) pump.  Often times, the VFD would trip. When the VFD trips, the output pressure of the VFD drops to near zero. Initially, plant managers just wanted to detect when the VFDs trip through anomaly detection.  For the second phase of the project, the managers wanted to manage the VFDs proactively; thus, anomaly prediction was used to predict \textit{in advance} when the VFDs will trip. Furthermore, management wanted the largest contributors of the VFD trip.  
 
 \subsection{Anomaly Detection}
 In total, the data set contained 54 anomalous events in a span of one year (525,600 data points) and are shown in Figure \ref{fig:03anomalous_events}. Some anomalous events lasted up to a few days but most ended within a few hours. In total, approximately 15\% of the data was anomalous (any values dipping below the dashed red line). 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\textwidth]{images/ch3/anomalous_events.jpg}
+    \includegraphics[width=0.6\textwidth]{images/ch3/anomalous_events.jpg}
     \caption{Anomalous events of a pump in an industrial pipeline.}
     \label{fig:03anomalous_events}
 \end{figure}
 
-The number of anomalous and non-anomalous data in the training and validation data sets are shown in Table \ref{tab:03train_validate}. In this study, an anomalous data is any point below the dashed red line shown in Figure \ref{fig:03anomalous_events}. For training and validation purposes, the data underwent a 90/10 split for the anomalous data.  In the end, 70,956 anomalous events were contained in the training data set and the remaining 7884 were in the validation data set. The data sets were then mixed with an equal number of non-anomalous data points.  No synthetic data generation methods were used here because there exists enough anomalous events to build an effective model.
+The number of anomalous and non-anomalous data in the training and validation data sets are shown in Table \ref{tab:03train_validate}. In this study, an anomalous sample is any point below the dashed red line shown in Figure \ref{fig:03anomalous_events}. For training and validation purposes, the data underwent a 90/10 split for the anomalous data.  In the end, 70,956 anomalous events were contained in the training data set and the remaining 7884 were in the validation data set. The data sets were then mixed with an equal number of non-anomalous data points.  No synthetic data generation methods were used here because there exists enough anomalous events to build an effective model.
 
 \begin{table}[H]
     \centering
@@ -294,7 +294,7 @@ The number of anomalous and non-anomalous data in the training and validation da
         Training & 70,956 & 70,956 \\
         Validation & 7884 & 7884 \\
     \end{tabular}
-    \caption{Comparison of the best results achieved for anomaly detection and prediction.}
+    \caption{Training and validation data split.}
     \label{tab:03train_validate}
 \end{table}
 
@@ -350,7 +350,7 @@ An example of the prediction algorithm in action is shown in Figure \ref{fig:03a
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{images/ch3/an_pred.jpg}
+    \includegraphics[width=0.45\textwidth]{images/ch3/an_pred.jpg}
     \caption{Anomaly prediction of an incident. Prediction algorithm output (top) as the incident gets closer (bottom).}
     \label{fig:03anomaly_prediction}
 \end{figure}
@@ -376,13 +376,13 @@ An example of the prediction algorithm in action is shown in Figure \ref{fig:03a
 
 
 \section{Alarm Management}
-Industry today is plagued with many problems that require advanced algorithms to overcome. Two of the largest problems are production optimization and alarm management. With continually pressure from environmental groups and ever-increasing government regulations, large industrial companies are forced to reduce their environmental footprints while improving output quality. The status quo also believes in zero-incident policies, i.e., all workplace incidents are preventable and unacceptable; therefore, it is in the best interest of the companies to implement effective, yet cheap, safety systems or their social license to operate could be compromised. To tackle these issues, the University of Alberta's process control team applied artificial intelligence (AI) algorithms in conjunction with classical approaches to an industrial scale wastewater treatment plant (WWTP) \footnote{This project was funded in part through an engage program with NTwist.}. The objectives were threefold: i) Design self-learning and adaptive RL controllers to seek out optimal operating strategies. In this case, the controllers must identify the optimal policy to meet government regulations in the most energy efficient way; ii) direct adaptive control, allowing the RL controller to learn optimal operating strategies as the operating conditions change by adapting the policy directly (not model re-identification since some systems may be unidentifiable), i.e. adapting to changes in season, new government regulations, etc; iii) superior alarm management by developing state-of-the-art alarm reduction and prioritization algorithms through pattern recognition and communication establishment between RL and the alarm system. Objectives 1 and 2 will be discussed in Chapter 4, objective 3 will be discussed in the following subsections.
+Industry today is plagued with many problems that require advanced algorithms to overcome. Two of the largest problems are production optimization and alarm management. With continually pressure from environmental groups and ever-increasing government regulations, large industrial companies are forced to reduce their environmental footprints while improving output quality. The status quo also believes in zero-incident policies, i.e., all workplace incidents are preventable and unacceptable; therefore, it is in the best interest of the companies to implement effective, yet cheap, safety systems or their social license to operate could be compromised. To tackle these issues, we applied artificial intelligence (AI) algorithms in conjunction with classical approaches to a wastewater treatment plant (WWTP)\footnote{This project was funded in part through an engage program with NTwist.}. The objectives were threefold: i) Design self-learning and adaptive RL controllers to seek out optimal operating strategies. In this case, the controllers must identify the optimal policy to meet government regulations in the most energy efficient way; ii) direct adaptive control, allowing the RL controller to learn optimal operating strategies as the operating conditions change by adapting the policy directly (not model re-identification), i.e. adapting to changes in season, new government regulations, etc; iii) superior alarm management by developing state-of-the-art alarm reduction and prioritization algorithms through pattern recognition and communication establishment between RL and the alarm system. Objectives 1 and 2 will be discussed in Chapter 4, objective 3 will be discussed in the following subsections.
 
 Traditionally, alarms were the first line of defense against abnormalities in chemical processes, and were very effective \cite{alarm_manage}. Due to their cost of implementation, many teams of engineers and subject matter experts would gather together to brain storm the most effective alarm strategies. However, today's plants are littered with thousands of alarms due to the price of alarms plummeting after the invention of digital alarms. And because of their sheer number, many alarms are redundant and convey no additional information. 
 This project aims to firstly reduce the amount of alarm floods through suppression and pattern recognition. Secondly, an alarm prioritization algorithm will be introduced so operators can focus their attention on the highest impact alarms first.
 
 \subsection{System Description}
-Figure \ref{fig:03WWTP} shows a schematic diagram of the WWTP.  A dynamic model of the WWTP was first built using the Benchmark Simulation No.1 documentation from the International Water Association \cite{wwtp}.  The WWTP comprises of a five-compartment activated sludge reactor and a ten-stage gravity separator.  The first two compartments of the reactor are anoxic tanks, the last three compartments are aerobic tanks.  The two control strategies are:
+Figure \ref{fig:03WWTP} shows a schematic diagram of the WWTP.  A dynamic model of the WWTP was first built using the Benchmark Simulation No.1 documentation from the International Water Association \cite{wwtp}.  The WWTP comprises of a five-compartment activated sludge reactor and a ten-stage gravity separator.  The first two compartments of the reactor are anoxic tanks, the last three compartments are aerobic tanks.  The two control loops are:
 
 \begin{itemize}
 	\item Manipulating the oxygen transfer coefficient $(K_La_5)$ to control the dissolved oxygen level in tank 5 
@@ -426,7 +426,7 @@ In simple terms, alarm management is a special case of fault detection problem. 
 In industrial processes, alarm floods are mostly caused by chattering and redundant alarms or by poor alarm threshold design \cite{alarm_manage}. Chattering alarms often occur on noisy process variables. Here, the measurement(s) repeatedly violate the alarm limits purely due to measurement noise and do not pose any threat to the operation.  Redundant alarms refer to ones that repeat the same information as previous alarm.  For example, placing two alarms on a pipeline in series will cause the second alarm to be redundant because any process upsets will already be reported by the first alarm. Furthermore, many alarms are just poorly designed and contain extremely low thresholds; thus, activating even when no process upsets are present.  Given that thousands of alarms may be triggered at once, the prioritization of different alarms is equally difficult.  In this study, alarm reduction methods based on pattern recognition and RL will first be introduced.  Then, an alarm prioritization method on RL will be shown.
 
 \subsection{Alarm Reduction}
-The first algorithm in the SMART alarm management system is alarm reduction. Here, two methods will be proposed: 1) Alarm sequencing based on pattern recognition; 2) Alarm suppression via RL.
+The first algorithm in the proposed alarm management system is alarm reduction. Here, two methods will be proposed: 1) Alarm sequencing based on pattern recognition; 2) Alarm suppression via RL.
 
 \subsubsection{Alarm Sequencing}
 The first alarm reduction algorithm is called alarm sequencing.  The main goal is to create a sequence dictionary comprising of alarms that often occur (temporally) together \cite{alarm_sequence}.  For example, if alarms 1 and 2 frequently occur one after another, an alarm sequence, \emph{Sequence 1}, could be generated representing alarms 1 and 2. During an alarm flooding scenario, operators would see sequence 1 rather than alarms 1 and 2. In this simple scenario, the number of alarms appearing in the console would be halved.  More significant reduction in alarms can be achieved if 10 or 100 alarms often occur together.  The steps for the alarm reduction algorithm during initial set-up and online implementation is shown in Table \ref{alg:03AlarmReduce}.
@@ -513,7 +513,7 @@ By normalizing the $Q$-values, the alarm threshold, $z$, across multiple units w
     \item Initialize the process and initialize the RL agent using any RL algorithm \textit{tabula rasa}.
     \item Allow RL to learn the value or action-values of the process through any traditional way (alarms are not required).
     \item After training, find the mean and standard deviations of the $Q$-values through Equations \ref{eq:03mean_q} and \ref{eq:03sd_q}.
-    \item Online implementation: monitor alarms.  Any new alarm will be assigned the value or action-value at the time of their occurrence.  For alarm sequences, the assigned value is an exponentially weighted moving average (given in Equation \label{eq:08EWMA}) of the alarm values inside the sequence.  An EWMA was used because newer alarms matter more than old.
+    \item Online implementation: monitor alarms.  Any new alarm will be assigned the value or action-value at the time of their occurrence.  For alarm sequences, the assigned value is an exponentially weighted moving average (given in Equation \ref{eq:08EWMA}) of the alarm values inside the sequence.  An EWMA was used because newer alarms matter more than old.
 \end{enumerate}
 
 

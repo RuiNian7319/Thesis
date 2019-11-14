@@ -12,7 +12,7 @@
 %  - Adaptive using model updates
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Advanced process control and optimal control have traditionally used mathematically programming based trajectory optimization methods \cite{empc2, zone_mpc, mpc, empc1,}.  The effectiveness of these methods in addressing multi-stage optimal control problems have been widely demonstrated; however, industrial scale application of such methods in stochastic multiple-input multiple-output (MIMO) systems are still limited due to design and computation complications \cite{MS}. For example, accurate model identification of complex MIMO non-linear systems are challenging. Even if a model were to exist, the computational cost for the non-linear program could be infeasible for online applications. Furthermore, the optimized trajectory to systems containing uncertainty use stochastic programming with only a finite number of uncertainty scenarios and uncertainty information is assumed to be known. In practice, such information are typically unknown, non-stationary and are uncertain themselves \cite{jayCCE}. Moreover, the prediction and control horizon of the trajectory optimization for large MIMO systems are generally truncated to ensure feasible computation time. Though, the identified optimal trajectory for short horizons are typically local optimal solutions \cite{mpc}. Lastly, mathematical programming (MP) methods require accurate dynamical system models (although no models are perfect in real life); intuitively bottlenecking the optimality of the solution, a scenario similar to supervised learning.
+Advanced process control and optimal control have traditionally used mathematical programming based trajectory optimization methods \cite{empc2, zone_mpc, mpc, empc1,}.  The effectiveness of these methods in addressing multi-stage optimal control problems have been widely demonstrated; however, industrial scale application of such methods in stochastic multiple-input multiple-output (MIMO) systems are still limited due to design and computation complications \cite{MS}. For example, accurate model identification of complex MIMO non-linear systems are challenging. Even if a model were to exist, the computational cost for the non-linear program could be infeasible for online applications. Furthermore, the optimized trajectory to systems containing uncertainty use stochastic programming with only a finite number of uncertainty scenarios and uncertainty information is assumed to be known. In practice, such information are typically unknown, non-stationary and are uncertain themselves \cite{jayCCE}. Moreover, the prediction and control horizon of the trajectory optimization for large MIMO systems are generally truncated to ensure feasible computation time. Though, the identified optimal trajectory for short horizons are typically local optimal solutions \cite{mpc}. Lastly, mathematical programming (MP) methods require accurate dynamical system models (although no models are perfect in real life); intuitively bottlenecking the optimality of the solution, a scenario similar to supervised learning.
 
 Comparatively, RL online computational times are significantly shorter even for long control horizons or large-scale MIMO systems because the optimal solutions are pre-computed and stored offline, a concept similar to explicit model predictive control (MPC) where parametric programming is used \cite{explicit_MPC}. Furthermore, RL finds the optimal policy through meaningful interactions with the environment.  After each interaction, values are assigned/updated for the visited state. The value functions are stored for future decision making.  Through this identification process, the value functions implicitly contain the uncertainty information of all $x \in \mathcal{X}$. From these unique features of RL in control applications, it is a natural curiosity to explore its potential in the process control industry.
 
@@ -944,7 +944,7 @@ Intuitively, $\alpha \in [0.001, 0.5]$ is very high for the first 15 visits for 
 Finally, the pseudo-code for the UCB $Q$-learning algorithm used in this particular study is given by:
 \begin{table}[h]
 	\def\arraystretch{1.2}
-	\begin{tabular}{p{15cm}}
+	\begin{tabular}{p{14cm}}
 	\hline
 	\emph{Upper Confidence Bound (UCB) Q-Learning: Learn Function Q: $\mathcal{X} \times \mathcal{U} \rightarrow \mathbb{R}$} \\ \hline
 	\textbf{\emph{Require}}: \\
@@ -1022,7 +1022,7 @@ The parameters of the two PI controllers are given in Table \ref{tab04:pi_parame
 
 The pseudo-code for the supervisory RL controllers are as follows:
 \begin{table}[H]
-	\begin{tabular}{p{15.5cm}}
+	\begin{tabular}{p{14.5cm}}
 	\hline
 	\emph{Supervisory Control - Dissolved Oxygen Controller Information Flow} \\ \hline
 	\textbf{Initiate Plant Operations} \\
@@ -1039,7 +1039,7 @@ The pseudo-code for the supervisory RL controllers are as follows:
     \hspace{3cm} Choose random \emph{u} \\
 	\hspace{2.25cm} Perform action: $x_{O_2, sp} \leftarrow x_{O_2, sp} + u$ \\
 	\hspace{2.25cm} \textbf{Observe} $r_{t+1}, \; x_{O_2, t+1}$, update $Q, \; N_t, \; T$ \\
-    \hspace{2.25cm} $Q(x_{O_2, t}, u_t) \leftarrow Q(x_{O_2, t}, u_t) + \alpha(r_t + \gamma \max_{u_{t+1}} Q(x_{O_2, t+1}, u_{t+1}) - Q(x_{O_2, t}, u_t))$ \\
+    \hspace{2.25cm} $Q(x_{O_2, t}, u_t) \leftarrow Q(x_{O_2, t}, u_t) + \alpha(r_t + \gamma \max_{u_{t+1}} Q(x_{O_2, t+1}, u_{t+1}) \; -$ \\ \hspace{5.5cm} $Q(x_{O_2, t}, u_t))$ \\
 	\hspace{2.25cm} $x_{O_2} \leftarrow x_{O_2, t+1}$ \\
 	\hspace{0.75cm} repeat forever or until terminal state \\
 	\hline
@@ -1047,7 +1047,7 @@ The pseudo-code for the supervisory RL controllers are as follows:
 \end{table}
 
 \begin{table}[H]
-	\begin{tabular}{p{15.5cm}}
+	\begin{tabular}{p{14.5cm}}
 	\hline
 	\emph{Supervisory Control - Nitrogen Controller Information Flow} \\ \hline
 	\textbf{Initiate Plant Operations} \\
@@ -1064,7 +1064,7 @@ The pseudo-code for the supervisory RL controllers are as follows:
     \hspace{3cm} Choose random \emph{u} \\
 	\hspace{2.25cm} Perform action: $x_{N_2, sp} \leftarrow x_{N_2, sp} + u$ \\
 	\hspace{2.25cm} \textbf{Observe} $r_{t+1}, \; x_{N_2, t+1}$, update $Q, \; N_t, \; T$ \\
-    \hspace{2.25cm} $Q(x_{N_2, t}, u_t) \leftarrow Q(x_{N_2, t}, u_t) + \alpha(r_t + \gamma \max_{u_{t+1}} Q(x_{N_2, t+1}, u_{t+1}) - Q(x_{N_2, t}, u_t))$ \\
+    \hspace{2.25cm} $Q(x_{N_2, t}, u_t) \leftarrow Q(x_{N_2, t}, u_t) + \alpha(r_t + \gamma \max_{u_{t+1}} Q(x_{N_2, t+1}, u_{t+1}) \; -$ \\ \hspace{5.5cm} $Q(x_{N_2, t}, u_t))$ \\
 	\hspace{2.25cm} $x_{N_2} \leftarrow x_{N_2, t+1}$ \\
 	\hspace{0.75cm} repeat forever or until terminal state \\
 	\hline

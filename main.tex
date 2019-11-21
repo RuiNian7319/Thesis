@@ -119,7 +119,7 @@ Machine learning (ML) promises to create tremendous value and growth to all sect
 
 Firstly, ML prediction algorithms and applications were introduced. The chapter started with a tutorial on data preparation catered towards the process industry.  Next, common ML models were introduced.  For added intuition, the models here were then implemented onto an industrial pipeline, showcasing each model's advantages and disadvantages.  Finally, a novel self-learning algorithm called USIS was introduced that equips the ML models with the ability to self-learn in a sustainable fashion. The models identified here were ultimately used for a steady-state optimization application, shown in Appendix A.
 
-Next, ML applications for safety and risk management were shown.  Here, ML models were designed to monitor and proactively manage risks associated with equipment failure. More specifically, ML anomaly detection and prediction algorithms are shown here, and each algorithm was general enough to be extended to the monitoring of a fleet of equipment (i.e., the same algorithm can be applied to hundreds of different equipment for monitoring). Finally, a novel alarm management solution based on alarm management was introduced for both reduce and prioritize alarms.
+Next, ML applications for safety and risk management were shown.  Here, ML models were designed to monitor and proactively manage risks associated with equipment failure. More specifically, ML anomaly detection and prediction algorithms are shown here, and each algorithm was general enough to be extended to the monitoring of a fleet of equipment (i.e., the same algorithm can be applied to hundreds of different equipment for monitoring). Finally, a novel alarm management solution based on alarm management was introduced to both reduce and prioritize alarms.
 
 Following that, control applications of RL were shown.  First, a detailed implementation tutorial was introduced where RL was used for the closed loop control of an industrial pump system. Next, the optimality of RL (tabular RL and deep RL) was validated by comparing its performance against model predictive controllers (MPC). Then, RL was implemented for the control of an industrial waste water treatment plant and its performance metrics were compared against variants of MPC. Finally, RL was used to construct a fault-tolerant control system, where RL was used for both fault detection and fault tolerant control.
 
@@ -129,7 +129,7 @@ This thesis was concluded with a literature review on proposed applications of R
 
 
 \chapter*{Preface}
-This thesis is an original work by Rui Nian. Some of the research conducted was an collaborative effort between different organizations.  For Chapters 2 and 3, the machine learning project was partially funded by Mitacs through the Mitacs Accelerate Program.  Additionally, the project was a joint effort between the University of Alberta, an unnamed large energy company \footnote{The company management team preferred to stay anonymous within this thesis, and would like to be referred to as "an unnamed large energy company".}, Willowglen Systems Inc., and Alberta Machine Intelligence Institute (AMII). While all the algorithms were developed by myself, the unnamed large energy company and Willowglen's management team provided feedback regarding the complexity and accuracy of the algorithms desired. Additionally, AMII provided the optimization packages and code used in the optimization portions of the product. As of the completion of this thesis, the original tool was cloned onto a second project for similar optimization purposes; thus, the developed optimization toolbox is now applied onto two separate industrial pipelines. In Chapter 4, the waste water treatment plant and alarm management projects were conducted in collaboration with NTwist, a start-up AI company based in Edmonton, Alberta. All algorithms were also developed by myself, but NTwist provided weekly feedback regarding what is feasible and infeasible in industry. Furthermore, the fault-tolerant control system project was completed in collaboration with Imperial Oil. The work here was also completed by myself, but the original research topic was provided by Imperial Oil. 
+This thesis is an original work by Rui Nian. Some of the research conducted was an collaborative effort between different organizations.  For Chapters 2 and 3, the machine learning project was partially funded by Mitacs through the Mitacs Accelerate Program.  Additionally, the project was a joint effort between the University of Alberta, an unnamed large energy company \footnote{The company management team preferred to stay anonymous within this thesis, and would like to be referred to as "an unnamed large energy company".}, Willowglen Systems Inc., and Alberta Machine Intelligence Institute (AMII). While all the algorithms were developed by myself, the unnamed large energy company and Willowglen's management team provided feedback regarding the complexity and accuracy of the algorithms desired. Additionally, AMII provided the optimization packages and code used in the optimization portions of the product. As of the completion of this thesis, the original tool was cloned onto a second project for similar optimization purposes; thus, the developed optimization toolbox is now applied onto two separate industrial pipelines. In Chapter 4, the waste water treatment plant and alarm management projects were conducted in collaboration with NTwist, a start-up AI company based in Edmonton, Alberta. All algorithms were also developed by myself, but NTwist provided weekly feedback regarding what is feasible and infeasible in industry. Furthermore, the fault-tolerant control system project was completed in collaboration with Imperial Oil. The work here was also completed by myself, but the original research topic was provided by Imperial Oil. Both the Natural Sciences and Engineering Research Council (NSERC) and Faculty of Engineering funded the first year as well as the last several months of my two-year MSc. program.
 
 Parts of Chapters 1, 2, and 5 of this thesis was submitted as R. Nian, J. Liu, and B. Huang, \textit{"A Review on Reinforcement Learning: Introduction and Applications in Industrial Process Control", Control Engineering Practices}.  I obtained layout suggestions from my supervisors, Dr. Liu and Dr. Huang.  The manuscript was written by myself. The alarm management section in Chapter 3 was presented at the INFORMS Data Mining conference as R. Nian, J. Liu, B. Huang, and C. Meenavilli, \textit{"An Adaptive Alarm Prioritization, Reduction, and Optimization Algorithm for Enhanced Process Safety", INFORMS 2019}. The illustrative reinforcement learning example shown in Chapter 4 was submitted as Y. Hong, R. Nian, O. Dogru, K. Velswamy, F. Ibrahim, and B. Huang, \textit{"Reinforcement Learning for Control of a Pilot-scale Centrifugal Pump Process", IFAC 2020}. Additionally, the fault-tolerant control work was published in \textit{SICE 2019} by R. Nian, J. Liu, B. Huang, and T. Mutasa titled \textit{"Fault-tolerant Control System: A Reinforcement Learning Approach"}.
 
@@ -217,35 +217,43 @@ WWTP & Waste water treatment plant \\
 \fancyhead[L]{Chapter \thechapter}
 \fancyhead[R]{\rightmark}
 
-% \chapter{Introduction}
+\chapter{Introduction}
 \pagenumbering{arabic}
-% \input{chapters/Chapter01Introduction.tex}
+\input{chapters/Chapter01Introduction.tex}
 
-% \chapter{Machine Learning for Prediction Applications}
-% \input{chapters/Chapter02MachineLearningforPrediction.tex}
 
-% \chapter{Machine Learning for Process Monitoring}
-% \input{chapters/Chapter03MachineLearningforMonitoring.tex}
+% Chapter 2
+\input{chapters/Chapter02jBandits.tex}
+\input{chapters/Chapter02MDP.tex}
+\input{chapters/Chapter02ReinforcementLearning.tex}
+\input{chapters/Chapter02SModelPredictiveControl.tex}
+
+
+\chapter{Machine Learning for Prediction Applications}
+\input{chapters/Chapter03MachineLearningforPrediction.tex}
+
+\chapter{Machine Learning for Process Monitoring}
+\input{chapters/Chapter04MachineLearningforMonitoring.tex}
 
 \chapter{Machine Learning for Control Applications}
-\input{chapters/Chapter04MachineLearningforControl.tex}
+\input{chapters/Chapter05MachineLearningforControl.tex}
 
-% \chapter{Review of RL for Process Control}
-% \input{chapters/Chapter05ProcessControlRL.tex}
+\chapter{Review of RL for Process Control}
+\input{chapters/Chapter06ProcessControlRL.tex}
 
-% \chapter{Concluding Remarks}
-% \input{chapters/Chapter06Conclusion.tex}
+\chapter{Concluding Remarks}
+\input{chapters/Chapter07Conclusion.tex}
 
 \printbibliography
 
-% \clearpage
-% \pagenumbering{arabic}% resets `page` counter to 1
-% \renewcommand*{\thepage}{A\arabic{page}}
+\clearpage
+\pagenumbering{arabic}% resets `page` counter to 1
+\renewcommand*{\thepage}{A\arabic{page}}
 
-% \appendix 
+\appendix 
 
-% \chapter{Process Monitoring and Optimization of an Industrial Pipeline}
-% \input{chapters/AppendixASuncor.tex}
+\chapter{Process Monitoring and Optimization of an Industrial Pipeline}
+\input{chapters/AppendixASuncor.tex}
 
 % % Might include in body
 % \chapter{Distillation Tower Fault Prevention using Reinforcement Learning}

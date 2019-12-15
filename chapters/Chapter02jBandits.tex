@@ -69,7 +69,7 @@ However, initial successful episodes may cause the agent to be stuck at local mi
     \label{fig: eps_figure}
 \end{figure}
 
-During implementation, $\epsilon$ should decay out as $Q_t(u)$ approaches $q_*(u)$ to ensure knowledge of the agent is being adequately exploited. For non-stationary problems where the $Q$ values change, $\epsilon$ must be greater than 0 for all $t$ to ensure continued exploration.
+During implementation, $\epsilon$ should decay out as $Q_t(u)$ approaches $q_*(u)$ to ensure knowledge of the agent is being adequately exploited. For non-stationary problems where the $Q$ value changes, $\epsilon$ must be greater than 0 for all $t$ to ensure continued exploration.
 
 Algorithms to solve the \textit{k}-armed bandit problem are easily applied to situations where the concept of state is inert and only the actions are of concern;  a near impossibility in the real world.  
 
@@ -83,6 +83,6 @@ A natural extension of the \textit{k}-armed bandit is associative search.  In as
     \label{eq: state-action-value}
 \end{equation}
 
-Associative search is known as the method between \textit{k}-armed bandits and reinforcement learning.  In associative search, the objective is to associate optimal policies to different situations, but only maximizing the \textit{immediate} reward.  Often times, near term sacrifices are required to initiate the trajectory to a large lump sum reward at the terminal state.  For example, heavy capital and time investment is required for University in the short term.  However, the long term gain is so great that it outweighs the short term losses, making going to University an optimal policy for many individuals.
+Associative search is known as the method between \textit{k}-armed bandits and reinforcement learning.  In associative search, the objective is to associate optimal policies to different situations, but only maximizing the \textit{immediate} reward.  Often times, near term sacrifices are required to initiate the trajectory to a large lump sum reward at the terminal state.  For example, heavy capital and time investment are required for University in the short term.  However, the long term gain is so great that it outweighs the short term losses, making going to University an optimal policy for many individuals.
 
-In order to find the true optimal policy (i.e., policy that returns the greatest rewards over a long time period), the topic of reinforcement learning is developed.  In reinforcement learning, sequential decision making is explored to identify the delayed reward signals from different actions and to ultimately find the optimal policy, $\pi^*$.  
+In order to find the true optimal policy (i.e., policy that returns the greatest rewards over a long time period), the topic of reinforcement learning was developed.  In reinforcement learning, sequential decision making is explored to identify the delayed reward signals from different actions and to ultimately find the optimal policy, $\pi^*$.  

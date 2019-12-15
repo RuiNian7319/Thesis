@@ -965,7 +965,7 @@ Finally, the pseudo-code for the UCB $Q$-learning algorithm used in this particu
 		\hspace{2cm} \textbf{\emph{If}} $n > \epsilon$: Choose \emph{u} from \emph{x} given max Q, \textbf{break ties randomly*} \\
 		\hspace{2cm} \textbf{\emph{Else}}: Choose random \emph{u} \\
 		\hspace{2cm} Perform action \emph{u}, observe \emph{r}, \emph{s'} \\
-		\hspace{2cm} $Q(x, u) \leftarrow Q(x, u) + \alpha(r + \gamma max_u' Q(x', u') - Q(x, u))$ \\
+		\hspace{2cm} $Q(x, u) \leftarrow Q(x, u) + \alpha(r + \gamma max_{u'} Q(x', u') - Q(x, u))$ \\
 		\hspace{2cm} $x \leftarrow x'$ \\
 		\hspace{2cm} $N_t(x, u) \leftarrow N_t(x, u) + 1$ \\
 		\hspace{2cm} $T(x, \neq u) \leftarrow t(x, \neq u) + 1$ \\
@@ -1335,7 +1335,7 @@ Once activated, the control agent provides recommendations to stabilize the proc
 \subsubsection{Control Agent Algorithm}
 Reinforcement learning is similar to contextual bandits with the alteration that the long term trajectory is also considered. The $Q$-learning algorithm for MDPs is:
 \begin{equation}
-    Q^{n+1}(x, u) \leftarrow Q^n(x, u) + \alpha_n(R_t + \gamma max_u' Q^n(x', u') - Q^n(x, u))
+    Q^{n+1}(x, u) \leftarrow Q^n(x, u) + \alpha_n(R_t + \gamma max_{u'} Q^n(x', u') - Q^n(x, u))
     \label{eq:q-learning}
 \end{equation}
 where $x'$ and $u'$ are the next state and the action that maximizes the return in $x'$. By combining Equation (\ref{eq:q-learning}) with Equations (\ref{eq:reward_rate}) and (\ref{eq:discount_factor}), SMDP $Q$-learning is given by:
